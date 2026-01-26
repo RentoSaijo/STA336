@@ -33,6 +33,10 @@ header-includes:
     \doublespacing
 ---
 
+### AI Disclosure Statement
+
+ChatGPT-5.2 (Thinking) was used to create the YAML portion to format the text nicely; I looked into the documentation for each of the package it used and added/removed unnecessary formattings.
+
 ### Problem 1
 
 A very flexible approach has the advantage that it can represent a much wider range of possible shapes for $f$, and thus capture complicated (often non-linear) relationships between predictors $X$ and a response $Y$. In contrast, a restrictive method like linear regression can only produce linear functions, e.g., $f(X)=\beta_0+\sum_{j=1}^{p}\beta_jX_j$. The drawback of high flexibility is reduced interpretability: the fitted $\hat f$ can become so complex that it is difficult to understand how any individual predictor $X_j$ is associated with $Y$, making flexible methods less attractive when inference and interpretability are the goal. Therefore, more flexible approaches are generally preferred when interpretability is not a priority and prediction is the primary objective, since we are willing to trade a clear description of predictor-response relationships for the ability to fit complex patterns; however, even for prediction, the most flexible model is not always best because highly flexible methods can overfit, so a less flexible method can sometimes yield better test performance. Conversely, a less flexible approach is preferred when inference is the goal because restrictive models are much more interpretable. *Source: ISLR2 §2.1.3, p. 24-6.*
@@ -114,9 +118,10 @@ Auto_plot <- Auto %>%
 # Inspect pairwise relationships.
 GGally::ggpairs(
   Auto_plot,
-  columns   = c('mpg', 'cylinders', 'displacement', 'horsepower', 'weight', 'acceleration', 'year'),
+  columns   = setdiff(colnames(Auto_plot), c('origin', 'name')),
   aes(color = origin, alpha = 0.5)
 )
+rm(Auto_plot)
 ```
 
 The scatterplot matrix shows strong collinearity among the “size/power” predictors: `cylinders`, `displacement`, `horsepower`, and `weight` move together very tightly (e.g., `cylinders`-`displacement` has a correlation around 0.95, and `displacement`-`weight` around 0.93), suggesting these variables are largely measuring the same underlying concept (bigger engines/cars tend to be heavier and more powerful). In contrast, `acceleration` tends to be negatively associated with those size/power variables (most notably with `horsepower`, around -0.69, and with `displacement`, around -0.54), indicating that cars with larger engines and greater power/weight tend to have smaller `acceleration` values in this dataset. The variable `year` is moderately negatively related to the size/power measures (roughly -0.31 to -0.42 with `weight`, `displacement`, and `horsepower`) and mildly positively related to `acceleration` (about 0.29), consistent with cars becoming lighter and less “big-engine” over time. Finally, the color-group patterns by `origin` suggest systematic differences across regions (U.S. cars clustering at higher weight/displacement/horsepower), and the within-`origin` correlations sometimes differ (e.g., the `cylinders`-`acceleration` relationship is much stronger for U.S. cars than for European or Japanese cars), reinforcing that relationships among predictors can vary by subgroup even when the overall trend is clear.
@@ -124,3 +129,140 @@ The scatterplot matrix shows strong collinearity among the “size/power” pred
 ### Problem 2 (f)
 
 Yes. The plots suggest that several variables should be useful for predicting `mpg`. In particular, `mpg` has strong negative associations with `weight`, `displacement`, `horsepower`, and `cylinders` (heavier, larger-engine, higher-power cars tend to have lower gas mileage), so these predictors should have substantial predictive value. The plots also show that `mpg` increases with `year`, indicating that newer model years are generally more fuel-efficient, and `mpg` has a more moderate positive relationship with `acceleration`. Finally, the clear separation by `origin` in the panels suggests that `origin` is also informative: cars from different regions cluster at different typical fuel-efficiency levels even after accounting for other predictors, so it may help explain additional variation in `mpg` beyond the purely quantitative variables.
+
+### Problem 3 (a)
+
+```{r 3a}
+# Load data.
+data(Boston)
+
+# Learn data.
+# ?Boston
+
+# Check dimensions.
+dim(Boston)
+```
+
+There are 506 rows and 13 columns in the `Boston` data set. Each row corresponds to a census tract in the Boston area, and each column is a variable recorded for that tract. One of the columns is `medv`, the median home value (in \$1000s), and the remaining columns are predictors describing characteristics of the tract (e.g., crime rate, number of rooms, property tax rate, etc.).
+
+### Problem 3 (b)
+
+```{r 3b, fig.width = 20, fig.height = 16}
+# Factor origin.
+Boston_plot <- Boston %>% 
+  dplyr::mutate(chas = factor(chas, levels = c(0, 1), labels = c('No River', 'River Bound')))
+
+# Inspect pairwise relationships.
+GGally::ggpairs(
+  Boston_plot,
+  columns = setdiff(colnames(Boston_plot), c('medv', 'chas')),
+  aes(color = chas, alpha = 0.5)
+)
+rm(Boston_plot)
+```
+
+Many predictors are highly skewed, especially `crim`, `zn`, `rad`, and `tax`, with most observations near small values and a handful of extreme outliers, so relationships are often driven by a small number of high-leverage tracts. There is clear collinearity among “urban/industrial” variables: `indus` is strongly positively associated with `nox`, while `dis` is strongly negatively associated with both `indus` and `nox`, suggesting that more industrial and higher-pollution tracts tend to lie closer to employment centers. The variable `age` also tends to be higher where `dis` is lower, consistent with older housing stock being concentrated nearer the city. In addition, `rad` and `tax` are very strongly positively related, indicating that tracts with greater accessibility to radial highways tend to have higher property-tax rates. Finally, `lstat` is positively related to several “urban stress” measures (e.g., `crim`, `nox`, `tax`) and negatively related to variables associated with more desirable suburban tracts (e.g., `zn`, `dis`), reinforcing that multiple predictors are capturing overlapping aspects of neighborhood socioeconomic status and urbanization. The binary predictor `chas` (river adjacency) naturally appears as two bands; any differences involving `chas` are best interpreted as group-level shifts rather than a continuous linear trend.
+
+### Problem 3 (c)
+
+Yes, several predictors appear associated with the per-capita crime rate `crim`, and the relationships are fairly systematic in the scatterplot matrix. `crim` tends to be higher in tracts with more industrial/urban characteristics: it increases with `rad` and `tax` (areas with greater highway accessibility and higher tax rates), and it is also positively associated with `indus`, `nox`, `ptratio`, and `lstat` (more non-retail business activity, higher pollution, higher pupil–teacher ratios, and a higher percent “lower status” population). In contrast, `crim` tends to be lower in tracts that look more suburban or higher-value: it decreases as `dis` increases (farther from employment centers), and it is negatively related to `zn`, and `rm` (more large-lot zoning and more rooms per dwelling).
+
+### Problem 3 (d)
+
+```{r 3d}
+# List tracts with highest crime rates.
+Boston_id <- Boston %>% 
+  dplyr::mutate(tract = dplyr::row_number())
+Boston_id %>% 
+    dplyr::arrange(dplyr::desc(crim)) %>% 
+    dplyr::slice(1:5) %>%
+    dplyr::select(tract, crim, tax, ptratio, medv)
+
+# List tracts with highest tax rates.
+Boston_id %>% 
+    dplyr::arrange(dplyr::desc(tax)) %>% 
+    dplyr::slice(1:5) %>%
+    dplyr::select(tract, tax, crim, ptratio, medv)
+
+# List tracts with highest pupil-teacher ratios.
+Boston_id %>% 
+    dplyr::arrange(dplyr::desc(ptratio)) %>% 
+    dplyr::slice(1:5) %>%
+    dplyr::select(tract, ptratio, crim, tax, medv)
+
+# Compute ranges.
+ranges <- sapply(Boston %>% dplyr::select(crim, tax, ptratio), range)
+tibble::tibble(
+  Variable = colnames(ranges),
+  Min      = ranges[1, ],
+  Max      = ranges[2, ],
+  Range    = Max - Min
+)
+rm(ranges)
+```
+
+Yes, there are several census tracts that stand out as having particularly high values of the requested predictors. For crime rate, a small set of tracts have extremely large `crim` values (up to about 89), far above the bulk of observations (minimum about 0.006), indicating clear outliers and a very wide range (roughly 89). For tax rates, there are tracts with `tax` as high as 711 (minimum 187), giving a large range of 524, and the highest-tax tracts are clearly separated from most towns. For pupil–teacher ratio, the maximum is 22.0 and the minimum is 12.6, so the range (9.4) is much narrower than for `crim` or `tax`; although some tracts do have notably high `ptratio`, the spread is comparatively modest. Overall, the ranges show that `crim` and `tax` vary dramatically across tracts (with especially extreme high values), while `ptratio` varies less.
+
+### Problem 3 (e)
+
+```{r 3e}
+# Count tract(s) bounding Charles River.
+sum(Boston$chas == 1)
+```
+
+### Problem 3 (f)
+
+```{r 3f}
+# Compute median pupil-teacher ratio.
+median(Boston$ptratio, na.rm = TRUE)
+```
+
+### Problem 3 (g)
+
+```{r 3g}
+# Identify tract(s) with lowest medv.
+min_medv_tracts <- Boston_id %>% dplyr::slice_min(medv, n = 1, with_ties = TRUE)
+min_medv_tracts
+
+# Define helper to make comparison tables.
+make_comp_tbl <- function(tid, Boston_id, pred_names, ranges) {
+    row <- Boston_id %>% dplyr::filter(tract == tid)
+    v   <- as.numeric(row[1, pred_names])
+    tibble::tibble(
+        Predictor = pred_names,
+        Value     = v,
+        Min       = ranges[1, ],
+        Max       = ranges[2, ],
+        Range     = Max - Min
+    )
+}
+
+# Compare values.
+tract_ids  <- min_medv_tracts$tract
+pred_names <- setdiff(names(Boston), 'medv')
+ranges     <- sapply(Boston %>% dplyr::select(dplyr::all_of(pred_names)), range)
+make_comp_tbl(399, Boston_id, pred_names, ranges)
+make_comp_tbl(406, Boston_id, pred_names, ranges)
+rm(min_medv_tracts, make_comp_tbl, tract_ids, pred_names, ranges)
+```
+
+The lowest median home value `medv` occurs in two census tracts, 399 and 406, both with `medv = 5` (in \$1000s). For tract 399, several predictors are at or near extreme values relative to their overall ranges: `age = 100` equals the dataset maximum, `rad = 24` equals the maximum, `tax = 666` is near the upper end of the interval $[187, 711]$, `nox = 0.693` is high relative to $[0.385, 0.871]$, and `dis ≈ 1.49` is close to the minimum within $[1.13, 12.1]$. It also has unfavorable socioeconomic/urban indicators: `lstat ≈ 30.6` is high within $[1.73, 38.0]$, and `crim ≈ 38.4` is extremely high within $[0.00632, 89.0]$. Tract 406 shows a very similar pattern: `age = 100`, `rad = 24`, `tax = 666`, `nox = 0.693`, and `dis ≈ 1.43` are again near the extremes, while its `crim ≈ 67.9` is even higher than tract 399’s, and `lstat ≈ 23.0` is still elevated within $[1.73, 38.0]$. Overall, these two tracts combine high crime, high taxes, high pollution/industrial indicators, very old housing, and proximity to the urban core (low `dis`), which is consistent with them having the lowest median home values in the data.
+
+### Problem 3 (h)
+
+```{r 3h}
+# Count tracts with rm > 7 and rm > 8.
+tibble::tibble(
+  Condition = c('rm > 7', 'rm > 8'),
+  Count     = c(sum(Boston$rm > 7), sum(Boston$rm > 8))
+)
+
+# Inspects tracts with rm > 8.
+Boston_id %>%
+  dplyr::relocate(tract, .before = 1) %>%
+  dplyr::filter(rm > 8) %>%
+  dplyr::arrange(dplyr::desc(rm))
+rm(Boston_id)
+```
+
+In this data set, 64 census tracts have an average of more than 7 rooms per dwelling (`rm > 7`), and 13 tracts have an average of more than 8 rooms per dwelling (`rm > 8`). The `rm > 8` tracts are relatively rare and generally look like higher-end neighborhoods comparing with the summary of each predictors we saw in the previous problem part: many have very high median home values (`medv` is often near the top of the scale, including several at 50), low `lstat` values (roughly in the 2-7 range here), and typically low-to-moderate crime rates compared with the extreme-crime tracts seen elsewhere in the data. One notable exception is tract 365, which has `rm = 8.78` but also relatively high `crim` and high `nox`, showing that a tract can have very large houses while still having some urban disamenities. Overall, tracts with more than eight rooms per dwelling tend to correspond to especially desirable areas with high home values and favorable socioeconomic indicators.
