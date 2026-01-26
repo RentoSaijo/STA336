@@ -33,9 +33,9 @@ header-includes:
     \doublespacing
 ---
 
-### AI Disclosure Statement
+### Disclosure
 
-ChatGPT-5.2 (Thinking) was used to create the YAML portion to format the text nicely; I looked into the documentation for each of the package it used and added/removed unnecessary formattings.
+ChatGPT-5.2 was used to create the `YAML` portion to format the text nicely; I looked into the documentation for each of the package it used and added/removed unnecessary formattings. See the original `RMD` file [here](https://github.com/RentoSaijo/STA336/blob/main/Homework1.Rmd).
 
 ### Problem 1
 
