@@ -1,0 +1,126 @@
+---
+title: "Homework 1"
+author:
+  - "Rento Saijo"
+  - "Department of Mathematics, Connecticut College"
+  - "STA336: Statistical Machine Learning"
+  - "Yan Zhuang, Ph.D."
+date: "January 30th, 2026"
+output:
+  pdf_document:
+    latex_engine: xelatex
+classoption: [titlepage]
+geometry: margin = 1in
+urlcolor: blue
+header-includes:
+  - |
+    \renewcommand{\and}{\\}
+    \usepackage{etoolbox}
+    \makeatletter
+    \preto{\@maketitle}{\thispagestyle{empty}}
+    \makeatother
+    \usepackage{fancyhdr}
+    \pagestyle{fancy}
+    \fancyhf{}
+    \fancyhead[R]{\thepage}
+    \renewcommand{\headrulewidth}{0pt}
+    \fancypagestyle{plain}{%
+      \fancyhf{}
+      \fancyhead[R]{\thepage}
+      \renewcommand{\headrulewidth}{0pt}
+    }
+    \usepackage{setspace}
+    \doublespacing
+---
+
+### Problem 1
+
+A very flexible approach has the advantage that it can represent a much wider range of possible shapes for $f$, and thus capture complicated (often non-linear) relationships between predictors $X$ and a response $Y$. In contrast, a restrictive method like linear regression can only produce linear functions, e.g., $f(X)=\beta_0+\sum_{j=1}^{p}\beta_jX_j$. The drawback of high flexibility is reduced interpretability: the fitted $\hat f$ can become so complex that it is difficult to understand how any individual predictor $X_j$ is associated with $Y$, making flexible methods less attractive when inference and interpretability are the goal. Therefore, more flexible approaches are generally preferred when interpretability is not a priority and prediction is the primary objective, since we are willing to trade a clear description of predictor-response relationships for the ability to fit complex patterns; however, even for prediction, the most flexible model is not always best because highly flexible methods can overfit, so a less flexible method can sometimes yield better test performance. Conversely, a less flexible approach is preferred when inference is the goal because restrictive models are much more interpretable. *Source: ISLR2 §2.1.3, p. 24-6.*
+
+### Problem 2 (a)
+
+```{r 2a}
+# Load libraries.
+suppressMessages(library(tidyverse))
+suppressMessages(library(GGally))
+suppressMessages(library(ISLR2))
+
+# Load data.
+data(Auto)
+
+# Count missing values.
+colSums(is.na(Auto)) # It seems that we have no missing values.
+
+# Check structure.
+tibble::glimpse(Auto)
+```
+
+In the `Auto` data set, `mpg` is a quantitative variable but it is typically the response, not a predictor. The quantitative predictors are therefore `cylinders`, `displacement`, `horsepower`, `weight`, `acceleration`, and `year`. The qualitative predictors are `origin` (a categorical variable encoded numerically) and `name`.
+
+### Problem 2 (b)
+
+```{r 2b}
+# Select quantitative predictors.
+Auto_quant_preds <- Auto %>% 
+    dplyr::select(cylinders, displacement, horsepower, weight, acceleration, year)
+
+# Compute range for each quantitative predictor.
+ranges <- sapply(Auto_quant_preds, range)
+tibble::tibble(
+  Predictor = colnames(ranges),
+  Min       = ranges[1, ],
+  Max       = ranges[2, ],
+  Range     = Max - Min
+)
+rm(ranges)
+```
+
+### Problem 2 (c)
+```{r 2c}
+# Compute mean and standard deviation for each.
+tibble::tibble(
+  Predictor = names(Auto_quant_preds),
+  Mean      = sapply(Auto_quant_preds, mean),
+  SD        = sapply(Auto_quant_preds, sd)
+)
+```
+
+### Problem 2 (d)
+
+```{r 2d}
+# Remove 10th through 85th observations (inclusive).
+Auto_quant_subset <- Auto_quant_preds[-c(10:85), ]
+
+# Compute range, mean, and standard deviation for each predictor on the subset.
+ranges_sub <- sapply(Auto_quant_subset, range)
+tibble::tibble(
+  Predictor = colnames(ranges_sub),
+  Min       = ranges_sub[1, ],
+  Max       = ranges_sub[2, ],
+  Range     = Max - Min,
+  Mean      = sapply(Auto_quant_subset, mean),
+  SD        = sapply(Auto_quant_subset, sd)
+)
+rm(Auto_quant_preds, Auto_quant_subset, ranges_sub)
+```
+
+### Problem 2 (e)
+
+```{r 2e, fig.width = 12, fig.height = 8}
+# Factor origin.
+Auto_plot <- Auto %>% 
+  dplyr::mutate(origin = factor(origin, labels = c('US', 'EU', 'JP')))
+
+# Inspect pairwise relationships.
+GGally::ggpairs(
+  Auto_plot,
+  columns   = c('mpg', 'cylinders', 'displacement', 'horsepower', 'weight', 'acceleration', 'year'),
+  aes(color = origin, alpha = 0.5)
+)
+```
+
+The scatterplot matrix shows strong collinearity among the “size/power” predictors: `cylinders`, `displacement`, `horsepower`, and `weight` move together very tightly (e.g., `cylinders`-`displacement` has a correlation around 0.95, and `displacement`-`weight` around 0.93), suggesting these variables are largely measuring the same underlying concept (bigger engines/cars tend to be heavier and more powerful). In contrast, `acceleration` tends to be negatively associated with those size/power variables (most notably with `horsepower`, around -0.69, and with `displacement`, around -0.54), indicating that cars with larger engines and greater power/weight tend to have smaller `acceleration` values in this dataset. The variable `year` is moderately negatively related to the size/power measures (roughly -0.31 to -0.42 with `weight`, `displacement`, and `horsepower`) and mildly positively related to `acceleration` (about 0.29), consistent with cars becoming lighter and less “big-engine” over time. Finally, the color-group patterns by `origin` suggest systematic differences across regions (U.S. cars clustering at higher weight/displacement/horsepower), and the within-`origin` correlations sometimes differ (e.g., the `cylinders`-`acceleration` relationship is much stronger for U.S. cars than for European or Japanese cars), reinforcing that relationships among predictors can vary by subgroup even when the overall trend is clear.
+
+### Problem 2 (f)
+
+Yes. The plots suggest that several variables should be useful for predicting `mpg`. In particular, `mpg` has strong negative associations with `weight`, `displacement`, `horsepower`, and `cylinders` (heavier, larger-engine, higher-power cars tend to have lower gas mileage), so these predictors should have substantial predictive value. The plots also show that `mpg` increases with `year`, indicating that newer model years are generally more fuel-efficient, and `mpg` has a more moderate positive relationship with `acceleration`. Finally, the clear separation by `origin` in the panels suggests that `origin` is also informative: cars from different regions cluster at different typical fuel-efficiency levels even after accounting for other predictors, so it may help explain additional variation in `mpg` beyond the purely quantitative variables.
