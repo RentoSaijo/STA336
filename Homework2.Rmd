@@ -1,0 +1,145 @@
+---
+title: 'Homework 2'
+author:
+  - 'Rento Saijo'
+  - 'Department of Mathematics, Connecticut College'
+  - 'STA336: Statistical Machine Learning'
+  - 'Yan Zhuang, Ph.D.'
+date: 'February 6, 2026'
+output:
+  pdf_document:
+    latex_engine: xelatex
+classoption: [titlepage]
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{amsmath}
+  - \usepackage{amssymb}
+  - \usepackage{siunitx}
+  - \usepackage{placeins}
+  - |
+    \renewcommand{\and}{\\}
+    \usepackage{fancyhdr}
+    \usepackage{setspace}
+    \usepackage{etoolbox}
+    \doublespacing
+    \pagestyle{fancy}
+    \fancyhf{}
+    \fancyhead[R]{\thepage}
+    \renewcommand{\headrulewidth}{0pt}
+    \makeatletter
+    \preto{\@maketitle}{\thispagestyle{empty}\setcounter{page}{0}}
+    \makeatother
+---
+
+### Disclosure
+
+ChatGPT-5.2 was used to create the `YAML` portion and some `LaTeX` code to format the text/equations nicely; I looked into the documentation for each of the package it used and added/removed unnecessary formattings. See the original `RMD` file [here](https://github.com/RentoSaijo/STA336/blob/main/Homework2.Rmd).
+
+```{r setup, include = FALSE}
+# Set up tikZ.
+knitr::opts_chunk$set(
+  echo      = TRUE,
+  message   = FALSE,
+  warning   = FALSE,
+  dev       = 'tikz',
+  sanitize  = FALSE,
+  fig.align = 'center'
+)
+
+# Load libraries.
+suppressMessages(library(tidyverse))
+suppressMessages(library(GGally))
+suppressMessages(library(caret))
+suppressMessages(library(ISLR2))
+suppressMessages(library(tikzDevice))
+
+# Set seed.
+set.seed(123)
+```
+
+### Problem 1 (a)
+
+Given estimates
+\[
+\hat{\beta}_0=50,\quad \hat{\beta}_1=20,\quad \hat{\beta}_2=0.07,\quad \hat{\beta}_3=35,\quad
+\hat{\beta}_4=0.01,\quad \hat{\beta}_5=-10,
+\]
+the fitted regression function is
+\[
+\hat{Y}
+= 50 + 20\,\text{GPA} + 0.07\,\text{IQ} + 35\,\text{Level}
++ 0.01(\text{GPA}\cdot\text{IQ}) - 10(\text{GPA}\cdot\text{Level}).
+\]
+
+For fixed GPA and IQ, let us compare predicted salary for college versus high school:
+\[
+\hat{Y}_{C}
+= 50 + 20\,\text{GPA} + 0.07\,\text{IQ} + 35
++ 0.01(\text{GPA}\cdot\text{IQ}) - 10\,\text{GPA},
+\]
+\[
+\hat{Y}_{HS}
+= 50 + 20\,\text{GPA} + 0.07\,\text{IQ} + 0.01(\text{GPA}\cdot\text{IQ}).
+\]
+
+The difference between them is
+\[
+\hat{Y}_{C}-\hat{Y}_{HS} = 35 - 10\,\text{GPA}.
+\]
+
+College earns more when
+\[
+\hat{Y}_C > \hat{Y}_{HS}
+\quad\Longleftrightarrow\quad
+\hat{Y}_C - \hat{Y}_{HS} > 0
+\quad\Longleftrightarrow\quad
+35 - 10\,\text{GPA} > 0.
+\]
+Solve:
+\[
+35 > 10\,\text{GPA}
+\quad\Longleftrightarrow\quad
+\frac{35}{10} > \text{GPA}
+\quad\Longleftrightarrow\quad
+3.5 > \text{GPA}.
+\]
+Thus:
+\[
+\text{If } \text{GPA}<3.5,\ \hat{Y}_C>\hat{Y}_{HS};\qquad
+\text{if } \text{GPA}>3.5,\ \hat{Y}_{HS}>\hat{Y}_C.
+\]
+
+Performing the basic algebra shown above, we see that \(\hat{Y}_{C}>\hat{Y}_{HS}\) when \(\text{GPA}<3.5\), and \(\hat{Y}_{HS}>\hat{Y}_{C}\) when \(\text{GPA}>3.5\). Therefore, (iii) is the correct statement: high school graduates earn more than college graduates provided that GPA is high enough (specifically, \(\text{GPA}>3.5\)).
+
+### Problem 1 (b)
+
+For a college graduate with \(\text{IQ}=110\) and \(\text{GPA}=4.0\):
+\begin{align}
+\hat{Y}
+&= 50 + 20(4) + 0.07(110) + 35(1) + 0.01(4\cdot 110) - 10(4\cdot 1) \\
+&= 50 + 80 + 7.7 + 35 + 4.4 - 40 \\
+&= 137.1.
+\end{align}
+Therefore, the predicted starting salary is
+\[
+\boxed{\hat{Y}=137.1 \text{ (thousand dollars)} = \$137{,}100.}
+\]
+
+### Problem 1 (c)
+
+\emph{False.} The numerical size of an interaction coefficient cannot, by itself, be used to judge whether an interaction is present. First, the practical impact of the interaction depends on the scale of the predictors: since the interaction term is \(\text{GPA}\cdot\text{IQ}\) and IQ values are often around \(100\), the term (contribution)
+\[
+\hat{\beta}_4(\text{GPA}\cdot\text{IQ}) = 0.01(\text{GPA}\cdot\text{IQ})
+\]
+can be nontrivial. For example, at \(\text{GPA}=4\) and \(\text{IQ}=110\),
+\[
+0.01(4\cdot 110)=4.4,
+\]
+which corresponds to \(\$4{,}400\) in predicted salary (because \(Y\) is measured in thousands of dollars). (I could certainly use an extra few thousand dollars lol.) Second, the "statistical evidence" for an interaction effect (or any effect) is assessed using inference for
+\(\beta_4\), such as a hypothesis test
+\[
+H_0:\beta_4=0 \quad \text{vs.} \quad H_A:\beta_4\neq 0,
+\]
+which yields a \(t\)-statistic and corresponding \(p\)-value, or equivalently by checking whether a confidence interval for \(\beta_4\) includes \(0\). All in all, even a coefficient that appears "small" could be statistically significant and practically meaningful, while a larger coefficient could fail to be significant if its standard error is large.
+
+### Problem 2 (a)
