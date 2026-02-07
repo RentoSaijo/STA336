@@ -22,7 +22,6 @@ lines(spline2, col = 'blue', lwd = 3)
 spline3 <- smooth.spline(weight, mpg, df = 3)
 lines(spline3, col = 'green', lwd = 3)
 
-
 # Fit spline with 20 df.
 spline20 <- smooth.spline(weight, mpg, df = 20)
 lines(spline20, col = 'yellow', lwd = 3)

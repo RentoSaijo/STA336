@@ -10,12 +10,18 @@ output:
   pdf_document:
     latex_engine: xelatex
 classoption: [titlepage]
+urlcolor: blue
+linkcolor: blue
+citecolor: blue
 header-includes:
   - \usepackage{booktabs}
   - \usepackage{amsmath}
   - \usepackage{amssymb}
   - \usepackage{siunitx}
   - \usepackage{placeins}
+  - \usepackage{xcolor}
+  - \usepackage{hyperref}
+  - \hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue}
   - |
     \renewcommand{\and}{\\}
     \usepackage{fancyhdr}
@@ -31,7 +37,7 @@ header-includes:
     \makeatother
 ---
 
-### Disclosure
+## Disclosure
 
 ChatGPT-5.2 was used to create the `YAML` portion and some `LaTeX` code to format the text/equations nicely; I looked into the documentation for each of the package it used and added/removed unnecessary formattings. See the original `RMD` file [here](https://github.com/RentoSaijo/STA336/blob/main/Homework2.Rmd).
 
@@ -48,7 +54,6 @@ knitr::opts_chunk$set(
 
 # Load libraries.
 suppressMessages(library(tidyverse))
-suppressMessages(library(GGally))
 suppressMessages(library(caret))
 suppressMessages(library(ISLR2))
 suppressMessages(library(tikzDevice))
@@ -57,7 +62,7 @@ suppressMessages(library(tikzDevice))
 set.seed(123)
 ```
 
-### Problem 1 (a)
+## Problem 1 (a)
 
 Given estimates
 \[
@@ -95,6 +100,7 @@ College earns more when
 \quad\Longleftrightarrow\quad
 35 - 10\,\text{GPA} > 0.
 \]
+
 Solve:
 \[
 35 > 10\,\text{GPA}
@@ -103,6 +109,7 @@ Solve:
 \quad\Longleftrightarrow\quad
 3.5 > \text{GPA}.
 \]
+
 Thus:
 \[
 \text{If } \text{GPA}<3.5,\ \hat{Y}_C>\hat{Y}_{HS};\qquad
@@ -111,21 +118,21 @@ Thus:
 
 Performing the basic algebra shown above, we see that \(\hat{Y}_{C}>\hat{Y}_{HS}\) when \(\text{GPA}<3.5\), and \(\hat{Y}_{HS}>\hat{Y}_{C}\) when \(\text{GPA}>3.5\). Therefore, (iii) is the correct statement: high school graduates earn more than college graduates provided that GPA is high enough (specifically, \(\text{GPA}>3.5\)).
 
-### Problem 1 (b)
+## Problem 1 (b)
 
 For a college graduate with \(\text{IQ}=110\) and \(\text{GPA}=4.0\):
-\begin{align}
+\begin{align*}
 \hat{Y}
 &= 50 + 20(4) + 0.07(110) + 35(1) + 0.01(4\cdot 110) - 10(4\cdot 1) \\
 &= 50 + 80 + 7.7 + 35 + 4.4 - 40 \\
 &= 137.1.
-\end{align}
+\end{align*}
 Therefore, the predicted starting salary is
 \[
 \boxed{\hat{Y}=137.1 \text{ (thousand dollars)} = \$137{,}100.}
 \]
 
-### Problem 1 (c)
+## Problem 1 (c)
 
 \emph{False.} The numerical size of an interaction coefficient cannot, by itself, be used to judge whether an interaction is present. First, the practical impact of the interaction depends on the scale of the predictors: since the interaction term is \(\text{GPA}\cdot\text{IQ}\) and IQ values are often around \(100\), the term (contribution)
 \[
@@ -142,4 +149,326 @@ H_0:\beta_4=0 \quad \text{vs.} \quad H_A:\beta_4\neq 0,
 \]
 which yields a \(t\)-statistic and corresponding \(p\)-value, or equivalently by checking whether a confidence interval for \(\beta_4\) includes \(0\). All in all, even a coefficient that appears "small" could be statistically significant and practically meaningful, while a larger coefficient could fail to be significant if its standard error is large.
 
-### Problem 2 (a)
+## Problem 2 (a)
+
+In the set-up chunk, tikZ was set to produce LaTeX figures, all necessary libraries were loaded, and the seed (123) was set. Let us load the Carseats data and check the shape and data types.
+
+```{r}
+# Load data.
+data(Carseats)
+
+# Check data types and # of observations.
+tibble::glimpse(Carseats)
+```
+
+The dataset has 400 observations and 11 variables. Most predictors are numeric while `ShelveLoc` is a categorical factor with levels like "Bad", "Medium", and "Good" and `Urban` and `US` appear as binary categorical factors. Let us check for any missingness.
+
+```{r}
+# Check NAs.
+colSums(is.na(Carseats))
+```
+
+The dataset has no missing values in any column. Let us split the data into training and testing sets.
+
+```{r}
+split <- caret::createDataPartition(Carseats$Sales, p = 0.5, list = FALSE)
+train <- Carseats[split, ]
+test  <- Carseats[-split, ]
+```
+
+Let us a fit a linear regression to predict `Sales` using `Price`, `Urban`, and `US` on the training set.
+
+```{r}
+# Fit full model.
+m1 <- lm(Sales ~ Price + Urban + US, data = train)
+```
+
+## Prblem 2 (b)
+
+Let us check the coefficients.
+
+```{r}
+# Check full model.
+summary(m1)
+```
+
+## Problem 2 (b)
+
+From the fitted model
+\[
+\widehat{\text{Sales}}
+= \hat{\beta}_0 + \hat{\beta}_1\,\text{Price} + \hat{\beta}_2\,\mathbf{1}\{\text{Urban}=\text{Yes}\}
++ \hat{\beta}_3\,\mathbf{1}\{\text{US}=\text{Yes}\},
+\]
+the estimated coefficients are
+\[
+\hat{\beta}_0=13.426944,\quad
+\hat{\beta}_1=-0.054645,\quad
+\hat{\beta}_2=-0.381431,\quad
+\hat{\beta}_3=1.140111,
+\]
+where the baseline levels are \(\text{Urban}=\text{No}\) and \(\text{US}=\text{No}\).
+
+\begin{itemize}
+  \item \textbf{Intercept (\(\hat{\beta}_0=13.426944\)):} When \(\text{Price}=0\) and the store is in a non-urban area and outside the US, the predicted sales are \(13.426944\) thousand units.  Note that \(\text{Price}=0\) is not realistic, so the intercept is merely a baseline.
+
+  \item \textbf{Price (\(\hat{\beta}_1=-0.054645\)):} Holding \(\text{Urban}\) and \(\text{US}\) constant, a unit (I'm assuming a dollar) increase in \(\text{Price}\) is associated with a decrease of \(0.054645\) thousand predicted \(\text{Sales}\).
+
+  \item \textbf{UrbanYes (\(\hat{\beta}_2=-0.381431\)):}
+  Holding \(\text{Price}\) and \(\text{US}\) constant, stores in an urban location are predicted to have \(0.381431\) thousand less sales than stores in a non-urban location.
+
+  \item \textbf{USYes (\(\hat{\beta}_3=1.140111\)):}
+  Holding \(\text{Price}\) and \(\text{Urban}\) constant, stores in the US are predicted to have \(1.140111\) thousand more sales than stores outside the US.
+\end{itemize}
+
+## Problem 2 (c)
+
+Using dummy variables for the qualitative predictors,
+\[
+D_{\text{Urban}}=\mathbf{1}\{\text{Urban}=\text{Yes}\}, 
+\qquad
+D_{\text{US}}=\mathbf{1}\{\text{US}=\text{Yes}\},
+\]
+(with baseline levels \(\text{Urban}=\text{No}\) and \(\text{US}=\text{No}\)), the fitted model is
+\begin{align*}
+\widehat{\text{Sales}}
+&= 13.426944 - 0.054645\,\text{Price} - 0.381431\,D_{\text{Urban}} + 1.140111\,D_{\text{US}}.
+\end{align*}
+
+Equivalently, written in piece-wise form:
+\begin{align*}
+\widehat{\text{Sales}}
+=
+\begin{cases}
+13.426944 - 0.054645\,\text{Price},
+& \text{Urban}=\text{No},\ \text{US}=\text{No},\\[4pt]
+13.426944 - 0.054645\,\text{Price} - 0.381431,
+& \text{Urban}=\text{Yes},\ \text{US}=\text{No},\\[4pt]
+13.426944 - 0.054645\,\text{Price} + 1.140111,
+& \text{Urban}=\text{No},\ \text{US}=\text{Yes},\\[4pt]
+13.426944 - 0.054645\,\text{Price} - 0.381431 + 1.140111,
+& \text{Urban}=\text{Yes},\ \text{US}=\text{Yes}.
+\end{cases}
+\end{align*}
+
+## Problem 2 (d)
+
+To test each predictor, we consider (for each \(j\)) the hypotheses
+\[
+H_0:\beta_j=0 \quad \text{vs.} \quad H_A:\beta_j\neq 0.
+\]
+Using the individual \(t\)-tests reported in Problem 2 (b) and using \(\alpha=0.05\):
+
+\begin{itemize}
+  \item \textbf{Price:} \(p = 2.35\times 10^{-12} \leq \alpha\). We reject \(H_0\) (i.e., Price is a significant predictor of Sales).
+  \item \textbf{UrbanYes:} \(p = 0.331 > \alpha\). We fail to reject \(H_0\) (i.e., Urban is not a significant predictor of Sales).
+  \item \textbf{USYes:} \(p = 0.00305 \leq \alpha\). We reject \(H_0\) (i.e., US is a significant predictor of Sales).
+\end{itemize}
+
+## Problem 2 (e)
+
+From part (d), the predictors with evidence of association with \(\text{Sales}\) (at \(\alpha=0.05\)) are
+\(\text{Price}\) and \(\text{US}\) (while \(\text{Urban}\) is not). Therefore, we fit the reduced model
+\[
+\text{Sales} \sim \text{Price} + \text{US}
+\]
+using the training set.
+
+```{r}
+# Fit reduced model.
+m2 <- lm(Sales ~ Price + US, data = train)
+summary(m2)
+```
+
+### Problem 2 (f)
+
+To compare the full model from (a),
+\[
+m_1:\ \text{Sales} \sim \text{Price}+\text{Urban}+\text{US},
+\]
+to the reduced model from (e),
+\[
+m_2:\ \text{Sales} \sim \text{Price}+\text{US},
+\]
+we use a partial \(F\)-test of
+\[
+H_0:\beta_{\text{UrbanYes}}=0
+\quad\text{vs.}\quad
+H_A:\beta_{\text{UrbanYes}}\neq 0.
+\]
+
+```{r}
+# Perform partial F-test: reduced vs. full.
+anova(m2, m1)
+```
+
+Since \(p=0.3301>\alpha=0.05\), we fail to reject \(H_0\). Therefore, there is no evidence that including \texttt{Urban} significantly improves the model beyond \texttt{Price} and \texttt{US}; the reduced model is sufficient.
+
+## Problem 2 (g)
+
+```{r}
+# Check 95% confidence interval for reduced model coefficients.
+confint(m2, level = 0.95)
+```
+
+\begin{itemize}
+  \item \textbf{Intercept:} \([11.486,\ 14.947]\). When \(\text{Price}=0\) and \(\text{US}=\text{No}\), the mean sales are estimated to lie between \(11.486\) and \(14.947\) thousand units. (As before, \(\text{Price}=0\) is not practically meaningful, so this is merely a baseline.)
+
+  \item \textbf{Price:} \([-0.0692,\ -0.0404]\). Holding \(\text{US}\) fixed, increasing \(\text{Price}\) by 1 unit (dollar) is associated with a decrease in mean sales between \(0.0404\) and \(0.0692\) thousand units. Since the interval is entirely negative, \(\text{Price}\) is statistically significant at the 5\% level.
+
+  \item \textbf{USYes:} \([0.343,\ 1.825]\). Holding \(\text{Price}\) fixed, stores in the US (\(\text{US}=\text{Yes}\)) have mean sales that are higher by between \(0.343\) and \(1.825\) thousand units compared to stores outside the US. Since the interval is entirely positive, \(\text{US}\) is statistically significant at the 5\% level.
+\end{itemize}
+
+## Problem 2 (h)
+
+```{r}
+# Check assumption plots.
+par(mfrow = c(2, 2))
+plot(m2, cook.levels = 4/nobs(m2))
+par(mfrow = c(1, 1))
+```
+
+Using the four standard diagnostic plots for the reduced model:
+
+\begin{itemize}
+  \item \textbf{Linearity:} the residuals are roughly centered around \(0\) across the range of fitted values, and the loess smoother is close to flat. There is no strong systematic pattern, though there are a few observations with relatively large positive residuals (e.g., the labeled points such as 69, 26, 377).
+
+  \item \textbf{Normality:} the Q-Q plot is quite linear in the middle, but shows noticeable departures in the tails, especially in the upper tail (the labeled points 26, 69, and 377 lie above the reference line). This suggests the error distribution is approximately normal in the center but has heavier-than-normal tails / potential outliers.
+
+  \item \textbf{Constant variance:} the Scale-Location plot does not show a clear funnel shape. The red curve rises slightly and then declines, indicating at most mild heteroskedasticity, but the variance appears fairly stable overall.
+
+  \item \textbf{Outliers, leverage, and influence:} with Cook's distance contours displayed at \(D \approx 0.0199\), most points lie well within the contour. There is one high-leverage observation far to the right (leverage around \(0.08\)), but its standardized residual is small (around \(-0.5\)), so it does not appear highly influential. The labeled points 26 and 377 have larger standardized residuals with moderate leverage, making them worth a look, but they are not severely beyond the Cook's distance contour.
+\end{itemize}
+
+Overall, the model assumptions look broadly reasonable: linearity and constant variance are not badly violated, normality is mostly acceptable but with tail deviations, and there is no clear evidence of extremely influential observations (though a few points warrant inspection).
+
+## Problem 2 (i)
+
+Let us extend the reduced model by including an interaction between \texttt{Price} and the US indicator. Let
+\[
+D_{\text{US}}=\mathbf{1}\{\text{US}=\text{Yes}\},
+\]
+so \(D_{\text{US}}=0\) if \(\text{US}=\text{No}\) and \(D_{\text{US}}=1\) if \(\text{US}=\text{Yes}\). The fitted
+interaction model has the form
+\[
+\widehat{\text{Sales}}
+= \beta_0 + \beta_1\,\text{Price} + \beta_2\,D_{\text{US}} + \beta_3(\text{Price}\cdot D_{\text{US}}).
+\]
+
+```{r}
+# Fit interaction model.
+m3 <- lm(Sales ~ Price * US, data = train)
+summary(m3)
+```
+
+The estimated coefficients are
+\[
+\hat{\beta}_0=13.1985009,\quad
+\hat{\beta}_1=-0.0546694,\quad
+\hat{\beta}_2=1.1150422,\quad
+\hat{\beta}_3=-0.0002717,
+\]
+so the fitted equation is
+\[
+\widehat{\text{Sales}}
+= 13.1985009 - 0.0546694\,\text{Price} + 1.1150422\,D_{\text{US}}
+-0.0002717(\text{Price}\cdot D_{\text{US}}).
+\]
+
+Equivalently, written by cases:
+\[
+\widehat{\text{Sales}}=
+\begin{cases}
+13.1985009 - 0.0546694\,\text{Price}, & \text{US}=\text{No},\\[6pt]
+(13.1985009+1.1150422) + \bigl(-0.0546694-0.0002717\bigr)\text{Price},
+& \text{US}=\text{Yes}.
+\end{cases}
+\]
+That is,
+\[
+\widehat{\text{Sales}}=
+\begin{cases}
+13.1985009 - 0.0546694\,\text{Price}, & \text{US}=\text{No},\\[6pt]
+14.3135431 - 0.0549411\,\text{Price}, & \text{US}=\text{Yes}.
+\end{cases}
+\]
+
+Also (I'm not sure if I'm supposed to report on this, but), the interaction term is not statistically significant (\(p=0.985 > \alpha=0.5\)), so there is no evidence (in this training sample) that the slope of \(\text{Sales}\) versus \(\text{Price}\) differs between US and non-US stores.
+
+## Problem 2 (ii)
+
+```{r}
+# Split training data by US status.
+train_us_no  <- dplyr::filter(train, US == 'No')
+train_us_yes <- dplyr::filter(train, US == 'Yes')
+
+# Fit separate simple regressions: Sales ~ Price.
+m_no  <- lm(Sales ~ Price, data = train_us_no)
+m_yes <- lm(Sales ~ Price, data = train_us_yes)
+
+# Check both models.
+summary(m_no)
+summary(m_yes)
+```
+
+The fitted equations are as follows:
+
+\begin{itemize}
+  \item \textbf{US = No:}
+  \[
+  \widehat{\text{Sales}} = 13.19850 - 0.05467\,\text{Price}.
+  \]
+
+  \item \textbf{US = Yes:}
+  \[
+  \widehat{\text{Sales}} = 14.31354 - 0.05494\,\text{Price}.
+  \]
+\end{itemize}
+
+In part (i), the interaction model
+\[
+\widehat{\text{Sales}}
+= \hat{\beta}_0 + \hat{\beta}_1\,\text{Price} + \hat{\beta}_2\,D_{\text{US}} + \hat{\beta}_3(\text{Price}\cdot D_{\text{US}})
+\]
+implies the two fitted lines
+\[
+\widehat{\text{Sales}}=
+\begin{cases}
+\hat{\beta}_0 + \hat{\beta}_1\,\text{Price}, & \text{US}=\text{No},\\[4pt]
+(\hat{\beta}_0+\hat{\beta}_2) + (\hat{\beta}_1+\hat{\beta}_3)\,\text{Price}, & \text{US}=\text{Yes}.
+\end{cases}
+\]
+
+From the reported estimates in (i), those were
+\[
+\widehat{\text{Sales}} =
+\begin{cases}
+13.1985009 - 0.0546694\,\text{Price}, & \text{US}=\text{No},\\[4pt]
+14.3135431 - 0.0549411\,\text{Price}, & \text{US}=\text{Yes}.
+\end{cases}
+\]
+
+These match exactly the coefficients obtained by fitting the two separate regressions. In particular, the estimated slopes are very close:
+\[
+\hat{\beta}_{1,\text{No}}=-0.05467
+\quad\text{and}\quad
+\hat{\beta}_{1,\text{Yes}}=-0.05494,
+\]
+so the difference in slopes is
+\[
+\hat{\beta}_{1,\text{Yes}}-\hat{\beta}_{1,\text{No}}
+= -0.05494 - (-0.05467) = -0.00027,
+\]
+which agrees with the interaction estimate from part (i), \(\widehat{\beta}_3=-0.00027\). Thus, there is no meaningful evidence here that the \emph{price effect} differs by US status (consistent with my comment in Problem 2 (i)). By contrast, the intercepts differ more noticeably:
+\[
+\hat{\beta}_{0,\text{No}}=13.19850
+\quad\text{and}\quad
+\hat{\beta}_{0,\text{Yes}}=14.31354,
+\]
+so
+\[
+\hat{\beta}_{0,\text{Yes}}-\hat{\beta}_{0,\text{No}}
+=14.31354-13.19850
+=1.11504.
+\]
+Therefore, for a fixed price, the US=\(\text{Yes}\) regression line lies about \(1.115\) thousand units above the US=\(\text{No}\) line. The main difference between the two groups is a vertical shift, not a change in slope.
