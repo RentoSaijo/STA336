@@ -1,0 +1,656 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+\documentclass[
+  10pt,
+]{extarticle}
+\usepackage{xcolor}
+\usepackage[top=1.5in, bottom=1.5in, left=1.5in, right=1.5in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue}
+\usepackage{float}
+\usepackage{fvextra}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{soul}
+\usepackage{etoolbox}
+\usepackage{microtype}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{fancyvrb}
+\usepackage{xspace}
+\allowdisplaybreaks
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{0}
+\floatplacement{figure}{H}
+\makeatletter
+\newcommand{\@subtitle}{}
+\newcommand{\subtitle}[1]{\gdef\@subtitle{#1}}
+\newcommand{\DocSubtitle}{\@subtitle}
+\renewcommand{\maketitle}{
+  \thispagestyle{plain}
+  \null
+  \vfill
+  \begin{center}
+    {\Large \textsc{\@title} \par}\vskip 0.5em
+    {\LARGE \bfseries \@subtitle \par}\vskip 0.75em
+    {\large \@author \par}\vskip 0.5em
+    {\normalsize \@date \par}
+  \end{center}
+  \vfill
+  \tableofcontents
+  \vspace{1em}
+  \clearpage
+}
+\AfterEndEnvironment{Highlighting}{\setcounter{CodeLine}{\numexpr\value{CodeLine}+\FV@CodeLineNo\relax}}
+\makeatother
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\small\textsc{Page}~\thepage~\textsc{of}~\pageref{LastPage}}
+\fancyhead[L]{\textsc{Rento Saijo}}
+\fancyhead[R]{\textsc{\DocSubtitle}}
+\fancyhead[C]{\textsc{\rightmark}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt}
+\newcounter{CodeLine}
+\newcounter{cell}
+\AtBeginEnvironment{Highlighting}{\stepcounter{cell}}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+  frame=single,
+  rulecolor=\color{black},
+  framesep=2mm,
+  label=\footnotesize\textbf{Cell \thecell},
+  labelposition=topline,
+  commandchars=\\\{\},
+  breaklines=true,
+  breakanywhere=false,
+  breaksymbol={},
+  numbers=left,
+  numbersep=3pt,
+  firstnumber=\numexpr\value{CodeLine}+1\relax,
+  fontsize=\small
+}
+\DefineVerbatimEnvironment{verbatim}{Verbatim}{
+  breaklines=true,
+  breakanywhere=true,
+  numbers=left,
+  numbersep=3pt,
+  firstnumber=1,
+  fontsize=\footnotesize
+}
+\DefineVerbatimEnvironment{snippet}{Verbatim}{
+  breaklines=true,
+  breakanywhere=true,
+  fontsize=\footnotesize,
+  frame=single,
+  listparameters=\setlength{\topsep}{\baselineskip}\setlength{\partopsep}{0pt}
+}
+\newtcolorbox{problem}[1][]{
+  title={\textsc{#1}}
+}
+\newenvironment{alphenum}{
+  \begin{enumerate}[
+    label=(\alph*),
+    itemsep=3pt,
+    parsep=0pt,
+    topsep=6pt
+  ]
+}{
+  \end{enumerate}
+}
+\newenvironment{items}{
+  \begin{itemize}[
+    itemsep=3pt,
+    parsep=0pt,
+    topsep=6pt
+  ]
+}{
+  \end{itemize}
+}
+\renewcommand{\contentsname}{Table of Contents}
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\R}{\textsf{R}\xspace}
+\newcommand{\Pois}{\mathrm{Pois}}
+\newcommand{\SD}{\mathrm{SD}}
+\newcommand{\SE}{\mathrm{SE}}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={STA 336: Statistical Machine Learning},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={blue},
+  urlcolor={blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{STA 336: Statistical Machine Learning}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Homework 3}
+\author{Rento Saijo}
+\date{February 20, 2026}
+
+\begin{document}
+\maketitle
+
+\section{Disclosure}\label{disclosure}
+
+GPT-5.3-Codex was used to create the \texttt{YAML} portion and some \texttt{LaTeX} code to format the text/equations nicely. Page formatting code was also provided by Derin Gezgin. In the setup chunk, libraries were loaded and some helper functions were defined including but not limited to \texttt{table\_latex()} and \texttt{with\_family()}. See the original \texttt{RMD} file \href{https://github.com/RentoSaijo/STA336/blob/main/Homework3.Rmd}{here} for more details.
+
+\newpage
+
+\section{Problem 1}\label{problem-1}
+
+\begin{problem}[Problem 1]
+Suppose we collect data for a group of students in a statistics class with variables
+\(X_1=\) hours studied, \(X_2=\) undergrad GPA, and \(Y=\) receive an \(\mathrm{A}\). We fit a logistic
+regression and produce estimated coefficients
+\[
+\hat{\beta}_0=-6,\qquad \hat{\beta}_1=0.05,\qquad \hat{\beta}_2=1.
+\]
+\end{problem}
+
+\newpage
+
+\subsection{Problem 1 Part (a)}\label{problem-1-part-a}
+
+\begin{problem}[Problem 1 Part (a)]
+Estimate the probability that a student who studies for \(40\) h and has an undergrad GPA of \(3.5\) gets an \(\mathrm{A}\) in the class.
+\end{problem}
+
+Using the fitted logistic model,
+\[
+\log\!\left(\frac{\hat{p}}{1-\hat{p}}\right)= -6 + 0.05X_1 + X_2,
+\]
+\[
+\frac{\hat{p}}{1-\hat{p}}=e^{-6 + 0.05X_1 + X_2}.
+\]
+Solving for \(\hat{p}\), we get:
+\begin{align*}
+\hat{p}
+&= (1-\hat{p})e^{-6 + 0.05X_1 + X_2} \\
+\hat{p}
+&= e^{-6 + 0.05X_1 + X_2} - \hat{p}e^{-6 + 0.05X_1 + X_2} \\
+\hat{p}\!\left(1+e^{-6 + 0.05X_1 + X_2}\right)
+&= e^{-6 + 0.05X_1 + X_2} \\
+\hat{p}
+&= \frac{e^{-6 + 0.05X_1 + X_2}}{1 + e^{-6 + 0.05X_1 + X_2}}.
+\end{align*}
+Substituting \(X_1=40\) and \(X_2=3.5\) into the \(\hat{p}\) equation, we get:
+\begin{align*}
+\hat{p}
+&= \frac{e^{-6 + 0.05(40) + 3.5}}{1 + e^{-6 + 0.05(40) + 3.5}} \\
+&= \frac{e^{-0.5}}{1+e^{-0.5}} \\
+&= \frac{1}{1+e^{0.5}} \\
+&= 0.3775.
+\end{align*}
+Therefore, the estimated probability that the student gets an \(\mathrm{A}\) in the class is \(\boxed{0.3775}\).
+
+\newpage
+
+\subsection{Problem 1 Part (b)}\label{problem-1-part-b}
+
+\begin{problem}[Problem 1 Part (b)]
+How many hours would the student in part (a) need to study to have a \(.50\) probability (i.e., \(50\%\) chance) of getting an \(\mathrm{A}\) in the class?
+\end{problem}
+
+A target probability of \(.50\) (that is, \(50\%\)) means \(\hat{p}=0.5\). Substituting \(\hat{p}=0.5\) and \(X_2=3.5\) into
+\[
+\log\!\left(\frac{\hat{p}}{1-\hat{p}}\right)= -6 + 0.05X_1 + X_2,
+\]
+we get:
+\begin{align*}
+ \log\!\left(\frac{0.5}{1-0.5}\right)
+&= -6 + 0.05X_1 + 3.5 \\
+0
+&= -6 + 0.05X_1 + 3.5 \\
+0.05X_1
+&= 2.5 \\
+X_1
+&= \frac{2.5}{0.05} \\
+&= 50.
+\end{align*}
+Therefore, the student in part (a) would need to study \(\boxed{50\text{ hours}}\) to have a \(50\%\) chance of getting an \(\mathrm{A}\) in the class.
+
+\newpage
+
+\section{Problem 2}\label{problem-2}
+
+\begin{problem}[Problem 2]
+This problem has to do with \emph{odds}.
+\end{problem}
+
+\newpage
+
+\subsection{Problem 2 Part (a)}\label{problem-2-part-a}
+
+\begin{problem}[Problem 2 Part (a)]
+On average, what fraction of people with an odds of \(0.37\) of defaulting on their credit card payment will in fact default?
+\end{problem}
+
+Let \(p\) be the probability that a person defaults. By definition of odds,
+\[
+\frac{p}{1-p}=0.37.
+\]
+Solving for \(p\), we get:
+\begin{align*}
+p &= 0.37(1-p) \\
+p &= 0.37 - 0.37p \\
+1.37p &= 0.37 \\
+p &= \frac{0.37}{1.37} \\
+&= \frac{37}{137}.
+\end{align*}
+Therefore, the fraction of people who will default is \(\boxed{\frac{37}{137}}\), which is \(27.0\%\) rounded to one decimal place.
+
+\newpage
+
+\subsection{Problem 2 Part (b)}\label{problem-2-part-b}
+
+\begin{problem}[Problem 2 Part (b)]
+Suppose that an individual has a \(16\%\) chance of defaulting on her credit card payment. What are the odds that she will default?
+\end{problem}
+
+If the default probability is \(p=0.16\), then the odds of default are
+\begin{align*}
+\frac{p}{1-p}
+&= \frac{0.16}{1-0.16} \\
+&= \frac{0.16}{0.84} \\
+&= \frac{16}{84} \\
+&= \frac{4}{21}.
+\end{align*}
+Therefore, the odds that she defaults are \(\boxed{\frac{4}{21}}\) (equivalently, \(4:21\)).
+
+\newpage
+
+\section{Problem 3}\label{problem-3}
+
+\begin{problem}[Problem 3]
+In this problem, we develop a model to predict whether a given car gets high or low gas mileage based on the \texttt{Auto} data set.
+\end{problem}
+
+\newpage
+
+\subsection{Problem 3 Part (a)}\label{problem-3-part-a}
+
+\begin{problem}[Problem 3 Part (a)]
+Create a binary variable, \texttt{mpg01}, that contains a \(1\) if \texttt{mpg} contains a value above its median, and a \(0\) if \texttt{mpg} contains a value below its median.
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Create mpg01 variable.}
+\NormalTok{auto\_df }\OtherTok{\textless{}{-}}\NormalTok{ ISLR2}\SpecialCharTok{::}\NormalTok{Auto }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}\AttributeTok{mpg01 =}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{if\_else}\NormalTok{(mpg }\SpecialCharTok{\textgreater{}} \FunctionTok{median}\NormalTok{(mpg), }\DecValTok{1}\DataTypeTok{L}\NormalTok{, }\DecValTok{0}\DataTypeTok{L}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{relocate}\NormalTok{(mpg01, }\AttributeTok{.before =}\NormalTok{ mpg)}
+
+\CommentTok{\# Compute core results.}
+\NormalTok{median\_mpg }\OtherTok{\textless{}{-}} \FunctionTok{median}\NormalTok{(auto\_df}\SpecialCharTok{$}\NormalTok{mpg)}
+\NormalTok{class\_balance }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(}\FunctionTok{table}\NormalTok{(auto\_df}\SpecialCharTok{$}\NormalTok{mpg01))}
+
+\CommentTok{\# Build display table.}
+\NormalTok{part3a\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{metric =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Median mpg\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Count for mpg01 = 0\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Count for mpg01 = 1\textquotesingle{}}\NormalTok{),}
+  \AttributeTok{value =} \FunctionTok{c}\NormalTok{(median\_mpg, class\_balance[}\DecValTok{1}\NormalTok{], class\_balance[}\DecValTok{2}\NormalTok{])}
+\NormalTok{)}
+\NormalTok{part3a\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Result\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Value\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption =} \StringTok{\textquotesingle{}Constructed Binary Response mpg01\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-1}Constructed Binary Response mpg01}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Result & Value\\
+\midrule
+Median mpg & 22.75\\
+Count for mpg01 = 0 & 196.00\\
+Count for mpg01 = 1 & 196.00\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+\subsection{Problem 3 Part (b)}\label{problem-3-part-b}
+
+\begin{problem}[Problem 3 Part (b)]
+Explore the data graphically in order to investigate the association between \texttt{mpg01} and the other features. Which of the other features seem most likely to be useful in predicting \texttt{mpg01}? Scatterplots and boxplots may be useful tools to answer this question. Describe your findings.
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Set feature order for boxplots.}
+\NormalTok{features }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}cylinders\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}displacement\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}horsepower\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}weight\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}acceleration\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}year\textquotesingle{}}\NormalTok{)}
+
+\CommentTok{\# Reshape data for faceted boxplots.}
+\NormalTok{auto\_long }\OtherTok{\textless{}{-}}\NormalTok{ auto\_df }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(mpg01, tidyselect}\SpecialCharTok{::}\FunctionTok{all\_of}\NormalTok{(features)) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}\AttributeTok{mpg01 =} \FunctionTok{factor}\NormalTok{(mpg01, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Below Med. MPG\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Above Med. MPG\textquotesingle{}}\NormalTok{))) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  tidyr}\SpecialCharTok{::}\FunctionTok{pivot\_longer}\NormalTok{(}\AttributeTok{cols =} \SpecialCharTok{{-}}\NormalTok{mpg01, }\AttributeTok{names\_to =} \StringTok{\textquotesingle{}feature\textquotesingle{}}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{\textquotesingle{}value\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}\AttributeTok{feature =} \FunctionTok{factor}\NormalTok{(feature, }\AttributeTok{levels =}\NormalTok{ features))}
+
+\CommentTok{\# Boxplots}
+\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{ggplot}\NormalTok{(auto\_long, ggplot2}\SpecialCharTok{::}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ mpg01, }\AttributeTok{y =}\NormalTok{ value, }\AttributeTok{fill =}\NormalTok{ mpg01)) }\SpecialCharTok{+}
+\NormalTok{  ggplot2}\SpecialCharTok{::}\FunctionTok{geom\_boxplot}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{outlier.alpha =} \FloatTok{0.3}\NormalTok{) }\SpecialCharTok{+}
+\NormalTok{  ggplot2}\SpecialCharTok{::}\FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ feature, }\AttributeTok{scales =} \StringTok{\textquotesingle{}free\_y\textquotesingle{}}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{+}
+\NormalTok{  ggplot2}\SpecialCharTok{::}\FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{x    =} \ConstantTok{NULL}\NormalTok{,}
+    \AttributeTok{y    =} \StringTok{\textquotesingle{}Feature Value\textquotesingle{}}\NormalTok{,}
+    \AttributeTok{fill =} \StringTok{\textquotesingle{}MPG Class\textquotesingle{}}
+\NormalTok{  ) }\SpecialCharTok{+}
+\NormalTok{  ggplot2}\SpecialCharTok{::}\FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_family =} \StringTok{\textquotesingle{}cmuserif\textquotesingle{}}\NormalTok{, }\AttributeTok{base\_size =} \DecValTok{8}\NormalTok{) }\SpecialCharTok{+}
+\NormalTok{  ggplot2}\SpecialCharTok{::}\FunctionTok{theme}\NormalTok{(}
+    \AttributeTok{strip.text      =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{7}\NormalTok{),}
+    \AttributeTok{axis.text       =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{6}\NormalTok{),}
+    \AttributeTok{axis.title      =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{7}\NormalTok{),}
+    \AttributeTok{legend.text     =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{6}\NormalTok{),}
+    \AttributeTok{legend.title    =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{7}\NormalTok{),}
+    \AttributeTok{legend.position =} \StringTok{\textquotesingle{}bottom\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=\linewidth]{Homework3_files/figure-latex/unnamed-chunk-2-1} 
+
+}
+
+\caption{Distributions of Predictors by MPG Class.}\label{fig:unnamed-chunk-2}
+\end{figure}
+
+These boxplots show strongest separation for \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, and \texttt{weight} while \texttt{year} and \texttt{acceleration} overlaps more.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Prepare data for pair plot.}
+\NormalTok{pairs\_df }\OtherTok{\textless{}{-}}\NormalTok{ auto\_df }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{transmute}\NormalTok{(}
+    \AttributeTok{mpg01 =} \FunctionTok{factor}\NormalTok{(mpg01, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Below Med. MPG\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Above Med. MPG\textquotesingle{}}\NormalTok{)),}
+\NormalTok{    cylinders,}
+\NormalTok{    displacement,}
+\NormalTok{    horsepower,}
+\NormalTok{    weight,}
+\NormalTok{    acceleration,}
+\NormalTok{    year}
+\NormalTok{  )}
+
+\CommentTok{\# Plot pair{-}wise.}
+\NormalTok{GGally}\SpecialCharTok{::}\FunctionTok{ggpairs}\NormalTok{(}
+  \AttributeTok{data    =}\NormalTok{ pairs\_df,}
+  \AttributeTok{columns =} \DecValTok{2}\SpecialCharTok{:}\DecValTok{7}\NormalTok{,}
+  \AttributeTok{columnLabels =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Cylinders\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Displacement\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Horsepower\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Weight\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Acceleration\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Year\textquotesingle{}}\NormalTok{),}
+  \AttributeTok{mapping =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{aes}\NormalTok{(}\AttributeTok{color =}\NormalTok{ mpg01),}
+  \AttributeTok{upper   =} \FunctionTok{list}\NormalTok{(}\AttributeTok{continuous =}\NormalTok{ GGally}\SpecialCharTok{::}\FunctionTok{wrap}\NormalTok{(}\StringTok{\textquotesingle{}cor\textquotesingle{}}\NormalTok{, }\AttributeTok{size =} \FloatTok{3.3}\NormalTok{, }\AttributeTok{color =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{)),}
+  \AttributeTok{lower   =} \FunctionTok{list}\NormalTok{(}\AttributeTok{continuous =}\NormalTok{ GGally}\SpecialCharTok{::}\FunctionTok{wrap}\NormalTok{(}\StringTok{\textquotesingle{}points\textquotesingle{}}\NormalTok{, }\AttributeTok{size =} \FloatTok{0.45}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.60}\NormalTok{)),}
+  \AttributeTok{diag    =} \FunctionTok{list}\NormalTok{(}\AttributeTok{continuous =}\NormalTok{ GGally}\SpecialCharTok{::}\FunctionTok{wrap}\NormalTok{(}\StringTok{\textquotesingle{}densityDiag\textquotesingle{}}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.55}\NormalTok{))}
+\NormalTok{) }\SpecialCharTok{+}
+\NormalTok{  ggplot2}\SpecialCharTok{::}\FunctionTok{labs}\NormalTok{(}\AttributeTok{color =} \StringTok{\textquotesingle{}MPG Class\textquotesingle{}}\NormalTok{) }\SpecialCharTok{+}
+\NormalTok{  ggplot2}\SpecialCharTok{::}\FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_family =} \StringTok{\textquotesingle{}cmuserif\textquotesingle{}}\NormalTok{, }\AttributeTok{base\_size =} \DecValTok{8}\NormalTok{) }\SpecialCharTok{+}
+\NormalTok{  ggplot2}\SpecialCharTok{::}\FunctionTok{theme}\NormalTok{(}
+    \AttributeTok{strip.text       =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{8}\NormalTok{, }\AttributeTok{color =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{axis.text        =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{6}\NormalTok{, }\AttributeTok{color =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{axis.title       =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{element\_text}\NormalTok{(}\AttributeTok{color =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{legend.text      =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{7}\NormalTok{, }\AttributeTok{color =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{legend.title     =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{8}\NormalTok{, }\AttributeTok{color =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{panel.grid.major =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{element\_blank}\NormalTok{(),}
+    \AttributeTok{panel.grid.minor =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{element\_blank}\NormalTok{(),}
+    \AttributeTok{legend.position  =} \StringTok{\textquotesingle{}bottom\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=\linewidth]{Homework3_files/figure-latex/unnamed-chunk-3-1} 
+
+}
+
+\caption{Pairwise Relationships and Correlations by MPG Class}\label{fig:unnamed-chunk-3}
+\end{figure}
+
+The \texttt{ggpairs} matrix confirms that \texttt{Below Median MPG} cars cluster at higher \texttt{weight}, \texttt{horsepower}, and \texttt{displacement}, which supports these as key predictors. Overall, both graphics indicate that \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, and \texttt{weight} provide the strongest class separation between \texttt{Below Median MPG} and \texttt{Above Median MPG}; \texttt{year} adds useful signal, while \texttt{acceleration} appears less informative. Therefore, the best predictor set for classification is \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, \texttt{weight}, and \texttt{year}.
+
+\newpage
+
+\subsection{Problem 3 Part (c)}\label{problem-3-part-c}
+
+\begin{problem}[Problem 3 Part (c)]
+Split the data into a training set and a test set.
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Create train/test split.}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{20060527}\NormalTok{)}
+\NormalTok{n }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(auto\_df)}
+\NormalTok{train\_idx  }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\FunctionTok{seq\_len}\NormalTok{(n), n }\SpecialCharTok{/} \DecValTok{2}\NormalTok{)}
+\NormalTok{auto\_train }\OtherTok{\textless{}{-}}\NormalTok{ auto\_df[train\_idx, ]}
+\NormalTok{auto\_test  }\OtherTok{\textless{}{-}}\NormalTok{ auto\_df[}\SpecialCharTok{{-}}\NormalTok{train\_idx, ]}
+
+\CommentTok{\# Build split table.}
+\NormalTok{part3c\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{data\_set     =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Training\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Test\textquotesingle{}}\NormalTok{),}
+  \AttributeTok{observations =} \FunctionTok{c}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(auto\_train), }\FunctionTok{nrow}\NormalTok{(auto\_test))}
+\NormalTok{)}
+\NormalTok{part3c\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Data set\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Observations\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Train/Test Split Sizes.\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-4}Train/Test Split Sizes.}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Data set & Observations\\
+\midrule
+Training & 196\\
+Test & 196\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+\subsection{Problem 3 Part (f)}\label{problem-3-part-f}
+
+\begin{problem}[Problem 3 Part (f)]
+Perform logistic regression on the training data in order to predict \texttt{mpg01} using the variables that seemed most associated with \texttt{mpg01} in (b). What is the test error of the model obtained?
+\end{problem}
+
+Using the predictors selected in part (b), fit
+\[
+\texttt{mpg01} \sim \texttt{cylinders} + \texttt{horsepower} + \texttt{weight} + \texttt{year}.
+\]
+Then use the rule \(\hat{y}=1\) if \(\hat{p}>0.5\), else \(\hat{y}=0\), and compute
+\[
+\text{test error}=\mathrm{Ave}\!\left(I(y_0\neq \hat{y}_0)\right).
+\]
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Fit logistic model.}
+\NormalTok{logit\_fit }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{glm}\NormalTok{(}
+\NormalTok{  mpg01 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ cylinders }\SpecialCharTok{+}\NormalTok{ horsepower }\SpecialCharTok{+}\NormalTok{ weight }\SpecialCharTok{+}\NormalTok{ year,}
+  \AttributeTok{data   =}\NormalTok{ auto\_train,}
+  \AttributeTok{family =}\NormalTok{ stats}\SpecialCharTok{::}\NormalTok{binomial}
+\NormalTok{)}
+
+\CommentTok{\# Create test predictions.}
+\NormalTok{test\_prob }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{predict}\NormalTok{(logit\_fit, }\AttributeTok{newdata =}\NormalTok{ auto\_test, }\AttributeTok{type =} \StringTok{\textquotesingle{}response\textquotesingle{}}\NormalTok{)}
+\NormalTok{test\_pred }\OtherTok{\textless{}{-}}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{if\_else}\NormalTok{(test\_prob }\SpecialCharTok{\textgreater{}} \FloatTok{0.5}\NormalTok{, }\DecValTok{1}\DataTypeTok{L}\NormalTok{, }\DecValTok{0}\DataTypeTok{L}\NormalTok{)}
+
+\CommentTok{\# Compute test metrics.}
+\NormalTok{test\_error    }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(test\_pred }\SpecialCharTok{!=}\NormalTok{ auto\_test}\SpecialCharTok{$}\NormalTok{mpg01)}
+\NormalTok{test\_accuracy }\OtherTok{\textless{}{-}} \DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ test\_error}
+
+\CommentTok{\# Print performance table.}
+\NormalTok{part3f\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{metric =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Test error\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Test accuracy\textquotesingle{}}\NormalTok{),}
+  \AttributeTok{value  =} \FunctionTok{c}\NormalTok{(}\FunctionTok{round}\NormalTok{(test\_error, }\DecValTok{4}\NormalTok{), }\FunctionTok{round}\NormalTok{(test\_accuracy, }\DecValTok{4}\NormalTok{))}
+\NormalTok{)}
+\NormalTok{part3f\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Metric\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Value\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Logistic Regression Test Performance\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-5}Logistic Regression Test Performance}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Metric & Value\\
+\midrule
+Test error & 0.102\\
+Test accuracy & 0.898\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Therefore, the logistic model's test error is \(\boxed{0.1020}\), i.e., about \(10.20\%\).
+
+\end{document}

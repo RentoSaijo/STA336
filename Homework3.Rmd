@@ -1,0 +1,520 @@
+---
+title: |
+  STA 336: Statistical Machine Learning
+subtitle: |
+  Homework 3
+author: |
+  Rento Saijo
+date: 'February 20, 2026'
+fontsize: 10pt
+documentclass: extarticle
+geometry: top=1.5in, bottom=1.5in, left=1.5in, right=1.5in
+urlcolor: blue
+linkcolor: blue
+citecolor: blue
+output:
+  bookdown::pdf_document2:
+    keep_tex: true
+    toc: false
+    fig_width: 5
+    fig_height: 3.5
+    fig_caption: true
+
+header-includes:
+  - |
+    \usepackage{xcolor}
+    \usepackage{hyperref}
+    \hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue}
+    \usepackage{float}
+    \usepackage{fvextra}
+    \usepackage{xcolor}
+    \usepackage{fancyhdr}
+    \usepackage{lastpage}
+    \usepackage{soul}
+    \usepackage{etoolbox}
+    \usepackage{microtype}
+    \usepackage{tcolorbox}
+    \usepackage{enumitem}
+    \usepackage{fancyvrb}
+    \usepackage{xspace}
+    \allowdisplaybreaks
+    \setcounter{tocdepth}{2}
+    \setcounter{secnumdepth}{0}
+    \floatplacement{figure}{H}
+    \makeatletter
+    \newcommand{\@subtitle}{}
+    \newcommand{\subtitle}[1]{\gdef\@subtitle{#1}}
+    \newcommand{\DocSubtitle}{\@subtitle}
+    \renewcommand{\maketitle}{
+      \thispagestyle{plain}
+      \null
+      \vfill
+      \begin{center}
+        {\Large \textsc{\@title} \par}\vskip 0.5em
+        {\LARGE \bfseries \@subtitle \par}\vskip 0.75em
+        {\large \@author \par}\vskip 0.5em
+        {\normalsize \@date \par}
+      \end{center}
+      \vfill
+      \tableofcontents
+      \vspace{1em}
+      \clearpage
+    }
+    \AfterEndEnvironment{Highlighting}{\setcounter{CodeLine}{\numexpr\value{CodeLine}+\FV@CodeLineNo\relax}}
+    \makeatother
+    \fancypagestyle{plain}{
+      \fancyhf{}
+      \renewcommand{\headrulewidth}{0pt}
+      \renewcommand{\footrulewidth}{0pt}
+    }
+    \pagestyle{fancy}
+    \fancyhf{}
+    \fancyfoot[C]{\small\textsc{Page}~\thepage~\textsc{of}~\pageref{LastPage}}
+    \fancyhead[L]{\textsc{Rento Saijo}}
+    \fancyhead[R]{\textsc{\DocSubtitle}}
+    \fancyhead[C]{\textsc{\rightmark}}
+    \renewcommand{\headrulewidth}{0.5pt}
+    \renewcommand{\footrulewidth}{0.5pt}
+    \newcounter{CodeLine}
+    \newcounter{cell}
+    \AtBeginEnvironment{Highlighting}{\stepcounter{cell}}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      frame=single,
+      rulecolor=\color{black},
+      framesep=2mm,
+      label=\footnotesize\textbf{Cell \thecell},
+      labelposition=topline,
+      commandchars=\\\{\},
+      breaklines=true,
+      breakanywhere=false,
+      breaksymbol={},
+      numbers=left,
+      numbersep=3pt,
+      firstnumber=\numexpr\value{CodeLine}+1\relax,
+      fontsize=\small
+    }
+    \DefineVerbatimEnvironment{verbatim}{Verbatim}{
+      breaklines=true,
+      breakanywhere=true,
+      numbers=left,
+      numbersep=3pt,
+      firstnumber=1,
+      fontsize=\footnotesize
+    }
+    \DefineVerbatimEnvironment{snippet}{Verbatim}{
+      breaklines=true,
+      breakanywhere=true,
+      fontsize=\footnotesize,
+      frame=single,
+      listparameters=\setlength{\topsep}{\baselineskip}\setlength{\partopsep}{0pt}
+    }
+    \newtcolorbox{problem}[1][]{
+      title={\textsc{#1}}
+    }
+    \newenvironment{alphenum}{
+      \begin{enumerate}[
+        label=(\alph*),
+        itemsep=3pt,
+        parsep=0pt,
+        topsep=6pt
+      ]
+    }{
+      \end{enumerate}
+    }
+    \newenvironment{items}{
+      \begin{itemize}[
+        itemsep=3pt,
+        parsep=0pt,
+        topsep=6pt
+      ]
+    }{
+      \end{itemize}
+    }
+    \renewcommand{\contentsname}{Table of Contents}
+    \newcommand{\E}{\mathrm{E}}
+    \newcommand{\Var}{\mathrm{Var}}
+    \newcommand{\R}{\textsf{R}\xspace}
+    \newcommand{\Pois}{\mathrm{Pois}}
+    \newcommand{\SD}{\mathrm{SD}}
+    \newcommand{\SE}{\mathrm{SE}}
+---
+
+```{r setup, include = FALSE}
+# ----- Setup ----- #
+
+# Set options.
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align = 'center')
+options(width = 125)
+options(scipen = 999)
+
+# Load libraries.
+suppressMessages(library(tidyverse))
+suppressMessages(library(ISLR2))
+suppressMessages(library(GGally))
+
+# Set fonts.
+sysfonts::font_add(
+  family = 'cmuserif',
+  regular = '/Users/rsai_91/Library/Fonts/cmu.serif-roman.ttf',
+  bold = '/Users/rsai_91/Library/Fonts/cmu.serif-bold.ttf',
+  italic = '/Users/rsai_91/Library/Fonts/cmu.serif-italic.ttf',
+  bolditalic = '/Users/rsai_91/Library/Fonts/cmu.serif-bolditalic.ttf'
+)
+showtext::showtext_opts(dpi = 500)
+showtext::showtext_auto(enable = TRUE)
+knitr::opts_chunk$set(dev = 'CairoPDF')
+par(family = 'cmuserif')
+ggplot2::theme_set(ggplot2::theme_minimal(base_family = 'cmuserif', base_size = 10))
+
+# ----- Helpers ----- #
+
+# Print LaTeX table from data.frame.
+table_latex = function(data, col_names = NULL, caption = NULL) {
+  data %>%
+    knitr::kable(
+      format    = 'latex',
+      booktabs  = TRUE,
+      escape    = FALSE,
+      col.names = col_names,
+      caption   = caption,
+      linesep   = '',
+      align     = rep('c', ncol(data)),
+      ) %>%
+    kableExtra::kable_styling(
+      position = 'center',
+      latex_options = c('HOLD_position'))
+}
+
+# Plot with LaTeX.
+with_par <- function(expr) { 
+    op <- par(no.readonly = TRUE)
+    on.exit(par(op))
+    force(expr) 
+}
+with_family <- function(expr, family = 'cmuserif') {
+    op <- par(no.readonly = TRUE)
+    on.exit(par(op))
+    par(family = family)
+    force(expr) 
+}
+```
+
+# Disclosure
+
+GPT-5.3-Codex was used to create the `YAML` portion and some `LaTeX` code to format the text/equations nicely. Page formatting code was also provided by Derin Gezgin. In the setup chunk, libraries were loaded and some helper functions were defined including but not limited to `table_latex()` and `with_family()`. See the original `RMD` file [here](https://github.com/RentoSaijo/STA336/blob/main/Homework3.Rmd) for more details.
+
+\newpage
+
+# Problem 1
+
+\begin{problem}[Problem 1]
+Suppose we collect data for a group of students in a statistics class with variables
+\(X_1=\) hours studied, \(X_2=\) undergrad GPA, and \(Y=\) receive an \(\mathrm{A}\). We fit a logistic
+regression and produce estimated coefficients
+\[
+\hat{\beta}_0=-6,\qquad \hat{\beta}_1=0.05,\qquad \hat{\beta}_2=1.
+\]
+\end{problem}
+
+\newpage
+
+## Problem 1 Part (a)
+
+\begin{problem}[Problem 1 Part (a)]
+Estimate the probability that a student who studies for \(40\) h and has an undergrad GPA of \(3.5\) gets an \(\mathrm{A}\) in the class.
+\end{problem}
+
+Using the fitted logistic model,
+\[
+\log\!\left(\frac{\hat{p}}{1-\hat{p}}\right)= -6 + 0.05X_1 + X_2,
+\]
+\[
+\frac{\hat{p}}{1-\hat{p}}=e^{-6 + 0.05X_1 + X_2}.
+\]
+Solving for \(\hat{p}\), we get:
+\begin{align*}
+\hat{p}
+&= (1-\hat{p})e^{-6 + 0.05X_1 + X_2} \\
+\hat{p}
+&= e^{-6 + 0.05X_1 + X_2} - \hat{p}e^{-6 + 0.05X_1 + X_2} \\
+\hat{p}\!\left(1+e^{-6 + 0.05X_1 + X_2}\right)
+&= e^{-6 + 0.05X_1 + X_2} \\
+\hat{p}
+&= \frac{e^{-6 + 0.05X_1 + X_2}}{1 + e^{-6 + 0.05X_1 + X_2}}.
+\end{align*}
+Substituting \(X_1=40\) and \(X_2=3.5\) into the \(\hat{p}\) equation, we get:
+\begin{align*}
+\hat{p}
+&= \frac{e^{-6 + 0.05(40) + 3.5}}{1 + e^{-6 + 0.05(40) + 3.5}} \\
+&= \frac{e^{-0.5}}{1+e^{-0.5}} \\
+&= \frac{1}{1+e^{0.5}} \\
+&= 0.3775.
+\end{align*}
+Therefore, the estimated probability that the student gets an \(\mathrm{A}\) in the class is \(\boxed{0.3775}\).
+
+\newpage
+
+## Problem 1 Part (b)
+
+\begin{problem}[Problem 1 Part (b)]
+How many hours would the student in part (a) need to study to have a \(.50\) probability (i.e., \(50\%\) chance) of getting an \(\mathrm{A}\) in the class?
+\end{problem}
+
+A target probability of \(.50\) (that is, \(50\%\)) means \(\hat{p}=0.5\). Substituting \(\hat{p}=0.5\) and \(X_2=3.5\) into
+\[
+\log\!\left(\frac{\hat{p}}{1-\hat{p}}\right)= -6 + 0.05X_1 + X_2,
+\]
+we get:
+\begin{align*}
+ \log\!\left(\frac{0.5}{1-0.5}\right)
+&= -6 + 0.05X_1 + 3.5 \\
+0
+&= -6 + 0.05X_1 + 3.5 \\
+0.05X_1
+&= 2.5 \\
+X_1
+&= \frac{2.5}{0.05} \\
+&= 50.
+\end{align*}
+Therefore, the student in part (a) would need to study \(\boxed{50\text{ hours}}\) to have a \(50\%\) chance of getting an \(\mathrm{A}\) in the class.
+
+\newpage
+
+# Problem 2
+
+\begin{problem}[Problem 2]
+This problem has to do with \emph{odds}.
+\end{problem}
+
+\newpage
+
+## Problem 2 Part (a)
+
+\begin{problem}[Problem 2 Part (a)]
+On average, what fraction of people with an odds of \(0.37\) of defaulting on their credit card payment will in fact default?
+\end{problem}
+
+Let \(p\) be the probability that a person defaults. By definition of odds,
+\[
+\frac{p}{1-p}=0.37.
+\]
+Solving for \(p\), we get:
+\begin{align*}
+p &= 0.37(1-p) \\
+p &= 0.37 - 0.37p \\
+1.37p &= 0.37 \\
+p &= \frac{0.37}{1.37} \\
+&= \frac{37}{137}.
+\end{align*}
+Therefore, the fraction of people who will default is \(\boxed{\frac{37}{137}}\), which is \(27.0\%\) rounded to one decimal place.
+
+\newpage
+
+## Problem 2 Part (b)
+
+\begin{problem}[Problem 2 Part (b)]
+Suppose that an individual has a \(16\%\) chance of defaulting on her credit card payment. What are the odds that she will default?
+\end{problem}
+
+If the default probability is \(p=0.16\), then the odds of default are
+\begin{align*}
+\frac{p}{1-p}
+&= \frac{0.16}{1-0.16} \\
+&= \frac{0.16}{0.84} \\
+&= \frac{16}{84} \\
+&= \frac{4}{21}.
+\end{align*}
+Therefore, the odds that she defaults are \(\boxed{\frac{4}{21}}\) (equivalently, \(4:21\)).
+
+\newpage
+
+# Problem 3
+
+\begin{problem}[Problem 3]
+In this problem, we develop a model to predict whether a given car gets high or low gas mileage based on the \texttt{Auto} data set.
+\end{problem}
+
+\newpage
+
+## Problem 3 Part (a)
+
+\begin{problem}[Problem 3 Part (a)]
+Create a binary variable, \texttt{mpg01}, that contains a \(1\) if \texttt{mpg} contains a value above its median, and a \(0\) if \texttt{mpg} contains a value below its median.
+\end{problem}
+
+```{r, results='asis'}
+# Create mpg01 variable.
+auto_df <- ISLR2::Auto %>%
+  dplyr::mutate(mpg01 = dplyr::if_else(mpg > median(mpg), 1L, 0L)) %>%
+  dplyr::relocate(mpg01, .before = mpg)
+
+# Compute core results.
+median_mpg <- median(auto_df$mpg)
+class_balance <- as.integer(table(auto_df$mpg01))
+
+# Build display table.
+part3a_tbl <- tibble::tibble(
+  metric = c('Median mpg', 'Count for mpg01 = 0', 'Count for mpg01 = 1'),
+  value = c(median_mpg, class_balance[1], class_balance[2])
+)
+part3a_tbl %>%
+  table_latex(
+    col_names = c('Result', 'Value'),
+    caption = 'Constructed Binary Response mpg01'
+  )
+```
+
+\newpage
+
+## Problem 3 Part (b)
+
+\begin{problem}[Problem 3 Part (b)]
+Explore the data graphically in order to investigate the association between \texttt{mpg01} and the other features. Which of the other features seem most likely to be useful in predicting \texttt{mpg01}? Scatterplots and boxplots may be useful tools to answer this question. Describe your findings.
+\end{problem}
+
+```{r, fig.width=6, fig.height=4, out.width='\\linewidth', fig.cap='Distributions of Predictors by MPG Class.'}
+# Set feature order for boxplots.
+features <- c('cylinders', 'displacement', 'horsepower', 'weight', 'acceleration', 'year')
+
+# Reshape data for faceted boxplots.
+auto_long <- auto_df %>%
+  dplyr::select(mpg01, tidyselect::all_of(features)) %>%
+  dplyr::mutate(mpg01 = factor(mpg01, levels = c(0, 1), labels = c('Below Med. MPG', 'Above Med. MPG'))) %>%
+  tidyr::pivot_longer(cols = -mpg01, names_to = 'feature', values_to = 'value') %>%
+  dplyr::mutate(feature = factor(feature, levels = features))
+
+# Boxplots
+ggplot2::ggplot(auto_long, ggplot2::aes(x = mpg01, y = value, fill = mpg01)) +
+  ggplot2::geom_boxplot(alpha = 0.8, outlier.alpha = 0.3) +
+  ggplot2::facet_wrap(~ feature, scales = 'free_y', ncol = 3) +
+  ggplot2::labs(
+    x    = NULL,
+    y    = 'Feature Value',
+    fill = 'MPG Class'
+  ) +
+  ggplot2::theme_minimal(base_family = 'cmuserif', base_size = 8) +
+  ggplot2::theme(
+    strip.text      = ggplot2::element_text(size = 7),
+    axis.text       = ggplot2::element_text(size = 6),
+    axis.title      = ggplot2::element_text(size = 7),
+    legend.text     = ggplot2::element_text(size = 6),
+    legend.title    = ggplot2::element_text(size = 7),
+    legend.position = 'bottom'
+  )
+```
+
+These boxplots show strongest separation for \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, and \texttt{weight} while \texttt{year} and \texttt{acceleration} overlaps more.
+
+```{r, fig.width=12, fig.height=8, out.width='\\linewidth', fig.cap='Pairwise Relationships and Correlations by MPG Class'}
+# Prepare data for pair plot.
+pairs_df <- auto_df %>%
+  dplyr::transmute(
+    mpg01 = factor(mpg01, levels = c(0, 1), labels = c('Below Med. MPG', 'Above Med. MPG')),
+    cylinders,
+    displacement,
+    horsepower,
+    weight,
+    acceleration,
+    year
+  )
+
+# Plot pair-wise.
+GGally::ggpairs(
+  data    = pairs_df,
+  columns = 2:7,
+  columnLabels = c('Cylinders', 'Displacement', 'Horsepower', 'Weight', 'Acceleration', 'Year'),
+  mapping = ggplot2::aes(color = mpg01),
+  upper   = list(continuous = GGally::wrap('cor', size = 3.3, color = 'black')),
+  lower   = list(continuous = GGally::wrap('points', size = 0.45, alpha = 0.60)),
+  diag    = list(continuous = GGally::wrap('densityDiag', alpha = 0.55))
+) +
+  ggplot2::labs(color = 'MPG Class') +
+  ggplot2::theme_minimal(base_family = 'cmuserif', base_size = 8) +
+  ggplot2::theme(
+    strip.text       = ggplot2::element_text(size = 8, color = 'black'),
+    axis.text        = ggplot2::element_text(size = 6, color = 'black'),
+    axis.title       = ggplot2::element_text(color = 'black'),
+    legend.text      = ggplot2::element_text(size = 7, color = 'black'),
+    legend.title     = ggplot2::element_text(size = 8, color = 'black'),
+    panel.grid.major = ggplot2::element_blank(),
+    panel.grid.minor = ggplot2::element_blank(),
+    legend.position  = 'bottom'
+  )
+```
+
+The \texttt{ggpairs} matrix confirms that \texttt{Below Median MPG} cars cluster at higher \texttt{weight}, \texttt{horsepower}, and \texttt{displacement}, which supports these as key predictors. Overall, both graphics indicate that \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, and \texttt{weight} provide the strongest class separation between \texttt{Below Median MPG} and \texttt{Above Median MPG}; \texttt{year} adds useful signal, while \texttt{acceleration} appears less informative. Therefore, the best predictor set for classification is \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, \texttt{weight}, and \texttt{year}.
+
+\newpage
+
+## Problem 3 Part (c)
+
+\begin{problem}[Problem 3 Part (c)]
+Split the data into a training set and a test set.
+\end{problem}
+
+```{r, results='asis'}
+# Create train/test split.
+set.seed(20060527)
+n <- nrow(auto_df)
+train_idx  <- sample(seq_len(n), n / 2)
+auto_train <- auto_df[train_idx, ]
+auto_test  <- auto_df[-train_idx, ]
+
+# Build split table.
+part3c_tbl <- tibble::tibble(
+  data_set     = c('Training', 'Test'),
+  observations = c(nrow(auto_train), nrow(auto_test))
+)
+part3c_tbl %>%
+  table_latex(
+    col_names = c('Data set', 'Observations'),
+    caption   = 'Train/Test Split Sizes.'
+  )
+```
+
+\newpage
+
+## Problem 3 Part (f)
+
+\begin{problem}[Problem 3 Part (f)]
+Perform logistic regression on the training data in order to predict \texttt{mpg01} using the variables that seemed most associated with \texttt{mpg01} in (b). What is the test error of the model obtained?
+\end{problem}
+
+Using the predictors selected in part (b), fit
+\[
+\texttt{mpg01} \sim \texttt{cylinders} + \texttt{horsepower} + \texttt{weight} + \texttt{year}.
+\]
+Then use the rule \(\hat{y}=1\) if \(\hat{p}>0.5\), else \(\hat{y}=0\), and compute
+\[
+\text{test error}=\mathrm{Ave}\!\left(I(y_0\neq \hat{y}_0)\right).
+\]
+
+```{r, results='asis'}
+# Fit logistic model.
+logit_fit <- stats::glm(
+  mpg01 ~ cylinders + horsepower + weight + year,
+  data   = auto_train,
+  family = stats::binomial
+)
+
+# Create test predictions.
+test_prob <- stats::predict(logit_fit, newdata = auto_test, type = 'response')
+test_pred <- dplyr::if_else(test_prob > 0.5, 1L, 0L)
+
+# Compute test metrics.
+test_error    <- mean(test_pred != auto_test$mpg01)
+test_accuracy <- 1 - test_error
+
+# Print performance table.
+part3f_tbl <- tibble::tibble(
+  metric = c('Test error', 'Test accuracy'),
+  value  = c(round(test_error, 4), round(test_accuracy, 4))
+)
+part3f_tbl %>%
+  table_latex(
+    col_names = c('Metric', 'Value'),
+    caption   = 'Logistic Regression Test Performance'
+  )
+```
+
+Therefore, the logistic model's test error is \(\boxed{0.1020}\), i.e., about \(10.20\%\).
