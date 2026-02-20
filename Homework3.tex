@@ -394,7 +394,7 @@ Therefore, the odds that she defaults are \(\boxed{\frac{4}{21}}\) (equivalently
 \section{Problem 3}\label{problem-3}
 
 \begin{problem}[Problem 3]
-In this problem, we develop a model to predict whether a given car gets high or low gas mileage based on the \texttt{Auto} data set.
+In this problem, you will develop a model to predict whether a given car gets high or low gas mileage based on the \texttt{Auto} data set.
 \end{problem}
 
 \newpage
@@ -413,18 +413,18 @@ Create a binary variable, \texttt{mpg01}, that contains a \(1\) if \texttt{mpg} 
 \NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{relocate}\NormalTok{(mpg01, }\AttributeTok{.before =}\NormalTok{ mpg)}
 
 \CommentTok{\# Compute core results.}
-\NormalTok{median\_mpg }\OtherTok{\textless{}{-}} \FunctionTok{median}\NormalTok{(auto\_df}\SpecialCharTok{$}\NormalTok{mpg)}
+\NormalTok{median\_mpg    }\OtherTok{\textless{}{-}} \FunctionTok{median}\NormalTok{(auto\_df}\SpecialCharTok{$}\NormalTok{mpg)}
 \NormalTok{class\_balance }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(}\FunctionTok{table}\NormalTok{(auto\_df}\SpecialCharTok{$}\NormalTok{mpg01))}
 
 \CommentTok{\# Build display table.}
 \NormalTok{part3a\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
   \AttributeTok{metric =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Median mpg\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Count for mpg01 = 0\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Count for mpg01 = 1\textquotesingle{}}\NormalTok{),}
-  \AttributeTok{value =} \FunctionTok{c}\NormalTok{(median\_mpg, class\_balance[}\DecValTok{1}\NormalTok{], class\_balance[}\DecValTok{2}\NormalTok{])}
+  \AttributeTok{value  =} \FunctionTok{c}\NormalTok{(median\_mpg, class\_balance[}\DecValTok{1}\NormalTok{], class\_balance[}\DecValTok{2}\NormalTok{])}
 \NormalTok{)}
 \NormalTok{part3a\_tbl }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{table\_latex}\NormalTok{(}
     \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Result\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Value\textquotesingle{}}\NormalTok{),}
-    \AttributeTok{caption =} \StringTok{\textquotesingle{}Constructed Binary Response mpg01\textquotesingle{}}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Constructed Binary Response mpg01\textquotesingle{}}
 \NormalTok{  )}
 \end{Highlighting}
 \end{Shaded}
@@ -541,7 +541,7 @@ These boxplots show strongest separation for \texttt{cylinders}, \texttt{displac
 
 }
 
-\caption{Pairwise Relationships and Correlations by MPG Class}\label{fig:unnamed-chunk-3}
+\caption{Pairwise Relationships and Correlations by MPG Class where Red denotes Below Median MPG and Blue denotes Above Median MPG}\label{fig:unnamed-chunk-3}
 \end{figure}
 
 The \texttt{ggpairs} matrix confirms that \texttt{Below Median MPG} cars cluster at higher \texttt{weight}, \texttt{horsepower}, and \texttt{displacement}, which supports these as key predictors. Overall, both graphics indicate that \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, and \texttt{weight} provide the strongest class separation between \texttt{Below Median MPG} and \texttt{Above Median MPG}; \texttt{year} adds useful signal, while \texttt{acceleration} appears less informative. Therefore, the best predictor set for classification is \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, \texttt{weight}, and \texttt{year}.
@@ -600,7 +600,7 @@ Perform logistic regression on the training data in order to predict \texttt{mpg
 
 Using the predictors selected in part (b), fit
 \[
-\texttt{mpg01} \sim \texttt{cylinders} + \texttt{horsepower} + \texttt{weight} + \texttt{year}.
+\texttt{mpg01} \sim \texttt{cylinders} + \texttt{displacement} + \texttt{horsepower} + \texttt{weight} + \texttt{year}.
 \]
 Then use the rule \(\hat{y}=1\) if \(\hat{p}>0.5\), else \(\hat{y}=0\), and compute
 \[
@@ -611,7 +611,7 @@ Then use the rule \(\hat{y}=1\) if \(\hat{p}>0.5\), else \(\hat{y}=0\), and comp
 \begin{Highlighting}[]
 \CommentTok{\# Fit logistic model.}
 \NormalTok{logit\_fit }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{glm}\NormalTok{(}
-\NormalTok{  mpg01 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ cylinders }\SpecialCharTok{+}\NormalTok{ horsepower }\SpecialCharTok{+}\NormalTok{ weight }\SpecialCharTok{+}\NormalTok{ year,}
+\NormalTok{  mpg01 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ cylinders }\SpecialCharTok{+}\NormalTok{ displacement }\SpecialCharTok{+}\NormalTok{ horsepower }\SpecialCharTok{+}\NormalTok{ weight }\SpecialCharTok{+}\NormalTok{ year,}
   \AttributeTok{data   =}\NormalTok{ auto\_train,}
   \AttributeTok{family =}\NormalTok{ stats}\SpecialCharTok{::}\NormalTok{binomial}
 \NormalTok{)}
@@ -651,6 +651,6 @@ Test accuracy & 0.898\\
 \end{tabular}
 \end{table}
 
-Therefore, the logistic model's test error is \(\boxed{0.1020}\), i.e., about \(10.20\%\).
+The logistic model's test error is \(\boxed{0.1020}\), i.e., about \(10.20\%\).
 
 \end{document}

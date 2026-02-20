@@ -324,14 +324,14 @@ If the default probability is \(p=0.16\), then the odds of default are
 &= \frac{16}{84} \\
 &= \frac{4}{21}.
 \end{align*}
-Therefore, the odds that she defaults are \(\boxed{\frac{4}{21}}\) (equivalently, \(4:21\)).
+Therefore, the odds that she defaults are \(\boxed{\frac{4}{21}}\) (equivalently, \(0.19\)).
 
 \newpage
 
 # Problem 3
 
 \begin{problem}[Problem 3]
-In this problem, we develop a model to predict whether a given car gets high or low gas mileage based on the \texttt{Auto} data set.
+In this problem, you will develop a model to predict whether a given car gets high or low gas mileage based on the \texttt{Auto} data set.
 \end{problem}
 
 \newpage
@@ -349,18 +349,18 @@ auto_df <- ISLR2::Auto %>%
   dplyr::relocate(mpg01, .before = mpg)
 
 # Compute core results.
-median_mpg <- median(auto_df$mpg)
+median_mpg    <- median(auto_df$mpg)
 class_balance <- as.integer(table(auto_df$mpg01))
 
 # Build display table.
 part3a_tbl <- tibble::tibble(
   metric = c('Median mpg', 'Count for mpg01 = 0', 'Count for mpg01 = 1'),
-  value = c(median_mpg, class_balance[1], class_balance[2])
+  value  = c(median_mpg, class_balance[1], class_balance[2])
 )
 part3a_tbl %>%
   table_latex(
     col_names = c('Result', 'Value'),
-    caption = 'Constructed Binary Response mpg01'
+    caption   = 'Constructed Binary Response mpg01'
   )
 ```
 
@@ -405,7 +405,7 @@ ggplot2::ggplot(auto_long, ggplot2::aes(x = mpg01, y = value, fill = mpg01)) +
 
 These boxplots show strongest separation for \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, and \texttt{weight} while \texttt{year} and \texttt{acceleration} overlaps more.
 
-```{r, fig.width=12, fig.height=8, out.width='\\linewidth', fig.cap='Pairwise Relationships and Correlations by MPG Class'}
+```{r, fig.width=12, fig.height=8, out.width='\\linewidth', fig.cap='Pairwise Relationships and Correlations by MPG Class where Red denotes Below Median MPG and Blue denotes Above Median MPG'}
 # Prepare data for pair plot.
 pairs_df <- auto_df %>%
   dplyr::transmute(
@@ -482,7 +482,7 @@ Perform logistic regression on the training data in order to predict \texttt{mpg
 
 Using the predictors selected in part (b), fit
 \[
-\texttt{mpg01} \sim \texttt{cylinders} + \texttt{horsepower} + \texttt{weight} + \texttt{year}.
+\texttt{mpg01} \sim \texttt{cylinders} + \texttt{displacement} + \texttt{horsepower} + \texttt{weight} + \texttt{year}.
 \]
 Then use the rule \(\hat{y}=1\) if \(\hat{p}>0.5\), else \(\hat{y}=0\), and compute
 \[
@@ -492,7 +492,7 @@ Then use the rule \(\hat{y}=1\) if \(\hat{p}>0.5\), else \(\hat{y}=0\), and comp
 ```{r, results='asis'}
 # Fit logistic model.
 logit_fit <- stats::glm(
-  mpg01 ~ cylinders + horsepower + weight + year,
+  mpg01 ~ cylinders + displacement + horsepower + weight + year,
   data   = auto_train,
   family = stats::binomial
 )
@@ -517,4 +517,4 @@ part3f_tbl %>%
   )
 ```
 
-Therefore, the logistic model's test error is \(\boxed{0.1020}\), i.e., about \(10.20\%\).
+The logistic model's test error is \(\boxed{0.1020}\), i.e., about \(10.20\%\).
