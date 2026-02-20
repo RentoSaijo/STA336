@@ -442,7 +442,7 @@ GGally::ggpairs(
   )
 ```
 
-The \texttt{ggpairs} matrix confirms that \texttt{Below Median MPG} cars cluster at higher \texttt{weight}, \texttt{horsepower}, and \texttt{displacement}, which supports these as key predictors. Overall, both graphics indicate that \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, and \texttt{weight} provide the strongest class separation between \texttt{Below Median MPG} and \texttt{Above Median MPG}; \texttt{year} adds useful signal, while \texttt{acceleration} appears less informative. Therefore, the best predictor set for classification is \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, \texttt{weight}, and \texttt{year}.
+The \texttt{ggpairs} matrix confirms that \texttt{Below Median MPG} cars cluster at higher \texttt{weight}, \texttt{horsepower}, and \texttt{displacement}, which supports these as key predictors. Overall, both graphics indicate that \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, and \texttt{weight} provide the strongest class separation between \texttt{Below Median MPG} and \texttt{Above Median MPG}; \texttt{year} adds useful signal, while \texttt{acceleration} appears less informative. Since \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, and \texttt{weight} are so correlated with one another (visually and by looking at the correlation coefficients), I will just use \texttt{displacement}, and \texttt{year}.
 
 \newpage
 
@@ -482,7 +482,7 @@ Perform logistic regression on the training data in order to predict \texttt{mpg
 
 Using the predictors selected in part (b), fit
 \[
-\texttt{mpg01} \sim \texttt{cylinders} + \texttt{displacement} + \texttt{horsepower} + \texttt{weight} + \texttt{year}.
+\texttt{mpg01} \sim \texttt{displacement} + \texttt{year}.
 \]
 Then use the rule \(\hat{y}=1\) if \(\hat{p}>0.5\), else \(\hat{y}=0\), and compute
 \[
@@ -492,11 +492,41 @@ Then use the rule \(\hat{y}=1\) if \(\hat{p}>0.5\), else \(\hat{y}=0\), and comp
 ```{r, results='asis'}
 # Fit logistic model.
 logit_fit <- stats::glm(
-  mpg01 ~ cylinders + displacement + horsepower + weight + year,
+  mpg01 ~ displacement + year,
   data   = auto_train,
   family = stats::binomial
 )
 
+# Extract coefficient summary.
+coef_tbl <- as.data.frame(stats::coef(summary(logit_fit)))
+coef_tbl <- tibble::rownames_to_column(coef_tbl, var = 'term')
+
+# Rename and round columns.
+coef_tbl <- coef_tbl %>%
+  dplyr::rename(
+    estimate    = Estimate,
+    std_error   = `Std. Error`,
+    z_value     = `z value`,
+    p_value     = `Pr(>|z|)`
+  ) %>%
+  dplyr::mutate(dplyr::across(-term, ~ round(.x, 4)))
+
+# Print coefficient table.
+coef_tbl %>%
+  table_latex(
+    col_names = c('Term', 'Estimate', 'Std. Error', 'z value', 'Pr(>|z|)'),
+    caption   = 'Logistic Regression Coefficient Summary'
+  )
+```
+
+The fitted logistic model is
+\[
+\log\!\left(\frac{\hat{p}}{1-\hat{p}}\right)
+= -19.19940749 - 0.04242666\,\texttt{displacement} + 0.34239667\,\texttt{year},
+\]
+where \(\hat{p}\) is the estimated probability that a car is in the \texttt{Above Median MPG} class.
+
+```{r, results='asis'}
 # Create test predictions.
 test_prob <- stats::predict(logit_fit, newdata = auto_test, type = 'response')
 test_pred <- dplyr::if_else(test_prob > 0.5, 1L, 0L)
@@ -517,4 +547,4 @@ part3f_tbl %>%
   )
 ```
 
-The logistic model's test error is \(\boxed{0.1020}\), i.e., about \(10.20\%\).
+The model's test error is \(\boxed{0.1020}\), i.e., about \(10.20\%\).

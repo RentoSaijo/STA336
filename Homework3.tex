@@ -544,7 +544,7 @@ These boxplots show strongest separation for \texttt{cylinders}, \texttt{displac
 \caption{Pairwise Relationships and Correlations by MPG Class where Red denotes Below Median MPG and Blue denotes Above Median MPG}\label{fig:unnamed-chunk-3}
 \end{figure}
 
-The \texttt{ggpairs} matrix confirms that \texttt{Below Median MPG} cars cluster at higher \texttt{weight}, \texttt{horsepower}, and \texttt{displacement}, which supports these as key predictors. Overall, both graphics indicate that \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, and \texttt{weight} provide the strongest class separation between \texttt{Below Median MPG} and \texttt{Above Median MPG}; \texttt{year} adds useful signal, while \texttt{acceleration} appears less informative. Therefore, the best predictor set for classification is \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, \texttt{weight}, and \texttt{year}.
+The \texttt{ggpairs} matrix confirms that \texttt{Below Median MPG} cars cluster at higher \texttt{weight}, \texttt{horsepower}, and \texttt{displacement}, which supports these as key predictors. Overall, both graphics indicate that \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, and \texttt{weight} provide the strongest class separation between \texttt{Below Median MPG} and \texttt{Above Median MPG}; \texttt{year} adds useful signal, while \texttt{acceleration} appears less informative. Since \texttt{cylinders}, \texttt{displacement}, \texttt{horsepower}, and \texttt{weight} are so correlated with one another (visually and by looking at the correlation coefficients), I will just use \texttt{displacement}, and \texttt{year}.
 
 \newpage
 
@@ -600,7 +600,7 @@ Perform logistic regression on the training data in order to predict \texttt{mpg
 
 Using the predictors selected in part (b), fit
 \[
-\texttt{mpg01} \sim \texttt{cylinders} + \texttt{displacement} + \texttt{horsepower} + \texttt{weight} + \texttt{year}.
+\texttt{mpg01} \sim \texttt{displacement} + \texttt{year}.
 \]
 Then use the rule \(\hat{y}=1\) if \(\hat{p}>0.5\), else \(\hat{y}=0\), and compute
 \[
@@ -611,11 +611,58 @@ Then use the rule \(\hat{y}=1\) if \(\hat{p}>0.5\), else \(\hat{y}=0\), and comp
 \begin{Highlighting}[]
 \CommentTok{\# Fit logistic model.}
 \NormalTok{logit\_fit }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{glm}\NormalTok{(}
-\NormalTok{  mpg01 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ cylinders }\SpecialCharTok{+}\NormalTok{ displacement }\SpecialCharTok{+}\NormalTok{ horsepower }\SpecialCharTok{+}\NormalTok{ weight }\SpecialCharTok{+}\NormalTok{ year,}
+\NormalTok{  mpg01 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ displacement }\SpecialCharTok{+}\NormalTok{ year,}
   \AttributeTok{data   =}\NormalTok{ auto\_train,}
   \AttributeTok{family =}\NormalTok{ stats}\SpecialCharTok{::}\NormalTok{binomial}
 \NormalTok{)}
 
+\CommentTok{\# Extract coefficient summary.}
+\NormalTok{coef\_tbl }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(stats}\SpecialCharTok{::}\FunctionTok{coef}\NormalTok{(}\FunctionTok{summary}\NormalTok{(logit\_fit)))}
+\NormalTok{coef\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{rownames\_to\_column}\NormalTok{(coef\_tbl, }\AttributeTok{var =} \StringTok{\textquotesingle{}term\textquotesingle{}}\NormalTok{)}
+
+\CommentTok{\# Rename and round columns.}
+\NormalTok{coef\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ coef\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{rename}\NormalTok{(}
+    \AttributeTok{estimate    =}\NormalTok{ Estimate,}
+    \AttributeTok{std\_error   =} \StringTok{\textasciigrave{}}\AttributeTok{Std. Error}\StringTok{\textasciigrave{}}\NormalTok{,}
+    \AttributeTok{z\_value     =} \StringTok{\textasciigrave{}}\AttributeTok{z value}\StringTok{\textasciigrave{}}\NormalTok{,}
+    \AttributeTok{p\_value     =} \StringTok{\textasciigrave{}}\AttributeTok{Pr(\textgreater{}|z|)}\StringTok{\textasciigrave{}}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(dplyr}\SpecialCharTok{::}\FunctionTok{across}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{term, }\SpecialCharTok{\textasciitilde{}} \FunctionTok{round}\NormalTok{(.x, }\DecValTok{4}\NormalTok{)))}
+
+\CommentTok{\# Print coefficient table.}
+\NormalTok{coef\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Term\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Estimate\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Std. Error\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}z value\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Pr(\textgreater{}|z|)\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Logistic Regression Coefficient Summary\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-5}Logistic Regression Coefficient Summary}
+\centering
+\begin{tabular}[t]{ccccc}
+\toprule
+Term & Estimate & Std. Error & z value & Pr(>|z|)\\
+\midrule
+(Intercept) & -19.1994 & 6.2028 & -3.0953 & 0.0020\\
+displacement & -0.0424 & 0.0074 & -5.7619 & 0.0000\\
+year & 0.3424 & 0.0868 & 3.9437 & 0.0001\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The fitted logistic model is
+\[
+\log\!\left(\frac{\hat{p}}{1-\hat{p}}\right)
+= -19.19940749 - 0.04242666\,\texttt{displacement} + 0.34239667\,\texttt{year},
+\]
+where \(\hat{p}\) is the estimated probability that a car is in the \texttt{Above Median MPG} class.
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \CommentTok{\# Create test predictions.}
 \NormalTok{test\_prob }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{predict}\NormalTok{(logit\_fit, }\AttributeTok{newdata =}\NormalTok{ auto\_test, }\AttributeTok{type =} \StringTok{\textquotesingle{}response\textquotesingle{}}\NormalTok{)}
 \NormalTok{test\_pred }\OtherTok{\textless{}{-}}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{if\_else}\NormalTok{(test\_prob }\SpecialCharTok{\textgreater{}} \FloatTok{0.5}\NormalTok{, }\DecValTok{1}\DataTypeTok{L}\NormalTok{, }\DecValTok{0}\DataTypeTok{L}\NormalTok{)}
@@ -639,7 +686,7 @@ Then use the rule \(\hat{y}=1\) if \(\hat{p}>0.5\), else \(\hat{y}=0\), and comp
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-5}Logistic Regression Test Performance}
+\caption{\label{tab:unnamed-chunk-6}Logistic Regression Test Performance}
 \centering
 \begin{tabular}[t]{cc}
 \toprule
@@ -651,6 +698,6 @@ Test accuracy & 0.898\\
 \end{tabular}
 \end{table}
 
-The logistic model's test error is \(\boxed{0.1020}\), i.e., about \(10.20\%\).
+The model's test error is \(\boxed{0.1020}\), i.e., about \(10.20\%\).
 
 \end{document}
