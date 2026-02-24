@@ -1,0 +1,1033 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+\documentclass[
+  10pt,
+]{extarticle}
+\usepackage{xcolor}
+\usepackage[top=1.5in, bottom=1.5in, left=1.5in, right=1.5in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue}
+\usepackage{float}
+\usepackage{fvextra}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{soul}
+\usepackage{etoolbox}
+\usepackage{microtype}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{fancyvrb}
+\usepackage{xspace}
+\allowdisplaybreaks
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{0}
+\floatplacement{figure}{H}
+\makeatletter
+\newcommand{\@subtitle}{}
+\newcommand{\subtitle}[1]{\gdef\@subtitle{#1}}
+\newcommand{\DocSubtitle}{\@subtitle}
+\renewcommand{\maketitle}{
+  \thispagestyle{plain}
+  \null
+  \vfill
+  \begin{center}
+    {\Large \textsc{\@title} \par}\vskip 0.5em
+    {\LARGE \bfseries \@subtitle \par}\vskip 0.75em
+    {\large \@author \par}\vskip 0.5em
+    {\normalsize \@date \par}
+  \end{center}
+  \vfill
+  \tableofcontents
+  \vspace{1em}
+  \clearpage
+}
+\AfterEndEnvironment{Highlighting}{\setcounter{CodeLine}{\numexpr\value{CodeLine}+\FV@CodeLineNo\relax}}
+\makeatother
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\small\textsc{Page}~\thepage~\textsc{of}~\pageref{LastPage}}
+\fancyhead[L]{\textsc{Rento Saijo}}
+\fancyhead[R]{\textsc{\DocSubtitle}}
+\fancyhead[C]{\textsc{\rightmark}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt}
+\newcounter{CodeLine}
+\newcounter{cell}
+\AtBeginEnvironment{Highlighting}{\stepcounter{cell}}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+  frame=single,
+  rulecolor=\color{black},
+  framesep=2mm,
+  label=\footnotesize\textbf{Cell \thecell},
+  labelposition=topline,
+  commandchars=\\\{\},
+  breaklines=true,
+  breakanywhere=false,
+  breaksymbol={},
+  numbers=left,
+  numbersep=3pt,
+  firstnumber=\numexpr\value{CodeLine}+1\relax,
+  fontsize=\small
+}
+\DefineVerbatimEnvironment{verbatim}{Verbatim}{
+  breaklines=true,
+  breakanywhere=true,
+  numbers=left,
+  numbersep=3pt,
+  firstnumber=1,
+  fontsize=\footnotesize
+}
+\DefineVerbatimEnvironment{snippet}{Verbatim}{
+  breaklines=true,
+  breakanywhere=true,
+  fontsize=\footnotesize,
+  frame=single,
+  listparameters=\setlength{\topsep}{\baselineskip}\setlength{\partopsep}{0pt}
+}
+\newtcolorbox{problem}[1][]{
+  title={\textsc{#1}}
+}
+\newenvironment{alphenum}{
+  \begin{enumerate}[
+    label=(\alph*),
+    itemsep=3pt,
+    parsep=0pt,
+    topsep=6pt
+  ]
+}{
+  \end{enumerate}
+}
+\newenvironment{items}{
+  \begin{itemize}[
+    itemsep=3pt,
+    parsep=0pt,
+    topsep=6pt
+  ]
+}{
+  \end{itemize}
+}
+\renewcommand{\contentsname}{Table of Contents}
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\R}{\textsf{R}\xspace}
+\newcommand{\Pois}{\mathrm{Pois}}
+\newcommand{\SD}{\mathrm{SD}}
+\newcommand{\SE}{\mathrm{SE}}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={STA 336: Statistical Machine Learning},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={blue},
+  urlcolor={blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{STA 336: Statistical Machine Learning}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Homework 4}
+\author{Rento Saijo}
+\date{February 24, 2026}
+
+\begin{document}
+\maketitle
+
+\section{Disclosure}\label{disclosure}
+
+GPT-5.3-Codex was used to create the \texttt{YAML} portion and some \texttt{LaTeX} code to format the text/equations nicely. Page formatting code was also provided by Derin Gezgin. In the setup chunk, libraries were loaded and some helper functions were defined including but not limited to \texttt{table\_latex()} and \texttt{with\_family()}. See the original \texttt{RMD} file \href{https://github.com/RentoSaijo/STA336/blob/main/Homework4.Rmd}{here} for more details.
+
+\newpage
+
+\section{Problem 1}\label{problem-1}
+
+\begin{problem}[Problem 1]
+Use the full dataset and build a model using a single predictor on student. What is the mathematical form of the model?
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Load data.}
+\NormalTok{default\_df }\OtherTok{\textless{}{-}}\NormalTok{ ISLR2}\SpecialCharTok{::}\NormalTok{Default}
+
+\CommentTok{\# Fit student{-}only logistic model.}
+\NormalTok{model\_q1 }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{glm}\NormalTok{(default }\SpecialCharTok{\textasciitilde{}}\NormalTok{ student, }\AttributeTok{data =}\NormalTok{ default\_df, }\AttributeTok{family =}\NormalTok{ stats}\SpecialCharTok{::}\NormalTok{binomial)}
+
+\CommentTok{\# Build coefficient table.}
+\NormalTok{coef\_q1\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{term     =} \FunctionTok{names}\NormalTok{(stats}\SpecialCharTok{::}\FunctionTok{coef}\NormalTok{(model\_q1)),}
+  \AttributeTok{estimate =} \FunctionTok{as.numeric}\NormalTok{(stats}\SpecialCharTok{::}\FunctionTok{coef}\NormalTok{(model\_q1))}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}\AttributeTok{estimate =} \FunctionTok{round}\NormalTok{(estimate, }\DecValTok{6}\NormalTok{))}
+
+\CommentTok{\# Print coefficient table.}
+\NormalTok{coef\_q1\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Term\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Estimate\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Logistic model coefficients with student only.\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-1}Logistic model coefficients with student only.}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Term & Estimate\\
+\midrule
+(Intercept) & -3.504128\\
+studentYes & 0.404887\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The fitted model is
+\[
+\log\!\left(\frac{\hat{p}}{1-\hat{p}}\right)
+= -3.504128 + 0.404887 \cdot \mathrm{I}\{\texttt{student}=\texttt{Yes}\},
+\]
+where \(\hat{p}=\Pr(\texttt{default}=\texttt{Yes}\mid \texttt{student})\). Equivalently,
+\[
+\hat{p}
+= \frac{\exp\!\left(-3.504128 + 0.404887 \cdot \mathrm{I}\{\texttt{student}=\texttt{Yes}\}\right)}
+{1+\exp\!\left(-3.504128 + 0.404887 \cdot \mathrm{I}\{\texttt{student}=\texttt{Yes}\}\right)}.
+\]
+
+\newpage
+
+\section{Problem 2}\label{problem-2}
+
+\begin{problem}[Problem 2]
+How would you interpret the coefficient of student on the model of Problem 1?
+\end{problem}
+
+The coefficient on \(\texttt{studentYes}\) is \(0.404887\), so the log-odds of default are higher for students than non-students in this one-predictor model. The corresponding odds ratio is
+\[
+\exp(0.404887)=1.4991.
+\]
+Thus, the model estimates that students have about \(1.50\times\) the odds of default relative to non-students.
+
+\newpage
+
+\section{Problem 3}\label{problem-3}
+
+\begin{problem}[Problem 3]
+What is the confusion matrix when you use the cutoff point to be \(0.5\)? What is the error rate of prediction?
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Build predictions with 0.5 cutoff.}
+\NormalTok{prob\_q1   }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{predict}\NormalTok{(model\_q1, }\AttributeTok{type =} \StringTok{\textquotesingle{}response\textquotesingle{}}\NormalTok{)}
+\NormalTok{pred\_q1   }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{ifelse}\NormalTok{(prob\_q1 }\SpecialCharTok{\textgreater{}} \FloatTok{0.5}\NormalTok{, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{), }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{))}
+\NormalTok{actual\_q1 }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(default\_df}\SpecialCharTok{$}\NormalTok{default, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{))}
+
+\CommentTok{\# Build confusion matrix.}
+\NormalTok{cm\_q1     }\OtherTok{\textless{}{-}} \FunctionTok{table}\NormalTok{(}\AttributeTok{actual =}\NormalTok{ actual\_q1, }\AttributeTok{predicted =}\NormalTok{ pred\_q1)}
+\NormalTok{cm\_q1\_tbl }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame.matrix}\NormalTok{(cm\_q1) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  tibble}\SpecialCharTok{::}\FunctionTok{rownames\_to\_column}\NormalTok{(}\AttributeTok{var =} \StringTok{\textquotesingle{}Actual\textquotesingle{}}\NormalTok{)}
+
+\CommentTok{\# Compute error.}
+\NormalTok{error\_q1 }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(pred\_q1 }\SpecialCharTok{!=}\NormalTok{ actual\_q1)}
+\NormalTok{error\_q1\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{metric =} \StringTok{\textquotesingle{}Prediction error rate\textquotesingle{}}\NormalTok{,}
+  \AttributeTok{value  =} \FunctionTok{round}\NormalTok{(error\_q1, }\DecValTok{4}\NormalTok{)}
+\NormalTok{)}
+
+\CommentTok{\# Print tables.}
+\NormalTok{cm\_q1\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Actual\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Predicted No\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Predicted Yes\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Confusion matrix for student{-}only model (cutoff = 0.5).\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-2}Confusion matrix for student-only model (cutoff = 0.5).}
+\centering
+\begin{tabular}[t]{ccc}
+\toprule
+Actual & Predicted No & Predicted Yes\\
+\midrule
+No & 9667 & 0\\
+Yes & 333 & 0\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{error\_q1\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Metric\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Value\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Error rate for student{-}only model (cutoff = 0.5).\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-2}Error rate for student-only model (cutoff = 0.5).}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Metric & Value\\
+\midrule
+Prediction error rate & 0.0333\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At cutoff \(0.5\), this model predicts every observation as \texttt{No}. The prediction error rate is \(\boxed{0.0333}\) (about \(3.33\%\)).
+
+\newpage
+
+\section{Problem 4}\label{problem-4}
+
+\begin{problem}[Problem 4]
+Use the full dataset and build a model using a single predictor on balance. What is the mathematical form of the model?
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Fit balance{-}only logistic model.}
+\NormalTok{model\_q4 }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{glm}\NormalTok{(default }\SpecialCharTok{\textasciitilde{}}\NormalTok{ balance, }\AttributeTok{data =}\NormalTok{ default\_df, }\AttributeTok{family =}\NormalTok{ stats}\SpecialCharTok{::}\NormalTok{binomial)}
+
+\CommentTok{\# Build coefficient table.}
+\NormalTok{coef\_q4\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{term     =} \FunctionTok{names}\NormalTok{(stats}\SpecialCharTok{::}\FunctionTok{coef}\NormalTok{(model\_q4)),}
+  \AttributeTok{estimate =} \FunctionTok{as.numeric}\NormalTok{(stats}\SpecialCharTok{::}\FunctionTok{coef}\NormalTok{(model\_q4))}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}\AttributeTok{estimate =} \FunctionTok{round}\NormalTok{(estimate, }\DecValTok{6}\NormalTok{))}
+
+\CommentTok{\# Print coefficient table.}
+\NormalTok{coef\_q4\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Term\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Estimate\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Logistic model coefficients with balance only.\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-3}Logistic model coefficients with balance only.}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Term & Estimate\\
+\midrule
+(Intercept) & -10.651331\\
+balance & 0.005499\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The fitted model is
+\[
+\log\!\left(\frac{\hat{p}}{1-\hat{p}}\right)
+= -10.651331 + 0.005499\,\texttt{balance},
+\]
+where \(\hat{p}=\Pr(\texttt{default}=\texttt{Yes}\mid \texttt{balance})\). Equivalently,
+\[
+\hat{p}
+= \frac{\exp\!\left(-10.651331 + 0.005499\,\texttt{balance}\right)}
+{1+\exp\!\left(-10.651331 + 0.005499\,\texttt{balance}\right)}.
+\]
+
+\newpage
+
+\section{Problem 5}\label{problem-5}
+
+\begin{problem}[Problem 5]
+How would you interpret the coefficient of balance on the model of Problem 4?
+\end{problem}
+
+The coefficient on \(\texttt{balance}\) is \(0.005499\), so each one-unit increase in balance increases the log-odds of default by \(0.005499\). In odds terms,
+\[
+\exp(0.005499)=1.0055,
+\]
+so each \$1 increase in balance multiplies the odds of default by about \(1.0055\).
+
+\newpage
+
+\section{Problem 6}\label{problem-6}
+
+\begin{problem}[Problem 6]
+What is the confusion matrix of the model in Problem 4 when you use the cutoff point to be \(0.5\)? What is the error rate of prediction?
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Build predictions with 0.5 cutoff.}
+\NormalTok{prob\_q4   }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{predict}\NormalTok{(model\_q4, }\AttributeTok{type =} \StringTok{\textquotesingle{}response\textquotesingle{}}\NormalTok{)}
+\NormalTok{pred\_q4   }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{ifelse}\NormalTok{(prob\_q4 }\SpecialCharTok{\textgreater{}} \FloatTok{0.5}\NormalTok{, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{), }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{))}
+\NormalTok{actual\_q4 }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(default\_df}\SpecialCharTok{$}\NormalTok{default, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{))}
+
+\CommentTok{\# Build confusion matrix.}
+\NormalTok{cm\_q4 }\OtherTok{\textless{}{-}} \FunctionTok{table}\NormalTok{(}\AttributeTok{actual =}\NormalTok{ actual\_q4, }\AttributeTok{predicted =}\NormalTok{ pred\_q4)}
+\NormalTok{cm\_q4\_tbl }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame.matrix}\NormalTok{(cm\_q4) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  tibble}\SpecialCharTok{::}\FunctionTok{rownames\_to\_column}\NormalTok{(}\AttributeTok{var =} \StringTok{\textquotesingle{}Actual\textquotesingle{}}\NormalTok{)}
+
+\CommentTok{\# Compute error.}
+\NormalTok{error\_q4 }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(pred\_q4 }\SpecialCharTok{!=}\NormalTok{ actual\_q4)}
+\NormalTok{error\_q4\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{metric =} \StringTok{\textquotesingle{}Prediction error rate\textquotesingle{}}\NormalTok{,}
+  \AttributeTok{value  =} \FunctionTok{round}\NormalTok{(error\_q4, }\DecValTok{4}\NormalTok{)}
+\NormalTok{)}
+
+\CommentTok{\# Print tables.}
+\NormalTok{cm\_q4\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Actual\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Predicted No\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Predicted Yes\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Confusion matrix for balance{-}only model (cutoff = 0.5).\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-4}Confusion matrix for balance-only model (cutoff = 0.5).}
+\centering
+\begin{tabular}[t]{ccc}
+\toprule
+Actual & Predicted No & Predicted Yes\\
+\midrule
+No & 9625 & 42\\
+Yes & 233 & 100\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{error\_q4\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Metric\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Value\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Error rate for balance{-}only model (cutoff = 0.5).\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-4}Error rate for balance-only model (cutoff = 0.5).}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Metric & Value\\
+\midrule
+Prediction error rate & 0.0275\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The balance-only model has prediction error \(\boxed{0.0275}\) (about \(2.75\%\)).
+
+\newpage
+
+\section{Problem 7}\label{problem-7}
+
+\begin{problem}[Problem 7]
+Split the data into halves and use one half as the training and the other half as the test. Fit a model on the training data using \texttt{student}, \texttt{balance}, and \texttt{income} as predictors.
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Create train/test split.}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{20060527}\NormalTok{)}
+\NormalTok{n\_default     }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(default\_df)}
+\NormalTok{train\_idx     }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\FunctionTok{seq\_len}\NormalTok{(n\_default), n\_default }\SpecialCharTok{/} \DecValTok{2}\NormalTok{)}
+\NormalTok{default\_train }\OtherTok{\textless{}{-}}\NormalTok{ default\_df[train\_idx, ]}
+\NormalTok{default\_test  }\OtherTok{\textless{}{-}}\NormalTok{ default\_df[}\SpecialCharTok{{-}}\NormalTok{train\_idx, ]}
+
+\CommentTok{\# Fit training model.}
+\NormalTok{model\_q7 }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{glm}\NormalTok{(}
+\NormalTok{  default }\SpecialCharTok{\textasciitilde{}}\NormalTok{ student }\SpecialCharTok{+}\NormalTok{ balance }\SpecialCharTok{+}\NormalTok{ income,}
+  \AttributeTok{data   =}\NormalTok{ default\_train,}
+  \AttributeTok{family =}\NormalTok{ stats}\SpecialCharTok{::}\NormalTok{binomial}
+\NormalTok{)}
+
+\CommentTok{\# Build split table.}
+\NormalTok{split\_q7\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{data\_set     =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Training\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Test\textquotesingle{}}\NormalTok{),}
+  \AttributeTok{observations =} \FunctionTok{c}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(default\_train), }\FunctionTok{nrow}\NormalTok{(default\_test))}
+\NormalTok{)}
+
+\CommentTok{\# Build coefficient table.}
+\NormalTok{coef\_q7\_tbl }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(stats}\SpecialCharTok{::}\FunctionTok{coef}\NormalTok{(}\FunctionTok{summary}\NormalTok{(model\_q7))) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  tibble}\SpecialCharTok{::}\FunctionTok{rownames\_to\_column}\NormalTok{(}\AttributeTok{var =} \StringTok{\textquotesingle{}term\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{rename}\NormalTok{(}
+    \AttributeTok{estimate  =}\NormalTok{ Estimate,}
+    \AttributeTok{std\_error =} \StringTok{\textasciigrave{}}\AttributeTok{Std. Error}\StringTok{\textasciigrave{}}\NormalTok{,}
+    \AttributeTok{z\_value   =} \StringTok{\textasciigrave{}}\AttributeTok{z value}\StringTok{\textasciigrave{}}\NormalTok{,}
+    \AttributeTok{p\_value   =} \StringTok{\textasciigrave{}}\AttributeTok{Pr(\textgreater{}|z|)}\StringTok{\textasciigrave{}}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(dplyr}\SpecialCharTok{::}\FunctionTok{across}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{term, }\SpecialCharTok{\textasciitilde{}} \FunctionTok{round}\NormalTok{(.x, }\DecValTok{6}\NormalTok{)))}
+
+\CommentTok{\# Create probabilities for later questions.}
+\NormalTok{prob\_train\_q7 }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{predict}\NormalTok{(model\_q7, }\AttributeTok{newdata =}\NormalTok{ default\_train, }\AttributeTok{type =} \StringTok{\textquotesingle{}response\textquotesingle{}}\NormalTok{)}
+\NormalTok{prob\_test\_q7  }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{predict}\NormalTok{(model\_q7, }\AttributeTok{newdata =}\NormalTok{ default\_test, }\AttributeTok{type =} \StringTok{\textquotesingle{}response\textquotesingle{}}\NormalTok{)}
+
+\CommentTok{\# Print tables.}
+\NormalTok{split\_q7\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Data set\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Observations\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Train/test split sizes.\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-5}Train/test split sizes.}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Data set & Observations\\
+\midrule
+Training & 5000\\
+Test & 5000\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{coef\_q7\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Term\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Estimate\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Std. Error\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}z value\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Pr(\textgreater{}|z|)\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Logistic regression coefficient summary.\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-5}Logistic regression coefficient summary.}
+\centering
+\begin{tabular}[t]{ccccc}
+\toprule
+Term & Estimate & Std. Error & z value & Pr(>|z|)\\
+\midrule
+(Intercept) & -11.362494 & 0.729852 & -15.568209 & 0.000000\\
+studentYes & -0.439823 & 0.345068 & -1.274598 & 0.202452\\
+balance & 0.005885 & 0.000340 & 17.319003 & 0.000000\\
+income & 0.000008 & 0.000012 & 0.693137 & 0.488224\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+\section{Problem 8}\label{problem-8}
+
+\begin{problem}[Problem 8]
+What is the training error of the model in Problem 7?
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Build training predictions.}
+\NormalTok{pred\_train\_q7   }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{ifelse}\NormalTok{(prob\_train\_q7 }\SpecialCharTok{\textgreater{}} \FloatTok{0.5}\NormalTok{, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{), }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{))}
+\NormalTok{actual\_train\_q7 }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(default\_train}\SpecialCharTok{$}\NormalTok{default, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{))}
+
+\CommentTok{\# Compute training error.}
+\NormalTok{train\_error\_q7  }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(pred\_train\_q7 }\SpecialCharTok{!=}\NormalTok{ actual\_train\_q7)}
+\NormalTok{train\_error\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{metric =} \StringTok{\textquotesingle{}Training error rate\textquotesingle{}}\NormalTok{,}
+  \AttributeTok{value  =} \FunctionTok{round}\NormalTok{(train\_error\_q7, }\DecValTok{4}\NormalTok{)}
+\NormalTok{)}
+
+\CommentTok{\# Print training error table.}
+\NormalTok{train\_error\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Metric\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Value\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Training error with cutoff = 0.5.\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-6}Training error with cutoff = 0.5.}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Metric & Value\\
+\midrule
+Training error rate & 0.0264\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The training error is \(\boxed{0.0264}\) (about \(2.64\%\)).
+
+\newpage
+
+\section{Problem 9}\label{problem-9}
+
+\begin{problem}[Problem 9]
+What is the test error of the model in Problem 7?
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Build test predictions.}
+\NormalTok{pred\_test\_q7   }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{ifelse}\NormalTok{(prob\_test\_q7 }\SpecialCharTok{\textgreater{}} \FloatTok{0.5}\NormalTok{, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{), }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{))}
+\NormalTok{actual\_test\_q7 }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(default\_test}\SpecialCharTok{$}\NormalTok{default, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{))}
+
+\CommentTok{\# Compute test error.}
+\NormalTok{test\_error\_q7  }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(pred\_test\_q7 }\SpecialCharTok{!=}\NormalTok{ actual\_test\_q7)}
+\NormalTok{test\_error\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{metric =} \StringTok{\textquotesingle{}Test error rate\textquotesingle{}}\NormalTok{,}
+  \AttributeTok{value  =} \FunctionTok{round}\NormalTok{(test\_error\_q7, }\DecValTok{4}\NormalTok{)}
+\NormalTok{)}
+
+\CommentTok{\# Print test error table.}
+\NormalTok{test\_error\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Metric\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Value\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Test error with cutoff = 0.5.\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-7}Test error with cutoff = 0.5.}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Metric & Value\\
+\midrule
+Test error rate & 0.0266\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The test error is \(\boxed{0.0266}\) (about \(2.66\%\)).
+
+\newpage
+
+\section{Problem 10}\label{problem-10}
+
+\begin{problem}[Problem 10]
+Draw the ROC curve for model in Problem 7 and find the best cutoff point. What does the best cutoff point mean?
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Build ROC.}
+\NormalTok{roc\_q7 }\OtherTok{\textless{}{-}}\NormalTok{ Epi}\SpecialCharTok{::}\FunctionTok{ROC}\NormalTok{(}
+  \AttributeTok{form =}\NormalTok{ default }\SpecialCharTok{\textasciitilde{}}\NormalTok{ student }\SpecialCharTok{+}\NormalTok{ balance }\SpecialCharTok{+}\NormalTok{ income,}
+  \AttributeTok{data =}\NormalTok{ default\_train,}
+  \AttributeTok{plot =} \StringTok{\textquotesingle{}ROC\textquotesingle{}}\NormalTok{,}
+  \AttributeTok{MX   =} \ConstantTok{TRUE}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=\linewidth]{Homework4_files/figure-latex/unnamed-chunk-8-1} 
+
+}
+
+\caption{ROC curve on training data for the multivariable model.}\label{fig:unnamed-chunk-8}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Extract ROC grid.}
+\NormalTok{roc\_q7\_res }\OtherTok{\textless{}{-}}\NormalTok{ roc\_q7}\SpecialCharTok{$}\NormalTok{res}
+
+\CommentTok{\# Find best cutoff with MX criterion.}
+\NormalTok{best\_row\_q7 }\OtherTok{\textless{}{-}}\NormalTok{ roc\_q7\_res }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}\AttributeTok{mx\_value =}\NormalTok{ sens }\SpecialCharTok{+}\NormalTok{ spec) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{filter}\NormalTok{(mx\_value }\SpecialCharTok{==} \FunctionTok{max}\NormalTok{(mx\_value)) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{arrange}\NormalTok{(dplyr}\SpecialCharTok{::}\FunctionTok{desc}\NormalTok{(lr.eta)) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{slice}\NormalTok{(}\DecValTok{1}\NormalTok{)}
+\NormalTok{best\_cutoff\_q7 }\OtherTok{\textless{}{-}}\NormalTok{ best\_row\_q7}\SpecialCharTok{$}\NormalTok{lr.eta[[}\DecValTok{1}\NormalTok{]]}
+
+\CommentTok{\# Build best{-}cutoff table.}
+\NormalTok{best\_cutoff\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{metric =} \FunctionTok{c}\NormalTok{(}
+    \StringTok{\textquotesingle{}Best cutoff\textquotesingle{}}\NormalTok{,}
+    \StringTok{\textquotesingle{}Sensitivity\textquotesingle{}}\NormalTok{,}
+    \StringTok{\textquotesingle{}Specificity\textquotesingle{}}\NormalTok{,}
+    \StringTok{\textquotesingle{}False positive rate\textquotesingle{}}\NormalTok{,}
+    \StringTok{\textquotesingle{}MX value (sensitivity + specificity)\textquotesingle{}}\NormalTok{,}
+    \StringTok{\textquotesingle{}AUC\textquotesingle{}}
+\NormalTok{  ),}
+  \AttributeTok{value  =} \FunctionTok{round}\NormalTok{(}\FunctionTok{c}\NormalTok{(}
+\NormalTok{    best\_cutoff\_q7,}
+\NormalTok{    best\_row\_q7}\SpecialCharTok{$}\NormalTok{sens[[}\DecValTok{1}\NormalTok{]],}
+\NormalTok{    best\_row\_q7}\SpecialCharTok{$}\NormalTok{spec[[}\DecValTok{1}\NormalTok{]],}
+    \DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ best\_row\_q7}\SpecialCharTok{$}\NormalTok{spec[[}\DecValTok{1}\NormalTok{]],}
+\NormalTok{    best\_row\_q7}\SpecialCharTok{$}\NormalTok{mx\_value[[}\DecValTok{1}\NormalTok{]],}
+\NormalTok{    roc\_q7}\SpecialCharTok{$}\NormalTok{AUC}
+\NormalTok{  ), }\DecValTok{4}\NormalTok{)}
+\NormalTok{)}
+
+\CommentTok{\# Print best{-}cutoff table.}
+\NormalTok{best\_cutoff\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Metric\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Value\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Best cutoff chosen from training ROC.\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-9}Best cutoff chosen from training ROC.}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Metric & Value\\
+\midrule
+Best cutoff & 0.0477\\
+Sensitivity & 0.8795\\
+Specificity & 0.8995\\
+False positive rate & 0.1005\\
+MX value (sensitivity + specificity) & 1.7790\\
+AUC & 0.9498\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Using the class ROC convention (\texttt{Epi::ROC} with \texttt{MX = TRUE}), the best cutoff is \(\boxed{0.0477}\). This is the threshold that maximizes \(\text{sensitivity} + \text{specificity}\) on the training data.
+
+\newpage
+
+\section{Problem 11}\label{problem-11}
+
+\begin{problem}[Problem 11]
+Use the best cutoff point on the test data. What is the test error now?
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Build test predictions with best cutoff.}
+\NormalTok{pred\_test\_best\_q7 }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{ifelse}\NormalTok{(prob\_test\_q7 }\SpecialCharTok{\textgreater{}}\NormalTok{ best\_cutoff\_q7, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{), }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{))}
+
+\CommentTok{\# Compute test error with best cutoff.}
+\NormalTok{test\_error\_best\_q7 }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(pred\_test\_best\_q7 }\SpecialCharTok{!=}\NormalTok{ actual\_test\_q7)}
+\NormalTok{test\_error\_best\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{metric =} \StringTok{\textquotesingle{}Test error rate (best cutoff)\textquotesingle{}}\NormalTok{,}
+  \AttributeTok{value =} \FunctionTok{round}\NormalTok{(test\_error\_best\_q7, }\DecValTok{4}\NormalTok{)}
+\NormalTok{)}
+
+\CommentTok{\# Print test error table.}
+\NormalTok{test\_error\_best\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Metric\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Value\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption =} \StringTok{\textquotesingle{}Test error using best cutoff from training ROC.\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-10}Test error using best cutoff from training ROC.}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Metric & Value\\
+\midrule
+Test error rate (best cutoff) & 0.1016\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Using the best cutoff from Problem 10, the test error is \(\boxed{0.1016}\) (about \(10.16\%\)).
+
+\newpage
+
+\section{Problem 12}\label{problem-12}
+
+\begin{problem}[Problem 12]
+For a student, with 0 balance, and 20000 income, what is the predicted probability of default? Use the model on training data.
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Build student profile.}
+\NormalTok{new\_student\_q12 }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{student =} \FunctionTok{factor}\NormalTok{(}\StringTok{\textquotesingle{}Yes\textquotesingle{}}\NormalTok{, }\AttributeTok{levels =} \FunctionTok{levels}\NormalTok{(default\_train}\SpecialCharTok{$}\NormalTok{student)),}
+  \AttributeTok{balance =} \DecValTok{0}\NormalTok{,}
+  \AttributeTok{income  =} \DecValTok{20000}
+\NormalTok{)}
+
+\CommentTok{\# Compute predicted probability.}
+\NormalTok{p\_q12 }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(stats}\SpecialCharTok{::}\FunctionTok{predict}\NormalTok{(model\_q7, }\AttributeTok{newdata =}\NormalTok{ new\_student\_q12, }\AttributeTok{type =} \StringTok{\textquotesingle{}response\textquotesingle{}}\NormalTok{))}
+\NormalTok{q12\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{metric =} \StringTok{\textquotesingle{}Predicted probability\textquotesingle{}}\NormalTok{,}
+  \AttributeTok{value  =} \FunctionTok{signif}\NormalTok{(p\_q12, }\DecValTok{6}\NormalTok{)}
+\NormalTok{)}
+
+\CommentTok{\# Print probability table.}
+\NormalTok{q12\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Metric\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Value\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Predicted probability for student profile.\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-11}Predicted probability for student profile.}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Metric & Value\\
+\midrule
+Predicted probability & 0.0000088\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The predicted probability is \(\boxed{0.00000882}\) (approximately).
+
+\newpage
+
+\section{Problem 13}\label{problem-13}
+
+\begin{problem}[Problem 13]
+For a non-student, with 0 balance, and 20000 income, what is the predicted probability of default? Use the model on training data.
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Build non{-}student profile.}
+\NormalTok{new\_nonstudent\_q13 }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{student =} \FunctionTok{factor}\NormalTok{(}\StringTok{\textquotesingle{}No\textquotesingle{}}\NormalTok{, }\AttributeTok{levels =} \FunctionTok{levels}\NormalTok{(default\_train}\SpecialCharTok{$}\NormalTok{student)),}
+  \AttributeTok{balance =} \DecValTok{0}\NormalTok{,}
+  \AttributeTok{income  =} \DecValTok{20000}
+\NormalTok{)}
+
+\CommentTok{\# Compute predicted probability.}
+\NormalTok{p\_q13 }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(stats}\SpecialCharTok{::}\FunctionTok{predict}\NormalTok{(model\_q7, }\AttributeTok{newdata =}\NormalTok{ new\_nonstudent\_q13, }\AttributeTok{type =} \StringTok{\textquotesingle{}response\textquotesingle{}}\NormalTok{))}
+\NormalTok{q13\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{metric =} \StringTok{\textquotesingle{}Predicted probability\textquotesingle{}}\NormalTok{,}
+  \AttributeTok{value  =} \FunctionTok{signif}\NormalTok{(p\_q13, }\DecValTok{6}\NormalTok{)}
+\NormalTok{)}
+
+\CommentTok{\# Print probability table.}
+\NormalTok{q13\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Metric\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Value\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Predicted probability for non{-}student profile.\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-12}Predicted probability for non-student profile.}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Metric & Value\\
+\midrule
+Predicted probability & 0.0000137\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The predicted probability is \(\boxed{0.00001369}\) (approximately).
+
+\newpage
+
+\section{Problem 14}\label{problem-14}
+
+\begin{problem}[Problem 14]
+What is the difference between the predicted values of Problems 12 and 13? Does this difference come from the coefficient of the student variable? How are they related?
+\end{problem}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Compute difference and student effect.}
+\NormalTok{diff\_q14 }\OtherTok{\textless{}{-}}\NormalTok{ p\_q12 }\SpecialCharTok{{-}}\NormalTok{ p\_q13}
+\NormalTok{beta\_student\_q14 }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(stats}\SpecialCharTok{::}\FunctionTok{coef}\NormalTok{(model\_q7)[}\StringTok{\textquotesingle{}studentYes\textquotesingle{}}\NormalTok{])}
+\NormalTok{odds\_ratio\_student\_q14 }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(beta\_student\_q14)}
+
+\CommentTok{\# Build relation table.}
+\NormalTok{q14\_tbl }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{metric =} \FunctionTok{c}\NormalTok{(}
+    \StringTok{\textquotesingle{}p(student = Yes) {-} p(student = No)\textquotesingle{}}\NormalTok{,}
+    \StringTok{\textquotesingle{}student coefficient (log{-}odds scale)\textquotesingle{}}\NormalTok{,}
+    \StringTok{\textquotesingle{}student odds ratio\textquotesingle{}}
+\NormalTok{  ),}
+  \AttributeTok{value =} \FunctionTok{c}\NormalTok{(diff\_q14, beta\_student\_q14, odds\_ratio\_student\_q14)}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}\AttributeTok{value =} \FunctionTok{signif}\NormalTok{(value, }\DecValTok{6}\NormalTok{))}
+
+\CommentTok{\# Print relation table.}
+\NormalTok{q14\_tbl }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{table\_latex}\NormalTok{(}
+    \AttributeTok{col\_names =} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Metric\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Value\textquotesingle{}}\NormalTok{),}
+    \AttributeTok{caption   =} \StringTok{\textquotesingle{}Probability difference and student coefficient relation.\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:unnamed-chunk-13}Probability difference and student coefficient relation.}
+\centering
+\begin{tabular}[t]{cc}
+\toprule
+Metric & Value\\
+\midrule
+p(student = Yes) - p(student = No) & -0.0000049\\
+student coefficient (log-odds scale) & -0.4398230\\
+student odds ratio & 0.6441500\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The difference is \(\boxed{p_{12}-p_{13}=-4.87\times 10^{-6}}\), so the student profile has a slightly lower predicted default probability here. Yes, this difference comes from the \(\texttt{studentYes}\) coefficient. For fixed \(\texttt{balance}\) and \(\texttt{income}\), changing student status shifts the log-odds by \(\hat{\beta}_{\texttt{studentYes}}\):
+\[
+\log\!\left(\frac{\hat{p}_{\texttt{Yes}}}{1-\hat{p}_{\texttt{Yes}}}\right)
+-\log\!\left(\frac{\hat{p}_{\texttt{No}}}{1-\hat{p}_{\texttt{No}}}\right)
+= \hat{\beta}_{\texttt{studentYes}}.
+\]
+Thus, the odds are multiplied by \(\exp(\hat{\beta}_{\texttt{studentYes}})=0.6442\) when moving from non-student to student at the same \(\texttt{balance}\) and \(\texttt{income}\).
+
+\end{document}

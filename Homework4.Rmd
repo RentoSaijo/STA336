@@ -1,0 +1,708 @@
+---
+title: |
+  STA 336: Statistical Machine Learning
+subtitle: |
+  Homework 4
+author: |
+  Rento Saijo
+date: 'February 24, 2026'
+fontsize: 10pt
+documentclass: extarticle
+geometry: top=1.5in, bottom=1.5in, left=1.5in, right=1.5in
+urlcolor: blue
+linkcolor: blue
+citecolor: blue
+output:
+  bookdown::pdf_document2:
+    keep_tex: true
+    toc: false
+    fig_width: 5
+    fig_height: 3.5
+    fig_caption: true
+
+header-includes:
+  - |
+    \usepackage{xcolor}
+    \usepackage{hyperref}
+    \hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue}
+    \usepackage{float}
+    \usepackage{fvextra}
+    \usepackage{xcolor}
+    \usepackage{fancyhdr}
+    \usepackage{lastpage}
+    \usepackage{soul}
+    \usepackage{etoolbox}
+    \usepackage{microtype}
+    \usepackage{tcolorbox}
+    \usepackage{enumitem}
+    \usepackage{fancyvrb}
+    \usepackage{xspace}
+    \allowdisplaybreaks
+    \setcounter{tocdepth}{2}
+    \setcounter{secnumdepth}{0}
+    \floatplacement{figure}{H}
+    \makeatletter
+    \newcommand{\@subtitle}{}
+    \newcommand{\subtitle}[1]{\gdef\@subtitle{#1}}
+    \newcommand{\DocSubtitle}{\@subtitle}
+    \renewcommand{\maketitle}{
+      \thispagestyle{plain}
+      \null
+      \vfill
+      \begin{center}
+        {\Large \textsc{\@title} \par}\vskip 0.5em
+        {\LARGE \bfseries \@subtitle \par}\vskip 0.75em
+        {\large \@author \par}\vskip 0.5em
+        {\normalsize \@date \par}
+      \end{center}
+      \vfill
+      \tableofcontents
+      \vspace{1em}
+      \clearpage
+    }
+    \AfterEndEnvironment{Highlighting}{\setcounter{CodeLine}{\numexpr\value{CodeLine}+\FV@CodeLineNo\relax}}
+    \makeatother
+    \fancypagestyle{plain}{
+      \fancyhf{}
+      \renewcommand{\headrulewidth}{0pt}
+      \renewcommand{\footrulewidth}{0pt}
+    }
+    \pagestyle{fancy}
+    \fancyhf{}
+    \fancyfoot[C]{\small\textsc{Page}~\thepage~\textsc{of}~\pageref{LastPage}}
+    \fancyhead[L]{\textsc{Rento Saijo}}
+    \fancyhead[R]{\textsc{\DocSubtitle}}
+    \fancyhead[C]{\textsc{\rightmark}}
+    \renewcommand{\headrulewidth}{0.5pt}
+    \renewcommand{\footrulewidth}{0.5pt}
+    \newcounter{CodeLine}
+    \newcounter{cell}
+    \AtBeginEnvironment{Highlighting}{\stepcounter{cell}}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      frame=single,
+      rulecolor=\color{black},
+      framesep=2mm,
+      label=\footnotesize\textbf{Cell \thecell},
+      labelposition=topline,
+      commandchars=\\\{\},
+      breaklines=true,
+      breakanywhere=false,
+      breaksymbol={},
+      numbers=left,
+      numbersep=3pt,
+      firstnumber=\numexpr\value{CodeLine}+1\relax,
+      fontsize=\small
+    }
+    \DefineVerbatimEnvironment{verbatim}{Verbatim}{
+      breaklines=true,
+      breakanywhere=true,
+      numbers=left,
+      numbersep=3pt,
+      firstnumber=1,
+      fontsize=\footnotesize
+    }
+    \DefineVerbatimEnvironment{snippet}{Verbatim}{
+      breaklines=true,
+      breakanywhere=true,
+      fontsize=\footnotesize,
+      frame=single,
+      listparameters=\setlength{\topsep}{\baselineskip}\setlength{\partopsep}{0pt}
+    }
+    \newtcolorbox{problem}[1][]{
+      title={\textsc{#1}}
+    }
+    \newenvironment{alphenum}{
+      \begin{enumerate}[
+        label=(\alph*),
+        itemsep=3pt,
+        parsep=0pt,
+        topsep=6pt
+      ]
+    }{
+      \end{enumerate}
+    }
+    \newenvironment{items}{
+      \begin{itemize}[
+        itemsep=3pt,
+        parsep=0pt,
+        topsep=6pt
+      ]
+    }{
+      \end{itemize}
+    }
+    \renewcommand{\contentsname}{Table of Contents}
+    \newcommand{\E}{\mathrm{E}}
+    \newcommand{\Var}{\mathrm{Var}}
+    \newcommand{\R}{\textsf{R}\xspace}
+    \newcommand{\Pois}{\mathrm{Pois}}
+    \newcommand{\SD}{\mathrm{SD}}
+    \newcommand{\SE}{\mathrm{SE}}
+---
+
+```{r setup, include = FALSE}
+# ----- Setup ----- #
+
+# Set options.
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align = 'center')
+options(width = 125)
+options(scipen = 999)
+
+# Load libraries.
+suppressMessages(library(tidyverse))
+suppressMessages(library(Epi))
+suppressMessages(library(ISLR2))
+
+# Set fonts.
+sysfonts::font_add(
+  family  = 'cmuserif',
+  regular = '/Users/rsai_91/Library/Fonts/cmu.serif-roman.ttf',
+  bold    = '/Users/rsai_91/Library/Fonts/cmu.serif-bold.ttf',
+  italic  = '/Users/rsai_91/Library/Fonts/cmu.serif-italic.ttf',
+  bolditalic = '/Users/rsai_91/Library/Fonts/cmu.serif-bolditalic.ttf'
+)
+showtext::showtext_opts(dpi = 500)
+showtext::showtext_auto(enable = TRUE)
+knitr::opts_chunk$set(dev = 'CairoPDF')
+par(family = 'cmuserif')
+ggplot2::theme_set(ggplot2::theme_minimal(base_family = 'cmuserif', base_size = 10))
+
+# ----- Helpers ----- #
+
+# Print LaTeX table from data.frame.
+table_latex = function(data, col_names = NULL, caption = NULL) {
+  data %>%
+    knitr::kable(
+      format    = 'latex',
+      booktabs  = TRUE,
+      escape    = FALSE,
+      col.names = col_names,
+      caption   = caption,
+      linesep   = '',
+      align     = rep('c', ncol(data)),
+      ) %>%
+    kableExtra::kable_styling(
+      position = 'center',
+      latex_options = c('HOLD_position'))
+}
+
+# Plot with LaTeX.
+with_par <- function(expr) { 
+    op <- par(no.readonly = TRUE)
+    on.exit(par(op))
+    force(expr) 
+}
+with_family <- function(expr, family = 'cmuserif') {
+    op <- par(no.readonly = TRUE)
+    on.exit(par(op))
+    par(family = family)
+    force(expr) 
+}
+```
+
+# Disclosure
+
+GPT-5.3-Codex was used to create the `YAML` portion and some `LaTeX` code to format the text/equations nicely. Page formatting code was also provided by Derin Gezgin. In the setup chunk, libraries were loaded and some helper functions were defined including but not limited to `table_latex()` and `with_family()`. See the original `RMD` file [here](https://github.com/RentoSaijo/STA336/blob/main/Homework4.Rmd) for more details.
+
+\newpage
+
+# Problem 1
+
+\begin{problem}[Problem 1]
+Use the full dataset and build a model using a single predictor on student. What is the mathematical form of the model?
+\end{problem}
+
+```{r, results='asis'}
+# Load data.
+default_df <- ISLR2::Default
+
+# Fit student-only logistic model.
+model_q1 <- stats::glm(default ~ student, data = default_df, family = stats::binomial)
+
+# Build coefficient table.
+coef_q1_tbl <- tibble::tibble(
+  term     = names(stats::coef(model_q1)),
+  estimate = as.numeric(stats::coef(model_q1))
+) %>%
+  dplyr::mutate(estimate = round(estimate, 6))
+
+# Print coefficient table.
+coef_q1_tbl %>%
+  table_latex(
+    col_names = c('Term', 'Estimate'),
+    caption   = 'Logistic model coefficients with student only.'
+  )
+```
+
+The fitted model is
+\[
+\log\!\left(\frac{\hat{p}}{1-\hat{p}}\right)
+= -3.504128 + 0.404887 \cdot \mathrm{I}\{\texttt{student}=\texttt{Yes}\},
+\]
+where \(\hat{p}=\Pr(\texttt{default}=\texttt{Yes}\mid \texttt{student})\). Equivalently,
+\[
+\hat{p}
+= \frac{\exp\!\left(-3.504128 + 0.404887 \cdot \mathrm{I}\{\texttt{student}=\texttt{Yes}\}\right)}
+{1+\exp\!\left(-3.504128 + 0.404887 \cdot \mathrm{I}\{\texttt{student}=\texttt{Yes}\}\right)}.
+\]
+
+\newpage
+
+# Problem 2
+
+\begin{problem}[Problem 2]
+How would you interpret the coefficient of student on the model of Problem 1?
+\end{problem}
+
+The coefficient on \(\texttt{studentYes}\) is \(0.404887\), so the log-odds of default are higher for students than non-students in this one-predictor model. The corresponding odds ratio is
+\[
+\exp(0.404887)=1.4991.
+\]
+Thus, the model estimates that students have about \(1.50\times\) the odds of default relative to non-students.
+
+\newpage
+
+# Problem 3
+
+\begin{problem}[Problem 3]
+What is the confusion matrix when you use the cutoff point to be \(0.5\)? What is the error rate of prediction?
+\end{problem}
+
+```{r, results='asis'}
+# Build predictions with 0.5 cutoff.
+prob_q1   <- stats::predict(model_q1, type = 'response')
+pred_q1   <- factor(ifelse(prob_q1 > 0.5, 'Yes', 'No'), levels = c('No', 'Yes'))
+actual_q1 <- factor(default_df$default, levels = c('No', 'Yes'))
+
+# Build confusion matrix.
+cm_q1     <- table(actual = actual_q1, predicted = pred_q1)
+cm_q1_tbl <- as.data.frame.matrix(cm_q1) %>%
+  tibble::rownames_to_column(var = 'Actual')
+
+# Compute error.
+error_q1 <- mean(pred_q1 != actual_q1)
+error_q1_tbl <- tibble::tibble(
+  metric = 'Prediction error rate',
+  value  = round(error_q1, 4)
+)
+
+# Print tables.
+cm_q1_tbl %>%
+  table_latex(
+    col_names = c('Actual', 'Predicted No', 'Predicted Yes'),
+    caption   = 'Confusion matrix for student-only model (cutoff = 0.5).'
+  )
+error_q1_tbl %>%
+  table_latex(
+    col_names = c('Metric', 'Value'),
+    caption   = 'Error rate for student-only model (cutoff = 0.5).'
+  )
+```
+
+At cutoff \(0.5\), this model predicts every observation as \texttt{No}. The prediction error rate is \(\boxed{0.0333}\) (about \(3.33\%\)).
+
+\newpage
+
+# Problem 4
+
+\begin{problem}[Problem 4]
+Use the full dataset and build a model using a single predictor on balance. What is the mathematical form of the model?
+\end{problem}
+
+```{r, results='asis'}
+# Fit balance-only logistic model.
+model_q4 <- stats::glm(default ~ balance, data = default_df, family = stats::binomial)
+
+# Build coefficient table.
+coef_q4_tbl <- tibble::tibble(
+  term     = names(stats::coef(model_q4)),
+  estimate = as.numeric(stats::coef(model_q4))
+) %>%
+  dplyr::mutate(estimate = round(estimate, 6))
+
+# Print coefficient table.
+coef_q4_tbl %>%
+  table_latex(
+    col_names = c('Term', 'Estimate'),
+    caption   = 'Logistic model coefficients with balance only.'
+  )
+```
+
+The fitted model is
+\[
+\log\!\left(\frac{\hat{p}}{1-\hat{p}}\right)
+= -10.651331 + 0.005499\,\texttt{balance},
+\]
+where \(\hat{p}=\Pr(\texttt{default}=\texttt{Yes}\mid \texttt{balance})\). Equivalently,
+\[
+\hat{p}
+= \frac{\exp\!\left(-10.651331 + 0.005499\,\texttt{balance}\right)}
+{1+\exp\!\left(-10.651331 + 0.005499\,\texttt{balance}\right)}.
+\]
+
+\newpage
+
+# Problem 5
+
+\begin{problem}[Problem 5]
+How would you interpret the coefficient of balance on the model of Problem 4?
+\end{problem}
+
+The coefficient on \(\texttt{balance}\) is \(0.005499\), so each one-unit increase in balance increases the log-odds of default by \(0.005499\). In odds terms,
+\[
+\exp(0.005499)=1.0055,
+\]
+so each \$1 increase in balance multiplies the odds of default by about \(1.0055\).
+
+\newpage
+
+# Problem 6
+
+\begin{problem}[Problem 6]
+What is the confusion matrix of the model in Problem 4 when you use the cutoff point to be \(0.5\)? What is the error rate of prediction?
+\end{problem}
+
+```{r, results='asis'}
+# Build predictions with 0.5 cutoff.
+prob_q4   <- stats::predict(model_q4, type = 'response')
+pred_q4   <- factor(ifelse(prob_q4 > 0.5, 'Yes', 'No'), levels = c('No', 'Yes'))
+actual_q4 <- factor(default_df$default, levels = c('No', 'Yes'))
+
+# Build confusion matrix.
+cm_q4 <- table(actual = actual_q4, predicted = pred_q4)
+cm_q4_tbl <- as.data.frame.matrix(cm_q4) %>%
+  tibble::rownames_to_column(var = 'Actual')
+
+# Compute error.
+error_q4 <- mean(pred_q4 != actual_q4)
+error_q4_tbl <- tibble::tibble(
+  metric = 'Prediction error rate',
+  value  = round(error_q4, 4)
+)
+
+# Print tables.
+cm_q4_tbl %>%
+  table_latex(
+    col_names = c('Actual', 'Predicted No', 'Predicted Yes'),
+    caption   = 'Confusion matrix for balance-only model (cutoff = 0.5).'
+  )
+error_q4_tbl %>%
+  table_latex(
+    col_names = c('Metric', 'Value'),
+    caption   = 'Error rate for balance-only model (cutoff = 0.5).'
+  )
+```
+
+The balance-only model has prediction error \(\boxed{0.0275}\) (about \(2.75\%\)).
+
+\newpage
+
+# Problem 7
+
+\begin{problem}[Problem 7]
+Split the data into halves and use one half as the training and the other half as the test. Fit a model on the training data using \texttt{student}, \texttt{balance}, and \texttt{income} as predictors.
+\end{problem}
+
+```{r, results='asis'}
+# Create train/test split.
+set.seed(20060527)
+n_default     <- nrow(default_df)
+train_idx     <- sample(seq_len(n_default), n_default / 2)
+default_train <- default_df[train_idx, ]
+default_test  <- default_df[-train_idx, ]
+
+# Fit training model.
+model_q7 <- stats::glm(
+  default ~ student + balance + income,
+  data   = default_train,
+  family = stats::binomial
+)
+
+# Build split table.
+split_q7_tbl <- tibble::tibble(
+  data_set     = c('Training', 'Test'),
+  observations = c(nrow(default_train), nrow(default_test))
+)
+
+# Build coefficient table.
+coef_q7_tbl <- as.data.frame(stats::coef(summary(model_q7))) %>%
+  tibble::rownames_to_column(var = 'term') %>%
+  dplyr::rename(
+    estimate  = Estimate,
+    std_error = `Std. Error`,
+    z_value   = `z value`,
+    p_value   = `Pr(>|z|)`
+  ) %>%
+  dplyr::mutate(dplyr::across(-term, ~ round(.x, 6)))
+
+# Create probabilities for later questions.
+prob_train_q7 <- stats::predict(model_q7, newdata = default_train, type = 'response')
+prob_test_q7  <- stats::predict(model_q7, newdata = default_test, type = 'response')
+
+# Print tables.
+split_q7_tbl %>%
+  table_latex(
+    col_names = c('Data set', 'Observations'),
+    caption   = 'Train/test split sizes.'
+  )
+coef_q7_tbl %>%
+  table_latex(
+    col_names = c('Term', 'Estimate', 'Std. Error', 'z value', 'Pr(>|z|)'),
+    caption   = 'Logistic regression coefficient summary.'
+  )
+```
+
+\newpage
+
+# Problem 8
+
+\begin{problem}[Problem 8]
+What is the training error of the model in Problem 7?
+\end{problem}
+
+```{r, results='asis'}
+# Build training predictions.
+pred_train_q7   <- factor(ifelse(prob_train_q7 > 0.5, 'Yes', 'No'), levels = c('No', 'Yes'))
+actual_train_q7 <- factor(default_train$default, levels = c('No', 'Yes'))
+
+# Compute training error.
+train_error_q7  <- mean(pred_train_q7 != actual_train_q7)
+train_error_tbl <- tibble::tibble(
+  metric = 'Training error rate',
+  value  = round(train_error_q7, 4)
+)
+
+# Print training error table.
+train_error_tbl %>%
+  table_latex(
+    col_names = c('Metric', 'Value'),
+    caption   = 'Training error with cutoff = 0.5.'
+  )
+```
+
+The training error is \(\boxed{0.0264}\) (about \(2.64\%\)).
+
+\newpage
+
+# Problem 9
+
+\begin{problem}[Problem 9]
+What is the test error of the model in Problem 7?
+\end{problem}
+
+```{r, results='asis'}
+# Build test predictions.
+pred_test_q7   <- factor(ifelse(prob_test_q7 > 0.5, 'Yes', 'No'), levels = c('No', 'Yes'))
+actual_test_q7 <- factor(default_test$default, levels = c('No', 'Yes'))
+
+# Compute test error.
+test_error_q7  <- mean(pred_test_q7 != actual_test_q7)
+test_error_tbl <- tibble::tibble(
+  metric = 'Test error rate',
+  value  = round(test_error_q7, 4)
+)
+
+# Print test error table.
+test_error_tbl %>%
+  table_latex(
+    col_names = c('Metric', 'Value'),
+    caption   = 'Test error with cutoff = 0.5.'
+  )
+```
+
+The test error is \(\boxed{0.0266}\) (about \(2.66\%\)).
+
+\newpage
+
+# Problem 10
+
+\begin{problem}[Problem 10]
+Draw the ROC curve for model in Problem 7 and find the best cutoff point. What does the best cutoff point mean?
+\end{problem}
+
+```{r, fig.width=8, fig.height=6.5, out.width='\\linewidth', fig.cap='ROC curve on training data for the multivariable model.'}
+# Build ROC.
+roc_q7 <- Epi::ROC(
+  form = default ~ student + balance + income,
+  data = default_train,
+  plot = 'ROC',
+  MX   = TRUE
+)
+```
+
+```{r, results='asis'}
+# Extract ROC grid.
+roc_q7_res <- roc_q7$res
+
+# Find best cutoff with MX criterion.
+best_row_q7 <- roc_q7_res %>%
+  dplyr::mutate(mx_value = sens + spec) %>%
+  dplyr::filter(mx_value == max(mx_value)) %>%
+  dplyr::arrange(dplyr::desc(lr.eta)) %>%
+  dplyr::slice(1)
+best_cutoff_q7 <- best_row_q7$lr.eta[[1]]
+
+# Build best-cutoff table.
+best_cutoff_tbl <- tibble::tibble(
+  metric = c(
+    'Best cutoff',
+    'Sensitivity',
+    'Specificity',
+    'False positive rate',
+    'MX value (sensitivity + specificity)',
+    'AUC'
+  ),
+  value  = round(c(
+    best_cutoff_q7,
+    best_row_q7$sens[[1]],
+    best_row_q7$spec[[1]],
+    1 - best_row_q7$spec[[1]],
+    best_row_q7$mx_value[[1]],
+    roc_q7$AUC
+  ), 4)
+)
+
+# Print best-cutoff table.
+best_cutoff_tbl %>%
+  table_latex(
+    col_names = c('Metric', 'Value'),
+    caption   = 'Best cutoff chosen from training ROC.'
+  )
+```
+
+Using (\texttt{Epi::ROC} with \texttt{MX = TRUE}), the best cutoff is \(\boxed{0.0477}\). This is the threshold that maximizes \(\text{sensitivity} + \text{specificity}\) on the training data.
+
+\newpage
+
+# Problem 11
+
+\begin{problem}[Problem 11]
+Use the best cutoff point on the test data. What is the test error now?
+\end{problem}
+
+```{r, results='asis'}
+# Build test predictions with best cutoff.
+pred_test_best_q7 <- factor(ifelse(prob_test_q7 > best_cutoff_q7, 'Yes', 'No'), levels = c('No', 'Yes'))
+
+# Compute test error with best cutoff.
+test_error_best_q7 <- mean(pred_test_best_q7 != actual_test_q7)
+test_error_best_tbl <- tibble::tibble(
+  metric = 'Test error rate (best cutoff)',
+  value = round(test_error_best_q7, 4)
+)
+
+# Print test error table.
+test_error_best_tbl %>%
+  table_latex(
+    col_names = c('Metric', 'Value'),
+    caption = 'Test error using best cutoff from training ROC.'
+  )
+```
+
+Using the best cutoff from Problem 10, the test error is \(\boxed{0.1016}\) (about \(10.16\%\)).
+
+\newpage
+
+# Problem 12
+
+\begin{problem}[Problem 12]
+For a student, with 0 balance, and 20000 income, what is the predicted probability of default? Use the model on training data.
+\end{problem}
+
+```{r, results='asis'}
+# Build student profile.
+new_student_q12 <- data.frame(
+  student = factor('Yes', levels = levels(default_train$student)),
+  balance = 0,
+  income  = 20000
+)
+
+# Compute predicted probability.
+p_q12 <- as.numeric(stats::predict(model_q7, newdata = new_student_q12, type = 'response'))
+q12_tbl <- tibble::tibble(
+  metric = 'Predicted probability',
+  value  = signif(p_q12, 6)
+)
+
+# Print probability table.
+q12_tbl %>%
+  table_latex(
+    col_names = c('Metric', 'Value'),
+    caption   = 'Predicted probability for student profile.'
+  )
+```
+
+The predicted probability is \(\boxed{0.00000882}\).
+
+\newpage
+
+# Problem 13
+
+\begin{problem}[Problem 13]
+For a non-student, with 0 balance, and 20000 income, what is the predicted probability of default? Use the model on training data.
+\end{problem}
+
+```{r, results='asis'}
+# Build non-student profile.
+new_nonstudent_q13 <- data.frame(
+  student = factor('No', levels = levels(default_train$student)),
+  balance = 0,
+  income  = 20000
+)
+
+# Compute predicted probability.
+p_q13 <- as.numeric(stats::predict(model_q7, newdata = new_nonstudent_q13, type = 'response'))
+q13_tbl <- tibble::tibble(
+  metric = 'Predicted probability',
+  value  = signif(p_q13, 6)
+)
+
+# Print probability table.
+q13_tbl %>%
+  table_latex(
+    col_names = c('Metric', 'Value'),
+    caption   = 'Predicted probability for non-student profile.'
+  )
+```
+
+The predicted probability is \(\boxed{0.00001369}\).
+
+\newpage
+
+# Problem 14
+
+\begin{problem}[Problem 14]
+What is the difference between the predicted values of Problems 12 and 13? Does this difference come from the coefficient of the student variable? How are they related?
+\end{problem}
+
+```{r, results='asis'}
+# Compute difference and student effect.
+diff_q14 <- p_q12 - p_q13
+beta_student_q14 <- as.numeric(stats::coef(model_q7)['studentYes'])
+odds_ratio_student_q14 <- exp(beta_student_q14)
+
+# Build relation table.
+q14_tbl <- tibble::tibble(
+  metric = c(
+    'p(student = Yes) - p(student = No)',
+    'student coefficient (log-odds scale)',
+    'student odds ratio'
+  ),
+  value = c(diff_q14, beta_student_q14, odds_ratio_student_q14)
+) %>%
+  dplyr::mutate(value = signif(value, 6))
+
+# Print relation table.
+q14_tbl %>%
+  table_latex(
+    col_names = c('Metric', 'Value'),
+    caption   = 'Probability difference and student coefficient relation.'
+  )
+```
+
+The difference is \(\boxed{p_{12}-p_{13}=-4.87\times 10^{-6}}\), so the student profile has a slightly lower predicted default probability here. Yes, this difference comes from the \(\texttt{studentYes}\) coefficient. For fixed \(\texttt{balance}\) and \(\texttt{income}\), changing student status shifts the log-odds by \(\hat{\beta}_{\texttt{studentYes}}\):
+\[
+\log\!\left(\frac{\hat{p}_{\texttt{Yes}}}{1-\hat{p}_{\texttt{Yes}}}\right)
+-\log\!\left(\frac{\hat{p}_{\texttt{No}}}{1-\hat{p}_{\texttt{No}}}\right)
+= \hat{\beta}_{\texttt{studentYes}}.
+\]
+Thus, the odds are multiplied by \(\exp(\hat{\beta}_{\texttt{studentYes}})=0.6442\) when moving from non-student to student at the same \(\texttt{balance}\) and \(\texttt{income}\).

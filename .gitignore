@@ -2,5 +2,7 @@
 .vscode/settings.json
 Textbook.pdf
 .Rproj.user
-
+*.html
+*.log
 STA336.Rproj
+Rplots.pdf
