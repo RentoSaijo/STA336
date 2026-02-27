@@ -332,11 +332,11 @@ where \(\hat{p}=\Pr(\texttt{default}=\texttt{Yes}\mid \texttt{student})\). Equiv
 How would you interpret the coefficient of student on the model of Problem 1?
 \end{problem}
 
-The coefficient on \(\texttt{studentYes}\) is \(0.404887\), so the log-odds of default are higher for students than non-students in this one-predictor model. The corresponding odds ratio is
+The coefficient on \(\texttt{studentYes}\) is \(0.404887\), so the log-odds of default are higher for students than non-students by \(0.404887\) in this one-predictor model. The corresponding odds ratio is
 \[
 \exp(0.404887)=1.4991.
 \]
-Thus, the model estimates that students have about \(1.50\times\) the odds of default relative to non-students.
+Therefore, the model estimates that students have about \(1.50\times\) the odds of default relative to non-students.
 
 \newpage
 
@@ -830,7 +830,7 @@ AUC & 0.9498\\
 \end{tabular}
 \end{table}
 
-Using the class ROC convention (\texttt{Epi::ROC} with \texttt{MX = TRUE}), the best cutoff is \(\boxed{0.0477}\). This is the threshold that maximizes \(\text{sensitivity} + \text{specificity}\) on the training data.
+Using (\texttt{Epi::ROC} with \texttt{MX = TRUE}), the best cutoff is \(\boxed{0.0477}\). This is the threshold that maximizes \(\text{sensitivity} + \text{specificity}\) on the training data.
 
 \newpage
 
@@ -922,7 +922,7 @@ Predicted probability & 0.0000088\\
 \end{tabular}
 \end{table}
 
-The predicted probability is \(\boxed{0.00000882}\) (approximately).
+The predicted probability is \(\boxed{0.00000882}\).
 
 \newpage
 
@@ -970,7 +970,7 @@ Predicted probability & 0.0000137\\
 \end{tabular}
 \end{table}
 
-The predicted probability is \(\boxed{0.00001369}\) (approximately).
+The predicted probability is \(\boxed{0.00001369}\).
 
 \newpage
 
@@ -1022,12 +1022,23 @@ student odds ratio & 0.6441500\\
 \end{tabular}
 \end{table}
 
-The difference is \(\boxed{p_{12}-p_{13}=-4.87\times 10^{-6}}\), so the student profile has a slightly lower predicted default probability here. Yes, this difference comes from the \(\texttt{studentYes}\) coefficient. For fixed \(\texttt{balance}\) and \(\texttt{income}\), changing student status shifts the log-odds by \(\hat{\beta}_{\texttt{studentYes}}\):
+The difference is \(\boxed{p_{12}-p_{13}=-4.87\times 10^{-6}}\), so the student profile has a slightly lower predicted default probability here. This difference is directly related to the coefficient. Let
 \[
-\log\!\left(\frac{\hat{p}_{\texttt{Yes}}}{1-\hat{p}_{\texttt{Yes}}}\right)
--\log\!\left(\frac{\hat{p}_{\texttt{No}}}{1-\hat{p}_{\texttt{No}}}\right)
-= \hat{\beta}_{\texttt{studentYes}}.
+r=\frac{p_{12}/(1-p_{12})}{p_{13}/(1-p_{13})}=e^{\hat{\beta}_{\texttt{studentYes}}}=0.6442.
 \]
-Thus, the odds are multiplied by \(\exp(\hat{\beta}_{\texttt{studentYes}})=0.6442\) when moving from non-student to student at the same \(\texttt{balance}\) and \(\texttt{income}\).
+Solving this for \(p_{12}\) in terms of \(p_{13}\),
+\[
+p_{12}=\frac{r\,p_{13}}{1-p_{13}+r\,p_{13}},
+\]
+so
+\[
+p_{12}-p_{13}
+=\frac{p_{13}(1-p_{13})(r-1)}{1-p_{13}+r\,p_{13}}.
+\]
+This shows the probability difference comes from the student coefficient via \(r=e^{\hat{\beta}_{\texttt{studentYes}}}\). Plugging in \(r=0.6442\) and \(p_{13}=1.368903\times 10^{-5}\) gives
+\[
+p_{12}-p_{13}\approx -4.87\times 10^{-6},
+\]
+which matches the observed difference.
 
 \end{document}
