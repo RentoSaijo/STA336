@@ -4,5 +4,7 @@ Textbook.pdf
 .Rproj.user
 *.html
 *.log
+Homework*.tex
 STA336.Rproj
 Rplots.pdf
+Lab*.R

@@ -1,0 +1,658 @@
+---
+title: |
+  STA 336: Statistical Machine Learning
+subtitle: |
+  Homework 5
+author: |
+  Rento Saijo
+date: 'March 6, 2026'
+fontsize: 10pt
+documentclass: extarticle
+geometry: top=1.5in, bottom=1.5in, left=1.5in, right=1.5in
+urlcolor: blue
+linkcolor: blue
+citecolor: blue
+output:
+  bookdown::pdf_document2:
+    keep_tex: true
+    toc: false
+    fig_width: 5
+    fig_height: 3.5
+    fig_caption: true
+
+header-includes:
+  - |
+    \usepackage{xcolor}
+    \usepackage{hyperref}
+    \hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue}
+    \usepackage{float}
+    \usepackage{fvextra}
+    \usepackage{xcolor}
+    \usepackage{fancyhdr}
+    \usepackage{lastpage}
+    \usepackage{soul}
+    \usepackage{etoolbox}
+    \usepackage{microtype}
+    \usepackage{tcolorbox}
+    \usepackage{enumitem}
+    \usepackage{fancyvrb}
+    \usepackage{xspace}
+    \allowdisplaybreaks
+    \setcounter{tocdepth}{2}
+    \setcounter{secnumdepth}{0}
+    \floatplacement{figure}{H}
+    \makeatletter
+    \newcommand{\@subtitle}{}
+    \newcommand{\subtitle}[1]{\gdef\@subtitle{#1}}
+    \newcommand{\DocSubtitle}{\@subtitle}
+    \renewcommand{\maketitle}{
+      \thispagestyle{plain}
+      \null
+      \vfill
+      \begin{center}
+        {\Large \textsc{\@title} \par}\vskip 0.5em
+        {\LARGE \bfseries \@subtitle \par}\vskip 0.75em
+        {\large \@author \par}\vskip 0.5em
+        {\normalsize \@date \par}
+      \end{center}
+      \vfill
+      \tableofcontents
+      \vspace{1em}
+      \clearpage
+    }
+    \AfterEndEnvironment{Highlighting}{\setcounter{CodeLine}{\numexpr\value{CodeLine}+\FV@CodeLineNo\relax}}
+    \makeatother
+    \fancypagestyle{plain}{
+      \fancyhf{}
+      \renewcommand{\headrulewidth}{0pt}
+      \renewcommand{\footrulewidth}{0pt}
+    }
+    \pagestyle{fancy}
+    \fancyhf{}
+    \fancyfoot[C]{\small\textsc{Page}~\thepage~\textsc{of}~\pageref{LastPage}}
+    \fancyhead[L]{\textsc{Rento Saijo}}
+    \fancyhead[R]{\textsc{\DocSubtitle}}
+    \fancyhead[C]{\textsc{\rightmark}}
+    \renewcommand{\headrulewidth}{0.5pt}
+    \renewcommand{\footrulewidth}{0.5pt}
+    \newcounter{CodeLine}
+    \newcounter{cell}
+    \AtBeginEnvironment{Highlighting}{\stepcounter{cell}}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      frame=single,
+      rulecolor=\color{black},
+      framesep=2mm,
+      label=\footnotesize\textbf{Cell \thecell},
+      labelposition=topline,
+      commandchars=\\\{\},
+      breaklines=true,
+      breakanywhere=false,
+      breaksymbol={},
+      numbers=left,
+      numbersep=3pt,
+      firstnumber=\numexpr\value{CodeLine}+1\relax,
+      fontsize=\small
+    }
+    \DefineVerbatimEnvironment{verbatim}{Verbatim}{
+      breaklines=true,
+      breakanywhere=true,
+      numbers=left,
+      numbersep=3pt,
+      firstnumber=1,
+      fontsize=\footnotesize
+    }
+    \DefineVerbatimEnvironment{snippet}{Verbatim}{
+      breaklines=true,
+      breakanywhere=true,
+      fontsize=\footnotesize,
+      frame=single,
+      listparameters=\setlength{\topsep}{\baselineskip}\setlength{\partopsep}{0pt}
+    }
+    \newtcolorbox{problem}[1][]{
+      title={\textsc{#1}}
+    }
+    \newenvironment{alphenum}{
+      \begin{enumerate}[
+        label=(\alph*),
+        itemsep=3pt,
+        parsep=0pt,
+        topsep=6pt
+      ]
+    }{
+      \end{enumerate}
+    }
+    \newenvironment{items}{
+      \begin{itemize}[
+        itemsep=3pt,
+        parsep=0pt,
+        topsep=6pt
+      ]
+    }{
+      \end{itemize}
+    }
+    \renewcommand{\contentsname}{Table of Contents}
+    \newcommand{\E}{\mathrm{E}}
+    \newcommand{\Var}{\mathrm{Var}}
+    \newcommand{\R}{\textsf{R}\xspace}
+    \newcommand{\Pois}{\mathrm{Pois}}
+    \newcommand{\SD}{\mathrm{SD}}
+    \newcommand{\SE}{\mathrm{SE}}
+---
+
+```{r setup, include = FALSE}
+# ----- Setup ----- #
+
+# Set options.
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align = 'center')
+options(width = 125)
+options(scipen = 999)
+
+# Load libraries.
+suppressMessages(library(tidyverse))
+suppressMessages(library(ISLR2))
+suppressMessages(library(boot))
+
+# Set fonts.
+sysfonts::font_add(
+  family  = 'cmuserif',
+  regular = '/Users/rsai_91/Library/Fonts/cmu.serif-roman.ttf',
+  bold    = '/Users/rsai_91/Library/Fonts/cmu.serif-bold.ttf',
+  italic  = '/Users/rsai_91/Library/Fonts/cmu.serif-italic.ttf',
+  bolditalic = '/Users/rsai_91/Library/Fonts/cmu.serif-bolditalic.ttf'
+)
+showtext::showtext_opts(dpi = 500)
+showtext::showtext_auto(enable = TRUE)
+knitr::opts_chunk$set(dev = 'CairoPDF')
+par(family = 'cmuserif')
+ggplot2::theme_set(ggplot2::theme_minimal(base_family = 'cmuserif', base_size = 10))
+
+# ----- Helpers ----- #
+
+# Print LaTeX table from data.frame.
+table_latex = function(data, col_names = NULL, caption = NULL, escape = FALSE) {
+  data %>%
+    knitr::kable(
+      format    = 'latex',
+      booktabs  = TRUE,
+      escape    = escape,
+      col.names = col_names,
+      caption   = caption,
+      linesep   = '',
+      align     = rep('c', ncol(data)),
+      ) %>%
+    kableExtra::kable_styling(
+      position = 'center',
+      latex_options = c('HOLD_position'))
+}
+
+# Plot with LaTeX.
+with_par <- function(expr) { 
+    op <- par(no.readonly = TRUE)
+    on.exit(par(op))
+    force(expr) 
+}
+with_family <- function(expr, family = 'cmuserif') {
+    op <- par(no.readonly = TRUE)
+    on.exit(par(op))
+    par(family = family)
+    force(expr) 
+}
+```
+
+# Disclosure
+
+GPT-5.3-Codex was used to create the `YAML` portion and some `LaTeX` code to format the text/equations nicely. Page formatting code was also provided by Derin Gezgin. In the setup chunk, libraries were loaded and some helper functions were defined including but not limited to `table_latex()` and `with_family()`. See the original `RMD` file [here](https://github.com/RentoSaijo/STA336/blob/main/Homework5.Rmd) for more details.
+
+\newpage
+
+# Problem 1
+
+\begin{problem}[Problem 1]
+We now review \(k\)-fold cross-validation.
+\end{problem}
+
+\newpage
+
+## Problem 1 (a)
+
+\begin{problem}[Problem 1 (a)]
+Explain how k-fold cross-validation is implemented.
+\end{problem}
+
+k-fold cross-validation is implemented by randomly splitting the data into \(k\) roughly equal-sized folds. For each fold \(j=1,\dots,k\), we fit the model on the other \(k-1\) folds (the training portion) and evaluate prediction error on fold \(j\) (the hold-out portion). This gives \(k\) validation errors, one from each fold serving as the validation set once. The final cross-validation estimate is the average of these \(k\) errors:
+\[
+\mathrm{CV}_{(k)}=\frac{1}{k}\sum_{j=1}^{k}\mathrm{MSE}_j
+\]
+(or the analogous average classification error for a classification problem).
+
+\newpage
+
+## Problem 1 (b)
+
+\begin{problem}[Problem 1 (b)]
+What are the advantages and disadvantages of \(k\)-fold cross-validation relative to:
+\begin{enumerate}[label=\roman*.]
+\item The validation set approach?
+\item LOOCV?
+\end{enumerate}
+\end{problem}
+
+\begin{enumerate}[label=\roman*.]
+\item Relative to the validation set approach, \(k\)-fold cross-validation usually gives a more stable and reliable estimate of test error because every observation is used for both training and validation across folds. It also reduces dependence on one arbitrary split. The tradeoff is that it is computationally more expensive than fitting a model once on a single train/validation split.
+\item Relative to LOOCV, \(k\)-fold cross-validation (for example, \(k=5\) or \(k=10\)) is usually much faster because we fit the model \(k\) times instead of \(n\) times. It can also have lower variance in the error estimate than LOOCV because each training set differs more substantially across folds. The tradeoff is that LOOCV often has slightly lower bias because each training fit uses \(n-1\) observations, while \(k\)-fold uses only \((k-1)n/k\) observations in each fit.
+\end{enumerate}
+
+\newpage
+
+# Problem 2
+
+\begin{problem}[Problem 2]
+In Chapter 4, we used logistic regression to predict the probability of \texttt{default} using \texttt{income} and \texttt{balance} on the \texttt{Default} data set. We will now estimate the test error of this logistic regression model using the validation set approach. Do not forget to set a random seed before beginning your analysis.
+\end{problem}
+
+```{r}
+# Load data.
+default_df <- ISLR2::Default
+
+# Helper for validation-set error.
+validation_error <- function(seed, formula, cutoff = 0.5) {
+  set.seed(seed)
+  n <- nrow(default_df)
+  train_idx <- sample(seq_len(n), n / 2)
+  train_df <- default_df[train_idx, ]
+  valid_df <- default_df[-train_idx, ]
+  model <- stats::glm(formula, data = train_df, family = stats::binomial)
+  prob <- stats::predict(model, newdata = valid_df, type = 'response')
+  pred <- ifelse(prob > cutoff, 'Yes', 'No')
+  list(
+    seed = seed,
+    train_n = nrow(train_df),
+    valid_n = nrow(valid_df),
+    misclassified = sum(pred != valid_df$default),
+    error = mean(pred != valid_df$default),
+    model = model
+  )
+}
+```
+
+\newpage
+
+## Problem 2 (a)
+
+\begin{problem}[Problem 2 (a)]
+Fit a logistic regression model that uses \texttt{income} and \texttt{balance} to predict \texttt{default}.
+\end{problem}
+
+```{r, results='asis'}
+# Fit model on full data.
+model_2a <- stats::glm(default ~ income + balance, data = default_df, family = stats::binomial)
+
+# Create coefficient table.
+coef_2a_tbl <- as.data.frame(stats::coef(summary(model_2a))) %>%
+  tibble::rownames_to_column(var = 'term') %>%
+  dplyr::rename(
+    estimate = Estimate,
+    std_error = `Std. Error`,
+    z_value = `z value`,
+    p_value = `Pr(>|z|)`
+  ) %>%
+  dplyr::mutate(
+    estimate = signif(estimate, 6),
+    std_error = signif(std_error, 6),
+    z_value = signif(z_value, 6),
+    p_value = signif(p_value, 6)
+  )
+coef_2a_tbl %>%
+  table_latex(
+    col_names = c('Term', 'Estimate', 'Std. Error', 'z value', 'Pr(>|z|)'),
+    caption = 'Logistic regression fit for default ~ income + balance (full data).'
+  )
+```
+
+The fitted model is
+\[
+\log\!\left(\frac{\hat{p}}{1-\hat{p}}\right)
+= -11.5405 + 0.000020809\,\texttt{income} + 0.00564710\,\texttt{balance},
+\]
+where \(\hat{p}=\Pr(\texttt{default}=\texttt{Yes}\mid \texttt{income},\texttt{balance})\).
+
+\newpage
+
+## Problem 2 (b)
+
+\begin{problem}[Problem 2 (b)]
+Using the validation set approach, estimate the test error of this model. In order to do this, you must perform the following steps:
+\begin{enumerate}[label=\roman*.]
+\item Split the sample set into a training set and a validation set.
+\item Fit a multiple logistic regression model using only the training observations.
+\item Obtain a prediction of default status for each individual in the validation set by computing the posterior probability of default for that individual, and classifying the individual to the \texttt{default} category if the posterior probability is greater than \(0.5\).
+\item Compute the validation set error, which is the fraction of the observations in the validation set that are misclassified.
+\end{enumerate}
+\end{problem}
+
+```{r, results='asis'}
+# Validation estimate with one split.
+res_2b <- validation_error(seed = 1, formula = default ~ income + balance, cutoff = 0.5)
+res_2b_tbl <- tibble::tibble(
+  seed = res_2b$seed,
+  training_observations = res_2b$train_n,
+  validation_observations = res_2b$valid_n,
+  misclassified = res_2b$misclassified,
+  validation_error = round(res_2b$error, 4)
+)
+res_2b_tbl %>%
+  table_latex(
+    col_names = c('Seed', 'Training n', 'Validation n', 'Misclassified', 'Validation Error'),
+    caption = 'Validation-set estimate for default ~ income + balance.'
+  )
+```
+
+With seed \(1\), the validation error is \(\boxed{0.0254}\) (\(127\) misclassified out of \(5000\)).
+
+\newpage
+
+## Problem 2 (c)
+
+\begin{problem}[Problem 2 (c)]
+Repeat the process in (b) three times, using three different splits of the observations into a training set and a validation set. Comment on the results obtained.
+\end{problem}
+
+```{r, results='asis'}
+# Repeat with three different seeds/splits.
+seeds_2c <- c(2, 3, 4)
+errs_2c <- sapply(seeds_2c, function(s) validation_error(seed = s, formula = default ~ income + balance)$error)
+res_2c_tbl <- tibble::tibble(
+  seed = seeds_2c,
+  validation_error = round(errs_2c, 4)
+)
+summary_2c_tbl <- tibble::tibble(
+  metric = c('Mean error', 'Minimum error', 'Maximum error'),
+  value = round(c(mean(errs_2c), min(errs_2c), max(errs_2c)), 4)
+)
+res_2c_tbl %>%
+  table_latex(
+    col_names = c('Seed', 'Validation Error'),
+    caption = 'Validation-set errors over three different random splits.'
+  )
+```
+
+```{r, results='asis'}
+# Create table.
+summary_2c_tbl %>%
+  table_latex(
+    col_names = c('Metric', 'Value'),
+    caption = 'Summary of validation-set error across the three splits.'
+  )
+```
+
+The three validation-set errors are \(0.0238\), \(0.0264\), and \(0.0256\). These values are close to one another, so the estimated test error is fairly stable, but not identical across splits because the validation set approach depends on which observations happen to fall in training versus validation.
+
+\newpage
+
+## Problem 2 (d)
+
+\begin{problem}[Problem 2 (d)]
+Now consider a logistic regression model that predicts the probability of \texttt{default} using \texttt{income}, \texttt{balance}, and a dummy variable for \texttt{student}. Estimate the test error for this model using the validation set approach. Comment on whether or not including a dummy variable for \texttt{student} leads to a reduction in the test error rate.
+\end{problem}
+
+```{r, results='asis'}
+# Compare models on the same split (seed = 1).
+res_2d <- validation_error(seed = 1, formula = default ~ income + balance + student, cutoff = 0.5)
+compare_2d_tbl <- tibble::tibble(
+  model = c('income + balance', 'income + balance + student'),
+  validation_error = round(c(res_2b$error, res_2d$error), 4)
+)
+diff_2d_tbl <- tibble::tibble(
+  metric = 'Error difference (with student - without student)',
+  value = round(res_2d$error - res_2b$error, 4)
+)
+compare_2d_tbl %>%
+  table_latex(
+    col_names = c('Model', 'Validation Error'),
+    caption = 'Validation-set comparison on the same random split (seed = 1).'
+  )
+```
+
+```{r, results='asis'}
+# Create table.
+diff_2d_tbl %>%
+  table_latex(
+    col_names = c('Metric', 'Value'),
+    caption = 'Difference in validation error after adding student.'
+  )
+```
+
+Using the same split as part (b), the model with \texttt{student} has validation error \(\boxed{0.0260}\), compared with \(0.0254\) without \texttt{student}. Here, adding \texttt{student} does not reduce the estimated test error; it increases it slightly by \(0.0006\).
+
+\newpage
+
+# Problem 3
+
+\begin{problem}[Problem 3]
+We will now perform cross-validation on a simulated data set.
+\end{problem}
+
+\newpage
+
+## Problem 3 (a)
+
+\begin{problem}[Problem 3 (a)]
+Generate a simulated data set as follows:
+\begin{verbatim}
+set.seed(1)
+x <- rnorm(100)
+y <- x - 2 * x^2 + rnorm(100)
+\end{verbatim}
+In this data set, what is \(n\) and what is \(p\)? Write out the model used to generate the data in equation form.
+\end{problem}
+
+```{r, results='asis'}
+# Simulate data exactly as requested.
+set.seed(1)
+x <- rnorm(100)
+y <- x - 2 * x^2 + rnorm(100)
+sim_df <- data.frame(x = x, y = y)
+
+# Report n and p.
+np_3a_tbl <- tibble::tibble(
+  quantity = c('n (number of observations)', 'p (number of predictors)'),
+  value = c(nrow(sim_df), 1)
+)
+np_3a_tbl %>%
+  table_latex(
+    col_names = c('Quantity', 'Value'),
+    caption = 'Dimensions of the simulated data set.'
+  )
+```
+
+For this simulated data set, \(n=100\) and \(p=1\) (the single predictor is \(X\)). The data-generating model is
+\[
+Y = X - 2X^2 + \varepsilon,\qquad \varepsilon \sim N(0,1).
+\]
+
+\newpage
+
+## Problem 3 (b)
+
+\begin{problem}[Problem 3 (b)]
+Create a scatter plot of \(X\) against \(Y\). Comment on what you find.
+\end{problem}
+
+```{r, fig.width=8, fig.height=6, out.width='\\linewidth', fig.cap='Scatter plot of X against Y for the simulated data.'}
+# Create scatter plot.
+plot(
+  sim_df$x, sim_df$y,
+  xlab = 'X',
+  ylab = 'Y',
+  pch = 19,
+  col = '#1f77b4'
+)
+```
+
+The scatterplot shows a clear curved (roughly downward-opening parabola) relationship between \(X\) and \(Y\), with random noise around that curve. This matches the quadratic signal in the data-generating model.
+
+\newpage
+
+## Problem 3 (c)
+
+\begin{problem}[Problem 3 (c)]
+Set a random seed, and then compute the LOOCV errors that result from fitting the following four models using least squares:
+\begin{enumerate}[label=\roman*.]
+\item \(Y=\beta_0+\beta_1X+\varepsilon\)
+\item \(Y=\beta_0+\beta_1X+\beta_2X^2+\varepsilon\)
+\item \(Y=\beta_0+\beta_1X+\beta_2X^2+\beta_3X^3+\varepsilon\)
+\item \(Y=\beta_0+\beta_1X+\beta_2X^2+\beta_3X^3+\beta_4X^4+\varepsilon\)
+\end{enumerate}
+Note you may find it helpful to use the \texttt{data.frame()} function to create a single data set containing both \(X\) and \(Y\).
+\end{problem}
+
+```{r, results='asis'}
+# Fit models and compute LOOCV error.
+set.seed(123)
+glm_3c_1 <- stats::glm(y ~ x, data = sim_df)
+glm_3c_2 <- stats::glm(y ~ x + I(x^2), data = sim_df)
+glm_3c_3 <- stats::glm(y ~ x + I(x^2) + I(x^3), data = sim_df)
+glm_3c_4 <- stats::glm(y ~ x + I(x^2) + I(x^3) + I(x^4), data = sim_df)
+loocv_3c <- tibble::tibble(
+  model = c('i', 'ii', 'iii', 'iv'),
+  specification = c(
+    'Y ~ X',
+    'Y ~ X + X^2',
+    'Y ~ X + X^2 + X^3',
+    'Y ~ X + X^2 + X^3 + X^4'
+  ),
+  loocv_error = round(c(
+    boot::cv.glm(sim_df, glm_3c_1)$delta[1],
+    boot::cv.glm(sim_df, glm_3c_2)$delta[1],
+    boot::cv.glm(sim_df, glm_3c_3)$delta[1],
+    boot::cv.glm(sim_df, glm_3c_4)$delta[1]
+  ), 6)
+)
+loocv_3c %>%
+  table_latex(
+    col_names = c('Model', 'Specification', 'LOOCV Error'),
+    caption = 'LOOCV errors for polynomial models (seed = 123).',
+    escape = TRUE
+  )
+```
+
+With seed \(123\), the LOOCV errors are:
+\[
+\text{i: }7.288162,\quad
+\text{ii: }0.937424,\quad
+\text{iii: }0.956622,\quad
+\text{iv: }0.953905.
+\]
+
+\newpage
+
+## Problem 3 (d)
+
+\begin{problem}[Problem 3 (d)]
+Repeat (c) using another random seed, and report your results. Are your results the same as what you got in (c)? Why?
+\end{problem}
+
+```{r, results='asis'}
+# Repeat LOOCV with a different seed.
+set.seed(999)
+glm_3d_1 <- stats::glm(y ~ x, data = sim_df)
+glm_3d_2 <- stats::glm(y ~ x + I(x^2), data = sim_df)
+glm_3d_3 <- stats::glm(y ~ x + I(x^2) + I(x^3), data = sim_df)
+glm_3d_4 <- stats::glm(y ~ x + I(x^2) + I(x^3) + I(x^4), data = sim_df)
+loocv_3d <- c(
+  boot::cv.glm(sim_df, glm_3d_1)$delta[1],
+  boot::cv.glm(sim_df, glm_3d_2)$delta[1],
+  boot::cv.glm(sim_df, glm_3d_3)$delta[1],
+  boot::cv.glm(sim_df, glm_3d_4)$delta[1]
+)
+compare_3d_tbl <- tibble::tibble(
+  model = c('i', 'ii', 'iii', 'iv'),
+  loocv_seed_123 = loocv_3c$loocv_error,
+  loocv_seed_999 = round(loocv_3d, 6),
+  absolute_difference = round(abs(loocv_3c$loocv_error - loocv_3d), 6)
+)
+compare_3d_tbl %>%
+  table_latex(
+    col_names = c('Model', 'LOOCV (Seed 123)', 'LOOCV (Seed 999)', 'Absolute Difference'),
+    caption = 'LOOCV errors under two different random seeds.'
+  )
+```
+
+The LOOCV errors are exactly the same for both seeds. This happens because LOOCV is deterministic for a fixed data set and fixed model: each observation is left out once, so there is no random fold assignment as in \(k\)-fold CV with \(k<n\).
+
+\newpage
+
+## Problem 3 (e)
+
+\begin{problem}[Problem 3 (e)]
+Which of the models in (c) had the smallest LOOCV error? Is this what you expected? Explain your answer.
+\end{problem}
+
+```{r, results='asis'}
+# Identify best model by LOOCV.
+best_idx_3e <- which.min(loocv_3c$loocv_error)
+best_3e_tbl <- tibble::tibble(
+  model = loocv_3c$model[best_idx_3e],
+  specification = loocv_3c$specification[best_idx_3e],
+  loocv_error = loocv_3c$loocv_error[best_idx_3e]
+)
+best_3e_tbl %>%
+  table_latex(
+    col_names = c('Best Model', 'Specification', 'LOOCV Error'),
+    caption = 'Model with smallest LOOCV error.',
+    escape = TRUE
+  )
+```
+
+Model (ii), the quadratic model \(Y \sim X + X^2\), has the smallest LOOCV error (\(0.937424\)). Yes, this is what I expected, because the true data-generating process includes a quadratic term (\(-2X^2\)) and does not include higher-order terms.
+
+\newpage
+
+## Problem 3 (f)
+
+\begin{problem}[Problem 3 (f)]
+Comment on the statistical significance of the coefficient estimates that results from fitting each of the models in (c) using least squares. Do these results agree with the conclusions drawn based on the cross-validation results?
+\end{problem}
+
+```{r, results='asis'}
+# Fit least-squares models.
+lm_3f_1 <- stats::lm(y ~ x, data = sim_df)
+lm_3f_2 <- stats::lm(y ~ x + I(x^2), data = sim_df)
+lm_3f_3 <- stats::lm(y ~ x + I(x^2) + I(x^3), data = sim_df)
+lm_3f_4 <- stats::lm(y ~ x + I(x^2) + I(x^3) + I(x^4), data = sim_df)
+
+# Build coefficient significance table.
+coef_table <- function(model, model_name) {
+  out <- as.data.frame(summary(model)$coefficients) %>%
+    tibble::rownames_to_column(var = 'term') %>%
+    dplyr::rename(
+      estimate = Estimate,
+      std_error = `Std. Error`,
+      t_value = `t value`,
+      p_value = `Pr(>|t|)`
+    ) %>%
+    dplyr::mutate(model = model_name) %>%
+    dplyr::select(model, term, estimate, std_error, t_value, p_value)
+  out
+}
+coef_3f_tbl <- dplyr::bind_rows(
+  coef_table(lm_3f_1, 'Model i'),
+  coef_table(lm_3f_2, 'Model ii'),
+  coef_table(lm_3f_3, 'Model iii'),
+  coef_table(lm_3f_4, 'Model iv')
+) %>%
+  dplyr::mutate(
+    estimate = signif(estimate, 6),
+    std_error = signif(std_error, 6),
+    t_value = signif(t_value, 6),
+    p_value = signif(p_value, 6)
+  )
+coef_3f_tbl %>%
+  table_latex(
+    col_names = c('Model', 'Term', 'Estimate', 'Std. Error', 't value', 'Pr(>|t|)'),
+    caption = 'Coefficient significance from least-squares fits in models (i)-(iv).',
+    escape = TRUE
+  )
+```
+
+In model (ii), both \(X\) and \(X^2\) are highly significant (\(p\)-values \(2.40\times 10^{-15}\) and \(4.58\times 10^{-44}\), respectively). In model (iii), \(X^3\) is not significant (\(p=0.7844\)). In model (iv), both \(X^3\) and \(X^4\) are not significant (\(p=0.8922\) and \(p=0.1931\)). These least-squares significance results agree with the cross-validation conclusion: the quadratic model captures the real signal, while higher-order terms do not improve predictive performance.
