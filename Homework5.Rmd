@@ -467,7 +467,7 @@ np_3a_tbl %>%
 
 For this simulated data set, \(n=100\) and \(p=1\) (the single predictor is \(X\)). The data-generating model is
 \[
-Y = X - 2X^2 + \varepsilon,\qquad \varepsilon \sim N(0,1).
+Y = X - 2X^2 + \varepsilon,\qquad X \sim N(0,1), \qquad \varepsilon \sim N(0,1).
 \]
 
 \newpage
