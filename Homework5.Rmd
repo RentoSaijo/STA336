@@ -656,3 +656,13 @@ coef_3f_tbl %>%
 ```
 
 In model (ii), both \(X\) and \(X^2\) are highly significant (\(p\)-values \(2.40\times 10^{-15}\) and \(4.58\times 10^{-44}\), respectively). In model (iii), \(X^3\) is not significant (\(p=0.7844\)). In model (iv), both \(X^3\) and \(X^4\) are not significant (\(p=0.8922\) and \(p=0.1931\)). These least-squares significance results agree with the cross-validation conclusion: the quadratic model captures the real signal, while higher-order terms do not improve predictive performance.
+
+\newpage
+
+# Problem 4
+
+\begin{problem}[Problem 4]
+Submit a plan for your kaggle sprint: what models are you going to explore, and how will you study them?
+\end{problem}
+
+Carson and I have came up with the natural progression of tackling this project: competition goal, dataset structure, validation strategy/evaluation metric, feature engineering/workflow, modeling approaches, trade-offs (strengths/weaknesses/limitations/constraints), and then best practices (conclusion). Naturally, we have partioned the work, and I will be responsible for dataset structure, feature engineering/workflow, trade-offs, and we will work together for the best practices. For the dataset structure, I will research about the basic shape (e.g., tabular?, rows, columns, what kind of variables we have access to); for the feature engineering/workflow, I will research about the preparations/pre-processing involving transformations and normalization; and for the models' trade-offs, I will research about the different types of models the contestants used (just looking from the surface, most models are tree-based ensemble machine learning methods like bagging, random forests, XGBoost, LightGBM, and CatBoost). Lastly, we will work together after the break to share the best practices and create our presentation deck. In terms of where I will get model/workflow technique explanations, I plan on reading relevant research papers that I can search with LLMs; LLMs can also be used to answer questions I will most likely have while reading the papers.
