@@ -259,18 +259,18 @@ validation_error <- function(seed, formula, cutoff = 0.5) {
   set.seed(seed)
   n <- nrow(default_df)
   train_idx <- sample(seq_len(n), n / 2)
-  train_df <- default_df[train_idx, ]
-  valid_df <- default_df[-train_idx, ]
+  train_df  <- default_df[train_idx, ]
+  valid_df  <- default_df[-train_idx, ]
   model <- stats::glm(formula, data = train_df, family = stats::binomial)
-  prob <- stats::predict(model, newdata = valid_df, type = 'response')
-  pred <- ifelse(prob > cutoff, 'Yes', 'No')
+  prob  <- stats::predict(model, newdata = valid_df, type = 'response')
+  pred  <- ifelse(prob > cutoff, 'Yes', 'No')
   list(
-    seed = seed,
+    seed    = seed,
     train_n = nrow(train_df),
     valid_n = nrow(valid_df),
     misclassified = sum(pred != valid_df$default),
-    error = mean(pred != valid_df$default),
-    model = model
+    error   = mean(pred != valid_df$default),
+    model   = model
   )
 }
 ```
@@ -291,21 +291,21 @@ model_2a <- stats::glm(default ~ income + balance, data = default_df, family = s
 coef_2a_tbl <- as.data.frame(stats::coef(summary(model_2a))) %>%
   tibble::rownames_to_column(var = 'term') %>%
   dplyr::rename(
-    estimate = Estimate,
+    estimate  = Estimate,
     std_error = `Std. Error`,
-    z_value = `z value`,
-    p_value = `Pr(>|z|)`
+    z_value   = `z value`,
+    p_value   = `Pr(>|z|)`
   ) %>%
   dplyr::mutate(
-    estimate = signif(estimate, 6),
+    estimate  = signif(estimate, 6),
     std_error = signif(std_error, 6),
-    z_value = signif(z_value, 6),
-    p_value = signif(p_value, 6)
+    z_value   = signif(z_value, 6),
+    p_value   = signif(p_value, 6)
   )
 coef_2a_tbl %>%
   table_latex(
     col_names = c('Term', 'Estimate', 'Std. Error', 'z value', 'Pr(>|z|)'),
-    caption = 'Logistic regression fit for default ~ income + balance (full data).'
+    caption   = 'Logistic regression fit for default ~ income + balance (full data).'
   )
 ```
 
@@ -335,15 +335,15 @@ Using the validation set approach, estimate the test error of this model. In ord
 res_2b <- validation_error(seed = 1, formula = default ~ income + balance, cutoff = 0.5)
 res_2b_tbl <- tibble::tibble(
   seed = res_2b$seed,
-  training_observations = res_2b$train_n,
+  training_observations   = res_2b$train_n,
   validation_observations = res_2b$valid_n,
-  misclassified = res_2b$misclassified,
+  misclassified    = res_2b$misclassified,
   validation_error = round(res_2b$error, 4)
 )
 res_2b_tbl %>%
   table_latex(
     col_names = c('Seed', 'Training n', 'Validation n', 'Misclassified', 'Validation Error'),
-    caption = 'Validation-set estimate for default ~ income + balance.'
+    caption   = 'Validation-set estimate for default ~ income + balance.'
   )
 ```
 
@@ -360,19 +360,19 @@ Repeat the process in (b) three times, using three different splits of the obser
 ```{r, results='asis'}
 # Repeat with three different seeds/splits.
 seeds_2c <- c(2, 3, 4)
-errs_2c <- sapply(seeds_2c, function(s) validation_error(seed = s, formula = default ~ income + balance)$error)
+errs_2c  <- sapply(seeds_2c, function(s) validation_error(seed = s, formula = default ~ income + balance)$error)
 res_2c_tbl <- tibble::tibble(
   seed = seeds_2c,
   validation_error = round(errs_2c, 4)
 )
 summary_2c_tbl <- tibble::tibble(
   metric = c('Mean error', 'Minimum error', 'Maximum error'),
-  value = round(c(mean(errs_2c), min(errs_2c), max(errs_2c)), 4)
+  value  = round(c(mean(errs_2c), min(errs_2c), max(errs_2c)), 4)
 )
 res_2c_tbl %>%
   table_latex(
     col_names = c('Seed', 'Validation Error'),
-    caption = 'Validation-set errors over three different random splits.'
+    caption   = 'Validation-set errors over three different random splits.'
   )
 ```
 
@@ -381,7 +381,7 @@ res_2c_tbl %>%
 summary_2c_tbl %>%
   table_latex(
     col_names = c('Metric', 'Value'),
-    caption = 'Summary of validation-set error across the three splits.'
+    caption   = 'Summary of validation-set error across the three splits.'
   )
 ```
 
@@ -404,12 +404,12 @@ compare_2d_tbl <- tibble::tibble(
 )
 diff_2d_tbl <- tibble::tibble(
   metric = 'Error difference (with student - without student)',
-  value = round(res_2d$error - res_2b$error, 4)
+  value  = round(res_2d$error - res_2b$error, 4)
 )
 compare_2d_tbl %>%
   table_latex(
     col_names = c('Model', 'Validation Error'),
-    caption = 'Validation-set comparison on the same random split (seed = 1).'
+    caption   = 'Validation-set comparison on the same random split (seed = 1).'
   )
 ```
 
@@ -418,7 +418,7 @@ compare_2d_tbl %>%
 diff_2d_tbl %>%
   table_latex(
     col_names = c('Metric', 'Value'),
-    caption = 'Difference in validation error after adding student.'
+    caption   = 'Difference in validation error after adding student.'
   )
 ```
 
@@ -456,12 +456,12 @@ sim_df <- data.frame(x = x, y = y)
 # Report n and p.
 np_3a_tbl <- tibble::tibble(
   quantity = c('n (number of observations)', 'p (number of predictors)'),
-  value = c(nrow(sim_df), 1)
+  value    = c(nrow(sim_df), 1)
 )
 np_3a_tbl %>%
   table_latex(
     col_names = c('Quantity', 'Value'),
-    caption = 'Dimensions of the simulated data set.'
+    caption   = 'Dimensions of the simulated data set.'
   )
 ```
 
@@ -484,8 +484,8 @@ plot(
   sim_df$x, sim_df$y,
   xlab = 'X',
   ylab = 'Y',
-  pch = 19,
-  col = '#1f77b4'
+  pch  = 19,
+  col  = '#1f77b4'
 )
 ```
 
@@ -531,8 +531,8 @@ loocv_3c <- tibble::tibble(
 loocv_3c %>%
   table_latex(
     col_names = c('Model', 'Specification', 'LOOCV Error'),
-    caption = 'LOOCV errors for polynomial models (seed = 123).',
-    escape = TRUE
+    caption   = 'LOOCV errors for polynomial models (seed = 123).',
+    escape    = TRUE
   )
 ```
 
@@ -574,7 +574,7 @@ compare_3d_tbl <- tibble::tibble(
 compare_3d_tbl %>%
   table_latex(
     col_names = c('Model', 'LOOCV (Seed 123)', 'LOOCV (Seed 999)', 'Absolute Difference'),
-    caption = 'LOOCV errors under two different random seeds.'
+    caption   = 'LOOCV errors under two different random seeds.'
   )
 ```
 
@@ -594,13 +594,13 @@ best_idx_3e <- which.min(loocv_3c$loocv_error)
 best_3e_tbl <- tibble::tibble(
   model = loocv_3c$model[best_idx_3e],
   specification = loocv_3c$specification[best_idx_3e],
-  loocv_error = loocv_3c$loocv_error[best_idx_3e]
+  loocv_error   = loocv_3c$loocv_error[best_idx_3e]
 )
 best_3e_tbl %>%
   table_latex(
     col_names = c('Best Model', 'Specification', 'LOOCV Error'),
-    caption = 'Model with smallest LOOCV error.',
-    escape = TRUE
+    caption   = 'Model with smallest LOOCV error.',
+    escape    = TRUE
   )
 ```
 
@@ -626,10 +626,10 @@ coef_table <- function(model, model_name) {
   out <- as.data.frame(summary(model)$coefficients) %>%
     tibble::rownames_to_column(var = 'term') %>%
     dplyr::rename(
-      estimate = Estimate,
+      estimate  = Estimate,
       std_error = `Std. Error`,
-      t_value = `t value`,
-      p_value = `Pr(>|t|)`
+      t_value   = `t value`,
+      p_value   = `Pr(>|t|)`
     ) %>%
     dplyr::mutate(model = model_name) %>%
     dplyr::select(model, term, estimate, std_error, t_value, p_value)
@@ -642,16 +642,16 @@ coef_3f_tbl <- dplyr::bind_rows(
   coef_table(lm_3f_4, 'Model iv')
 ) %>%
   dplyr::mutate(
-    estimate = signif(estimate, 6),
+    estimate  = signif(estimate, 6),
     std_error = signif(std_error, 6),
-    t_value = signif(t_value, 6),
-    p_value = signif(p_value, 6)
+    t_value   = signif(t_value, 6),
+    p_value   = signif(p_value, 6)
   )
 coef_3f_tbl %>%
   table_latex(
     col_names = c('Model', 'Term', 'Estimate', 'Std. Error', 't value', 'Pr(>|t|)'),
-    caption = 'Coefficient significance from least-squares fits in models (i)-(iv).',
-    escape = TRUE
+    caption   = 'Coefficient significance from least-squares fits in models (i)-(iv).',
+    escape    = TRUE
   )
 ```
 
