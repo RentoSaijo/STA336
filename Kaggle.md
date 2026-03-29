@@ -1,4 +1,4 @@
-# Kaggle Spring Notes: Spaceship Titanic
+# Kaggle Sprint Notes: Spaceship Titanic
 
 Research date: March 21, 2026
 
