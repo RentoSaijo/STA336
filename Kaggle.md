@@ -186,7 +186,49 @@ Samyak Raj Bayar’s public baseline is simpler but again points in the same dir
 
 If I had to summarize the public model evidence in one sentence, it would be this: once preprocessing is done well, many competent models live in the high-0.79 to low-0.80 range, but the most consistently strong public results come from boosted-tree methods and occasionally from ensembles built on top of them.
 
-## Slide 6: Strengths, Limitations, Constraints, and Trade-offs
+## Slide 6: HistGradientBoostingClassifier in Detail
+
+HistGradientBoostingClassifier deserves its own slide because it was not just “one more model in the comparison table.” In the public Spaceship Titanic work, it is one of the clearest examples of a high-performing tabular method that remains fully inside the standard scikit-learn ecosystem. That makes it especially useful for class discussion: we can explain what it is statistically, what it is doing computationally, and why PatrickSVM’s implementation fits this dataset so well. [4][9]
+
+At a conceptual level, HistGradientBoosting is still gradient boosting. The model is built stage by stage. If `F_(m-1)(x)` is the current ensemble score after `m-1` boosting rounds, the next round fits a tree `h_m(x)` to the negative gradient of the loss and updates the ensemble according to
+
+`F_m(x) = F_(m-1)(x) + nu * h_m(x)`,
+
+where `nu` is the learning rate. In PatrickSVM’s notebook the loss is binary `log_loss`, so each additional tree is trying to correct the mistakes of the current classifier on the transported-versus-not-transported decision boundary. The important intuition is that the model is not fitting one giant tree. It is fitting many weak trees sequentially, and each one is targeted at the residual structure the previous ensemble still misses. [4][9]
+
+The “Hist” prefix is the computational difference that makes this model especially relevant for Kaggle-style tabular data. According to the scikit-learn documentation, before training begins, each feature is binned into integer-valued histogram bins, with at most `max_bins = 255` non-missing bins by default and one additional bin reserved for missing values. Split search is then performed on those bins rather than on every unique feature value. That makes training much faster than exact gradient boosting while preserving the tree-ensemble logic. The documentation also notes that `categorical_features` can be supplied as a boolean mask, which is crucial here because the Spaceship Titanic feature set contains many parsed categorical variables such as `HomePlanet`, `Destination`, `Deck`, `Side`, and engineered group indicators. [9]
+
+That design choice connects directly to PatrickSVM’s implementation. In the notebook’s HistGradientBoosting section, he first calls his preprocessing routine with categorical features `HomePlanet`, `Destination`, `Deck`, `Side`, `VIP`, `CryoSleep`, `NoExpenses`, `Alone`, `GroupSize`, and `GroupPos`; he drops raw identifiers such as `PassengerId`, `Name`, `CabinNum`, and `GroupID`; he turns one-hot encoding off; and he log-transforms the spending variables. [4] Those steps are not arbitrary. Turning one-hot encoding off keeps the feature matrix compact and allows HistGradientBoosting to use its native categorical-feature mechanism instead of exploding the design matrix into many dummy columns. Log-transforming the spending variables is also sensible because those expenses are strongly right-skewed, so large purchases do not dominate the split search as aggressively.
+
+Patrick then constructs a categorical mask by identifying the integer-coded feature columns, excluding `Age`, and passes that mask into `HistGradientBoostingClassifier`. The exact hyperparameter pattern in the notebook is:
+
+- `loss='log_loss'`
+- `random_state=123`
+- `max_iter=120`
+- `learning_rate=0.075`
+- `max_depth=10`
+- `max_leaf_nodes=16`
+- `min_samples_leaf=6`
+- `l2_regularization=0`
+- `categorical_features=mask`
+
+This combination shows a fairly disciplined boosted-tree setup. `max_iter=120` means the model adds many boosting rounds rather than trying to do everything with a few large jumps. `learning_rate=0.075` keeps each update relatively small, which is a common anti-overfitting choice in boosting. `max_leaf_nodes=16` and `min_samples_leaf=6` regularize the individual trees so that each stage is expressive but not wild. `max_depth=10` is large enough to capture structured interactions, but the leaf and sample constraints keep the trees from becoming unconstrained memorization devices. [4]
+
+It is worth being more explicit about what those controls are doing, because this is exactly the kind of detail a strong presentation can explain instead of just listing. `loss='log_loss'` means the model is optimizing the binary classification objective appropriate for predicting `Transported=True` or `False`, not a squared-error regression loss. `max_iter=120` is the number of boosting stages, so Patrick is allowing the ensemble to refine itself over 120 successive correction steps. `learning_rate=0.075` shrinks each step, which is why the model can afford many rounds without every new tree making an overly aggressive change to the fitted decision function. `max_depth=10` sets an upper bound on interaction complexity within a single tree, while `max_leaf_nodes=16` is a second structural constraint that limits how fragmented each tree can become. `min_samples_leaf=6` prevents tiny terminal regions that would be highly variable and likely to overfit. `categorical_features=mask` is especially important in this competition because Patrick is explicitly telling the model which parsed columns should be handled as categorical inputs rather than as ordinary ordered numbers. `random_state=123` makes the run reproducible, and `l2_regularization=0` indicates that the main regularization in this setup is coming from shrinkage and tree-shape constraints rather than an added leaf-penalty term.
+
+The validation evidence is also strong enough to justify a dedicated slide. Patrick evaluates the model with `cross_val_score(..., cv=10, n_jobs=-1)` and reports fold accuracies
+
+`[0.8023, 0.7770, 0.7977, 0.8067, 0.8021, 0.8228, 0.8262, 0.8216, 0.8239, 0.7975]`,
+
+for mean cross-validated accuracy `0.8077817018`. [4] That is slightly better than the Random Forest OOB estimate from the same notebook and puts HistGradientBoosting squarely in the top cluster of strong public methods we surveyed. It is also a useful pedagogical example because it shows a near-LightGBM style workflow implemented with native scikit-learn tooling rather than an external boosting library.
+
+The deeper reason HistGradientBoosting works well here is that Spaceship Titanic is exactly the sort of problem where tree boosting tends to shine: mixed numeric and categorical features, nonlinear thresholds, strong interactions, and modest sample size. The model can automatically learn rules such as “CryoSleep plus zero spend implies high transported probability,” “deck and side matter together rather than separately,” or “group-position effects are different for solo travelers than for family groups,” without forcing us to hand-code every interaction term. That is why this slide should not present HistGB as just a buzzword. It should present it as a clean case study in matching model class to data structure.
+
+### Suggested visual for this slide
+
+![HistGradientBoosting diagram](/Users/rsai_91/Desktop/Academic/Spring2026/STA336/generated/kaggle_ppt_assets/histgb_diagram.png)
+
+## Slide 7: Strengths, Limitations, Constraints, and Trade-offs
 
 The main strength of the strongest public workflows is that they use domain logic to reduce noise before model fitting. This is easiest to see in the imputation strategy. Filling `CryoSleep` or total spend with a global mode or mean throws away structure that is plainly visible in the data. Using the facts that `CryoSleep=True` implies zero spend, that group members almost always share home planet and cabin side, and that some decks are essentially associated with one planet recovers information instead of merely smoothing over blanks.
 
@@ -204,7 +246,7 @@ Another real limitation is validation design. As noted earlier, this is my infer
 
 Finally, the competition being ongoing creates a presentation constraint. Public leaderboard positions recorded in README files are snapshots from a particular date, not permanent historical rankings. So the safest thing to emphasize is not the rank itself but the workflow and the validation evidence that supports it.
 
-## Slide 7: Best Practices and Conclusion
+## Slide 8: Best Practices and Conclusion
 
 The most transferable best practice from Spaceship Titanic is that the strongest Kaggle work is really a workflow discipline rather than a model trick. Good participants begin with a baseline, audit the dataset carefully, and ask which variables contain hidden structure. Then they validate locally, compare models under a common scheme, and only after that worry about the public leaderboard.
 
@@ -254,7 +296,4 @@ Finally, model selection in the ISLR sense is all over this competition. The pub
 6. Amir Fares repository and Kaggle notebook link: [Kaggle-Spaceship-Titanic](https://github.com/AmirFARES/Kaggle-Spaceship-Titanic)
 7. Flatiron starter notebook: [BSC-DS-2022-spaceship-titanic](https://github.com/flatiron-school/BSC-DS-2022-spaceship-titanic)
 8. Samyak Raj Bayar public baseline code: [code.py](https://github.com/samyakrajbayar/Kaggle-Spaceship-Titanic/blob/main/code.py)
-
-## Evidence Notes
-
-All dataset counts, percentages, and conditional transport rates in this document were computed from the attached local `train.csv` and `test.csv` files. Public-workflow numbers such as OOB scores, CV means, holdout accuracies, tuned best scores, and hyperparameters come from the linked public notebooks and repositories. The concern about possible group leakage in random cross-validation is my own methodological inference from the structure of `PassengerId` and should be presented as an analytical critique, not as a sourced claim from those notebooks.
+9. scikit-learn API docs: [HistGradientBoostingClassifier / histogram-based gradient boosting parameters and categorical-feature support](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingClassifier.html)
