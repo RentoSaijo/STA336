@@ -167,13 +167,15 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_family = 'cmuserif', base_size = 
 # ----- Helpers ----- #
 
 # Print LaTeX table from data.frame.
-table_latex <- function(data,
-                        col_names  = NULL,
-                        caption    = NULL,
-                        escape     = FALSE,
-                        align      = NULL,
-                        wrap_col   = NULL,
-                        wrap_width = NULL) {
+table_latex <- function(
+  data,
+  col_names  = NULL,
+  caption    = NULL,
+  escape     = FALSE,
+  align      = NULL,
+  wrap_col   = NULL,
+  wrap_width = NULL
+) {
   if (is.null(align)) {
     align <- rep('c', ncol(data))
   }
@@ -225,7 +227,7 @@ GPT-5.4 Codex was used to create the `YAML` portion and some `LaTeX` code to for
 # Problem 1
 
 \begin{problem}[Problem 1]
-In our linear model selection lab, we used an indirect method for choosing the optimal model. Following the validation-set approach from the textbook, use the \texttt{Auto} data from \texttt{ISLR2}, split the data into training and test sets, compare the candidate models by test-set mean squared error, and select a final model.
+In our linear model selection lab, we used an indirect method for choosing the optimal model. Following page 271 from the textbook, use the \texttt{Auto} data from \texttt{ISLR2}, split the data into training and test datasets, compare the models according to their mean squared errors on test data, and select your final model.
 \end{problem}
 
 ```{r, results = 'asis'}
@@ -283,7 +285,6 @@ Using `mpg ~ . - name`, the candidate variables are `cylinders`, `displacement`,
 \widehat{\texttt{mpg}}
 = -14.3473 - 0.006632\,\texttt{weight} + 0.7573\,\texttt{year}.
 \]
-Therefore, my final selected model for Problem 1 is the 2-variable best subset model with `weight` and `year`.
 
 \newpage
 
