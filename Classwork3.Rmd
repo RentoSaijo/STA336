@@ -1,0 +1,518 @@
+---
+title: |
+  STA 336: Statistical Machine Learning
+subtitle: |
+  Classwork 3
+author: |
+  Rento Saijo
+date: 'April 4, 2026'
+fontsize: 10pt
+documentclass: extarticle
+geometry: top=1.5in, bottom=1.5in, left=1.5in, right=1.5in
+urlcolor: blue
+linkcolor: blue
+citecolor: blue
+output:
+  bookdown::pdf_document2:
+    keep_tex: true
+    toc: false
+    fig_width: 5
+    fig_height: 3.5
+    fig_caption: true
+
+header-includes:
+  - |
+    \usepackage{xcolor}
+    \usepackage{hyperref}
+    \hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue}
+    \usepackage{float}
+    \usepackage{fvextra}
+    \usepackage{xcolor}
+    \usepackage{fancyhdr}
+    \usepackage{lastpage}
+    \usepackage{soul}
+    \usepackage{etoolbox}
+    \usepackage{microtype}
+    \usepackage{tcolorbox}
+    \usepackage{enumitem}
+    \usepackage{fancyvrb}
+    \usepackage{xspace}
+    \allowdisplaybreaks
+    \setcounter{tocdepth}{2}
+    \setcounter{secnumdepth}{0}
+    \floatplacement{figure}{H}
+    \makeatletter
+    \newcommand{\@subtitle}{}
+    \newcommand{\subtitle}[1]{\gdef\@subtitle{#1}}
+    \newcommand{\DocSubtitle}{\@subtitle}
+    \renewcommand{\maketitle}{
+      \thispagestyle{plain}
+      \null
+      \vfill
+      \begin{center}
+        {\Large \textsc{\@title} \par}\vskip 0.5em
+        {\LARGE \bfseries \@subtitle \par}\vskip 0.75em
+        {\large \@author \par}\vskip 0.5em
+        {\normalsize \@date \par}
+      \end{center}
+      \vfill
+      \tableofcontents
+      \vspace{1em}
+      \clearpage
+    }
+    \AfterEndEnvironment{Highlighting}{\setcounter{CodeLine}{\numexpr\value{CodeLine}+\FV@CodeLineNo\relax}}
+    \makeatother
+    \fancypagestyle{plain}{
+      \fancyhf{}
+      \renewcommand{\headrulewidth}{0pt}
+      \renewcommand{\footrulewidth}{0pt}
+    }
+    \pagestyle{fancy}
+    \fancyhf{}
+    \fancyfoot[C]{\small\textsc{Page}~\thepage~\textsc{of}~\pageref{LastPage}}
+    \fancyhead[L]{\textsc{Rento Saijo}}
+    \fancyhead[R]{\textsc{\DocSubtitle}}
+    \fancyhead[C]{\textsc{\rightmark}}
+    \renewcommand{\headrulewidth}{0.5pt}
+    \renewcommand{\footrulewidth}{0.5pt}
+    \newcounter{CodeLine}
+    \newcounter{cell}
+    \AtBeginEnvironment{Highlighting}{\stepcounter{cell}}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      frame=single,
+      rulecolor=\color{black},
+      framesep=2mm,
+      label=\footnotesize\textbf{Cell \thecell},
+      labelposition=topline,
+      commandchars=\\\{\},
+      breaklines=true,
+      breakanywhere=false,
+      breaksymbol={},
+      numbers=left,
+      numbersep=3pt,
+      firstnumber=\numexpr\value{CodeLine}+1\relax,
+      fontsize=\small
+    }
+    \DefineVerbatimEnvironment{verbatim}{Verbatim}{
+      breaklines=true,
+      breakanywhere=true,
+      numbers=left,
+      numbersep=3pt,
+      firstnumber=1,
+      fontsize=\footnotesize
+    }
+    \DefineVerbatimEnvironment{snippet}{Verbatim}{
+      breaklines=true,
+      breakanywhere=true,
+      fontsize=\footnotesize,
+      frame=single,
+      listparameters=\setlength{\topsep}{\baselineskip}\setlength{\partopsep}{0pt}
+    }
+    \newtcolorbox{problem}[1][]{
+      title={\textsc{#1}}
+    }
+    \newenvironment{alphenum}{
+      \begin{enumerate}[
+        label=(\alph*),
+        itemsep=3pt,
+        parsep=0pt,
+        topsep=6pt
+      ]
+    }{
+      \end{enumerate}
+    }
+    \newenvironment{items}{
+      \begin{itemize}[
+        itemsep=3pt,
+        parsep=0pt,
+        topsep=6pt
+      ]
+    }{
+      \end{itemize}
+    }
+    \renewcommand{\contentsname}{Table of Contents}
+    \newcommand{\E}{\mathrm{E}}
+    \newcommand{\Var}{\mathrm{Var}}
+    \newcommand{\R}{\textsf{R}\xspace}
+    \newcommand{\Pois}{\mathrm{Pois}}
+    \newcommand{\SD}{\mathrm{SD}}
+    \newcommand{\SE}{\mathrm{SE}}
+---
+
+```{r setup, include = FALSE}
+# ----- Setup ----- #
+
+# Set options.
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align = 'center')
+options(width = 125)
+options(scipen = 999)
+
+# Load libraries.
+suppressMessages(library(magrittr))
+
+# Set fonts.
+sysfonts::font_add(
+  family     = 'cmuserif',
+  regular    = '/Users/rsai_91/Library/Fonts/cmu.serif-roman.ttf',
+  bold       = '/Users/rsai_91/Library/Fonts/cmu.serif-bold.ttf',
+  italic     = '/Users/rsai_91/Library/Fonts/cmu.serif-italic.ttf',
+  bolditalic = '/Users/rsai_91/Library/Fonts/cmu.serif-bolditalic.ttf'
+)
+showtext::showtext_opts(dpi = 500)
+showtext::showtext_auto(enable = TRUE)
+knitr::opts_chunk$set(dev = 'CairoPDF')
+par(family = 'cmuserif')
+ggplot2::theme_set(ggplot2::theme_minimal(base_family = 'cmuserif', base_size = 10))
+
+# ----- Helpers ----- #
+
+# Print LaTeX table from data.frame.
+table_latex <- function(
+  data,
+  col_names  = NULL,
+  caption    = NULL,
+  escape     = FALSE,
+  align      = NULL,
+  wrap_col   = NULL,
+  wrap_width = NULL
+) {
+  if (is.null(align)) {
+    align <- rep('c', ncol(data))
+  }
+  table_out <- knitr::kable(
+    data,
+    format    = 'latex',
+    booktabs  = TRUE,
+    escape    = escape,
+    col.names = col_names,
+    caption   = caption,
+    linesep   = '',
+    align     = align
+  )
+  table_out <- kableExtra::kable_styling(
+    table_out,
+    position      = 'center',
+    latex_options = c('HOLD_position')
+  )
+  if (!is.null(wrap_col) && !is.null(wrap_width)) {
+    table_out <- kableExtra::column_spec(table_out, wrap_col, width = wrap_width)
+  }
+  table_out
+}
+
+# Predict from regsubsets object.
+predict.regsubsets <- function(object, newdata, id, ...) {
+  form  <- stats::as.formula(object$call[[2]])
+  mat   <- stats::model.matrix(form, newdata)
+  coefi <- stats::coef(object, id = id)
+  xvars <- names(coefi)
+  mat[, xvars, drop = FALSE] %*% coefi
+}
+
+# Format numbers with commas.
+comma_num <- function(x, digits = 0) {
+  format(
+    round(x, digits),
+    big.mark   = ',',
+    scientific = FALSE,
+    trim       = TRUE,
+    nsmall     = digits
+  )
+}
+
+# Compute test MSE.
+test_mse <- function(actual, predicted) {
+  mean((actual - predicted)^2)
+}
+
+# Choose number of components from CV MSEP.
+choose_ncomp <- function(fit) {
+  msep <- drop(pls::MSEP(fit, estimate = 'CV')$val[1, 1, ])
+  which.min(msep) - 1
+}
+```
+
+# Disclosure
+
+GPT-5.4 Codex was used to create the `YAML` portion and some `LaTeX` code to format the text/equations nicely. Page formatting code was also provided by Derin Gezgin. In the setup chunk, helper functions such as `table_latex()`, `predict.regsubsets()`, and `choose_ncomp()` were defined so the model-fitting output can be reported clearly and reproducibly. See the original `RMD` file [here](https://github.com/RentoSaijo/STA336/blob/main/Classwork3.Rmd) for more details.
+
+\newpage
+
+# Problem 1
+
+\begin{problem}[Problem 1]
+In this group work, we predict the number of applications received using the other variables in the \texttt{College} data set.
+\end{problem}
+
+\newpage
+
+## Problem 1 (a)
+
+\begin{problem}[Problem 1 (a)]
+Split the data set into a training set and a test set.
+\end{problem}
+
+```{r, results = 'asis'}
+# Load data.
+college_df <- ISLR2::College
+
+# Split data.
+set.seed(24)
+n         <- length(college_df$Apps)
+train_idx <- sample(n, n / 2)
+train_df  <- college_df[train_idx, ]
+test_df   <- college_df[-train_idx, ]
+
+# Summarize split.
+split_tbl <- tibble::tibble(
+  set          = c('Training', 'Test'),
+  observations = c(nrow(train_df), nrow(test_df))
+)
+
+# Print split table.
+split_tbl %>%
+  table_latex(
+    col_names = c('Set', 'Observations'),
+    caption   = 'Training-test split for College.'
+  )
+```
+
+Using `set.seed(24)`, I split the \(777\) observations in `College` into \(388\) training observations and \(389\) test observations. I use this same split for all four methods so that the resulting test errors are directly comparable.
+
+\newpage
+
+## Problem 1 (b)
+
+\begin{problem}[Problem 1 (b)]
+Fit a linear model using least squares on the training set, and report the test error obtained.
+\end{problem}
+
+```{r, results = 'asis'}
+# Fit least squares model.
+lm_fit  <- stats::lm(Apps ~ ., data = train_df)
+lm_pred <- stats::predict(lm_fit, newdata = test_df)
+lm_mse  <- test_mse(test_df$Apps, lm_pred)
+
+# Summarize least squares result.
+lm_tbl <- tibble::tibble(
+  model    = 'Least Squares',
+  test_mse = comma_num(lm_mse)
+)
+
+# Print least squares table.
+lm_tbl %>%
+  table_latex(
+    col_names = c('Model', 'Test MSE'),
+    caption   = 'Least squares test-set performance.'
+  )
+```
+
+Fitting `Apps ~ .` on the training set gives a test MSE of \(\boxed{1{,}182{,}899}\).
+
+\newpage
+
+## Problem 1 (c)
+
+\begin{problem}[Problem 1 (c)]
+Fit a ridge regression model on the training set, with \(\lambda\) chosen by cross-validation. Report the test error obtained.
+\end{problem}
+
+```{r, results = 'asis'}
+# Create model matrices.
+x_train <- stats::model.matrix(Apps ~ ., data = train_df)[, -1]
+y_train <- train_df$Apps
+x_test  <- stats::model.matrix(Apps ~ ., data = test_df)[, -1]
+y_test  <- test_df$Apps
+
+# Fit cross-validated ridge model.
+set.seed(24)
+cv_ridge <- glmnet::cv.glmnet(
+  x_train,
+  y_train,
+  alpha  = 0,
+  lambda = seq(0, 25, by = 0.1),
+  nfolds = 10
+)
+
+# Predict on test data.
+ridge_pred <- stats::predict(cv_ridge, newx = x_test, s = 'lambda.min')
+ridge_mse  <- test_mse(y_test, ridge_pred)
+
+# Summarize ridge result.
+ridge_tbl <- tibble::tibble(
+  lambda   = comma_num(cv_ridge$lambda.min, 1),
+  test_mse = comma_num(ridge_mse)
+)
+
+# Print ridge table.
+ridge_tbl %>%
+  table_latex(
+    col_names = c('$\\lambda_{\\min}$', 'Test MSE'),
+    caption   = 'Ridge regression test-set performance.'
+  )
+```
+
+Using 10-fold cross-validation on the training set, ridge regression selects \(\lambda = 21.4\). The resulting test MSE is \(\boxed{1{,}255{,}479}\). On this split, ridge performs slightly worse than OLS.
+
+\newpage
+
+## Problem 1 (d)
+
+\begin{problem}[Problem 1 (d)]
+Fit a lasso model on the training set, with \(\lambda\) chosen by cross-validation. Report the test error obtained, along with the number of non-zero coefficient estimates.
+\end{problem}
+
+```{r, results = 'asis'}
+# Fit cross-validated lasso model.
+set.seed(24)
+cv_lasso <- glmnet::cv.glmnet(
+  x_train,
+  y_train,
+  alpha  = 1,
+  lambda = seq(0, 25, by = 0.1),
+  nfolds = 10
+)
+
+# Predict on test data.
+lasso_pred <- stats::predict(cv_lasso, newx = x_test, s = 'lambda.min')
+lasso_mse  <- test_mse(y_test, lasso_pred)
+
+# Extract non-zero coefficients.
+lasso_coef         <- as.matrix(glmnet::coef.glmnet(cv_lasso, s = 'lambda.min'))
+lasso_nonzero_idx  <- which(lasso_coef[-1, 1] != 0) + 1
+lasso_nonzero_tbl  <- tibble::tibble(
+  term     = rownames(lasso_coef)[lasso_nonzero_idx],
+  estimate = round(lasso_coef[lasso_nonzero_idx, 1], 6)
+)
+lasso_summary_tbl <- tibble::tibble(
+  lambda              = comma_num(cv_lasso$lambda.min, 1),
+  non_zero_predictors = nrow(lasso_nonzero_tbl),
+  test_mse            = comma_num(lasso_mse)
+)
+
+# Print lasso summary.
+lasso_summary_tbl %>%
+  table_latex(
+    col_names = c('$\\lambda_{\\min}$', 'Non-Zero Predictors', 'Test MSE'),
+    caption   = 'Lasso test-set performance.'
+  )
+```
+
+```{r, results = 'asis'}
+# Print non-zero lasso coefficients.
+lasso_nonzero_tbl %>%
+  table_latex(
+    col_names = c('Term', 'Estimate'),
+    caption   = 'Non-zero lasso coefficients at $\\lambda_{\\min}$.'
+  )
+```
+
+Lasso selects \(\lambda = 14.7\). Its test MSE is \(\boxed{1{,}234{,}483}\). At this value of \(\lambda\), there are \(13\) non-zero predictor coefficients (excluding the intercept), namely `PrivateYes`, `Accept`, `Top10perc`, `Top25perc`, `F.Undergrad`, `P.Undergrad`, `Outstate`, `Room.Board`, `PhD`, `Terminal`, `perc.alumni`, `Expend`, and `Grad.Rate`.
+
+\newpage
+
+## Problem 1 (e)
+
+\begin{problem}[Problem 1 (e)]
+Fit a PCR model on the training set, with \(M\) chosen by cross-validation. Report the test error obtained, along with the value of \(M\) selected by cross-validation.
+\end{problem}
+
+```{r, results = 'asis'}
+# Fit PCR with cross-validation.
+set.seed(24)
+pcr_fit <- pls::pcr(Apps ~ ., data = train_df, scale = TRUE, validation = 'CV')
+pcr_m   <- choose_ncomp(pcr_fit)
+
+# Predict on test data.
+pcr_pred <- stats::predict(pcr_fit, newdata = test_df, ncomp = pcr_m)
+pcr_mse  <- test_mse(y_test, pcr_pred)
+
+# Summarize PCR result.
+pcr_tbl <- tibble::tibble(
+  selected_m = pcr_m,
+  test_mse   = comma_num(pcr_mse)
+)
+
+# Print PCR table.
+pcr_tbl %>%
+  table_latex(
+    col_names = c('Selected $M$', 'Test MSE'),
+    caption   = 'PCR test-set performance.'
+  )
+```
+
+PCR chooses \(\boxed{M = 17}\) principal components, and the resulting test MSE is \(\boxed{1{,}182{,}899}\). This exactly matches the least squares test error on this split. That agreement makes sense here because `College` has \(17\) predictors, so using all \(17\) principal components reproduces the full least squares fit.
+
+\newpage
+
+## Problem 1 (f)
+
+\begin{problem}[Problem 1 (f)]
+Comment on the results obtained. How accurately can we predict the number of college applications received? Is there much difference among the test errors resulting from these four approaches?
+\end{problem}
+
+```{r, results = 'asis'}
+# Create comparison table.
+comparison_tbl <- tibble::tibble(
+  model    = c('Least Squares', 'Ridge', 'Lasso', 'PCR'),
+  tuning   = c(
+    'None',
+    paste0('$\\lambda = ', comma_num(cv_ridge$lambda.min, 1), '$'),
+    paste0('$\\lambda = ', comma_num(cv_lasso$lambda.min, 1), '$'),
+    paste0('$M = ', pcr_m, '$')
+  ),
+  test_mse = c(
+    comma_num(lm_mse),
+    comma_num(ridge_mse),
+    comma_num(lasso_mse),
+    comma_num(pcr_mse)
+  )
+)
+
+# Print comparison table.
+comparison_tbl %>%
+  table_latex(
+    col_names = c('Model', 'Tuning', 'Test MSE'),
+    caption   = 'Comparison of the four required methods.',
+    escape    = FALSE
+  )
+```
+
+Among the four required approaches, least squares and PCR tie for the best test performance, both with test MSE \(1{,}182{,}899\). Lasso is slightly worse at \(1{,}234{,}483\), and ridge is worst at \(1{,}255{,}479\). The gap between the best and worst methods is \(72{,}580\) in test MSE, so there is some difference, but not a dramatic one. Overall, the models predict `Apps` reasonably well, but the shrinkage methods do not improve over least squares here, and PCR also does not help because cross-validation selects all \(17\) components.
+
+\newpage
+
+## Problem 1 (g)
+
+\begin{problem}[Problem 1 (g)]
+If you have more time, what else can you try to build a model for predicting the number of applications received? Can it improve the models you have built?
+\end{problem}
+
+```{r, results = 'asis'}
+# Fit best subset models.
+best_subset_fit <- leaps::regsubsets(Apps ~ ., data = train_df, nvmax = 17)
+best_subset_mse <- sapply(1:17, function(i) {
+  pred <- predict.regsubsets(best_subset_fit, test_df, id = i)
+  test_mse(y_test, pred)
+})
+
+# Extract best subset result.
+best_subset_size <- which.min(best_subset_mse)
+best_subset_tbl  <- tibble::tibble(
+  model_size = best_subset_size,
+  predictors = paste(names(stats::coef(best_subset_fit, id = best_subset_size))[-1], collapse = ', '),
+  test_mse   = comma_num(min(best_subset_mse))
+)
+
+# Print best subset extension.
+best_subset_tbl %>%
+  table_latex(
+    col_names  = c('Model Size', 'Predictors', 'Test MSE'),
+    caption    = 'Best subset extension on the same split.',
+    align      = c('c', 'l', 'c'),
+    wrap_col   = 2,
+    wrap_width = '8cm'
+  )
+```
+
+One natural extension, since we used it in class, is best subset selection with `leaps::regsubsets()`. On this same split, the best subset approach actually improves on the four required models: the lowest test error comes from the 1-variable model using only `Accept`, and its test MSE is \(\boxed{1{,}093{,}185}\). This is \(89{,}714\) lower than the best test MSE among the required four methods, so in this case, yes, trying an additional model-selection approach does improve predictive performance.
