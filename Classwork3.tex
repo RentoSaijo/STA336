@@ -250,7 +250,7 @@
 
 \section{Disclosure}\label{disclosure}
 
-GPT-5.4 Codex was used to create the \texttt{YAML} portion and some \texttt{LaTeX} code to format the text/equations nicely. Page formatting code was also provided by Derin Gezgin. In the setup chunk, helper functions such as \texttt{table\_latex()}, \texttt{predict.regsubsets()}, and \texttt{choose\_ncomp()} were defined so the model-fitting output can be reported clearly and reproducibly. See the original \texttt{RMD} file \href{https://github.com/RentoSaijo/STA336/blob/main/Classwork3.Rmd}{here} for more details.
+GPT-5.4 Codex was used to create the \texttt{YAML} portion and some \texttt{LaTeX} code to format the text/equations nicely. Page formatting code was also provided by Derin Gezgin. In the setup chunk, helper functions such as \texttt{table\_latex()} and \texttt{predict.regsubsets()} were defined so the model-fitting output can be reported clearly and reproducibly. See the original \texttt{RMD} file \href{https://github.com/RentoSaijo/STA336/blob/main/Classwork3.Rmd}{here} for more details.
 
 \newpage
 
@@ -526,7 +526,34 @@ Fit a PCR model on the training set, with \(M\) chosen by cross-validation. Repo
 \CommentTok{\# Fit PCR with cross{-}validation.}
 \FunctionTok{set.seed}\NormalTok{(}\DecValTok{24}\NormalTok{)}
 \NormalTok{pcr\_fit }\OtherTok{\textless{}{-}}\NormalTok{ pls}\SpecialCharTok{::}\FunctionTok{pcr}\NormalTok{(Apps }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{data =}\NormalTok{ train\_df, }\AttributeTok{scale =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{validation =} \StringTok{\textquotesingle{}CV\textquotesingle{}}\NormalTok{)}
-\NormalTok{pcr\_m   }\OtherTok{\textless{}{-}} \FunctionTok{choose\_ncomp}\NormalTok{(pcr\_fit)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Plot PCR validation curve.}
+\FunctionTok{with\_family}\NormalTok{(}
+\NormalTok{  pls}\SpecialCharTok{::}\FunctionTok{validationplot}\NormalTok{(}
+\NormalTok{    pcr\_fit,}
+    \AttributeTok{val.type =} \StringTok{\textquotesingle{}MSEP\textquotesingle{}}
+\NormalTok{  )}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics[width=\linewidth]{Classwork3_files/figure-latex/unnamed-chunk-7-1} 
+
+}
+
+\caption{PCR cross-validation MSEP by number of components.}\label{fig:unnamed-chunk-7}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Select number of components by elbow.}
+\NormalTok{pcr\_m }\OtherTok{\textless{}{-}} \DecValTok{4}
 
 \CommentTok{\# Predict on test data.}
 \NormalTok{pcr\_pred }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{predict}\NormalTok{(pcr\_fit, }\AttributeTok{newdata =}\NormalTok{ test\_df, }\AttributeTok{ncomp =}\NormalTok{ pcr\_m)}
@@ -549,18 +576,18 @@ Fit a PCR model on the training set, with \(M\) chosen by cross-validation. Repo
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-6}PCR test-set performance.}
+\caption{\label{tab:unnamed-chunk-8}PCR test-set performance.}
 \centering
 \begin{tabular}[t]{cc}
 \toprule
 Selected $M$ & Test MSE\\
 \midrule
-17 & 1,182,899\\
+4 & 3,371,475\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-PCR chooses \(\boxed{M = 17}\) principal components, and the resulting test MSE is \(\boxed{1{,}182{,}899}\). This exactly matches the least squares test error on this split. That agreement makes sense here because \texttt{College} has \(17\) predictors, so using all \(17\) principal components reproduces the full least squares fit.
+From the cross-validation MSEP plot, the curve drops very sharply at first and still decreases substantially through \(M=4\), but after that the gains become much smaller. In particular, the CV MSEP falls from \(3{,}601{,}660\) at \(M=2\) to \(2{,}445{,}960\) at \(M=4\), whereas the later decreases are comparatively modest. Based on that elbow, I choose \(\boxed{M = 4}\). With \(4\) principal components, the resulting test MSE is \(\boxed{3{,}371{,}475}\).
 
 \newpage
 
@@ -601,7 +628,7 @@ Comment on the results obtained. How accurately can we predict the number of col
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-7}Comparison of the four required methods.}
+\caption{\label{tab:unnamed-chunk-9}Comparison of the four required methods.}
 \centering
 \begin{tabular}[t]{ccc}
 \toprule
@@ -610,12 +637,12 @@ Model & Tuning & Test MSE\\
 Least Squares & None & 1,182,899\\
 Ridge & $\lambda = 21.4$ & 1,255,479\\
 Lasso & $\lambda = 14.7$ & 1,234,483\\
-PCR & $M = 17$ & 1,182,899\\
+PCR & $M = 4$ & 3,371,475\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Among the four required approaches, least squares and PCR tie for the best test performance, both with test MSE \(1{,}182{,}899\). Lasso is slightly worse at \(1{,}234{,}483\), and ridge is worst at \(1{,}255{,}479\). The gap between the best and worst methods is \(72{,}580\) in test MSE, so there is some difference, but not a dramatic one. Overall, the models predict \texttt{Apps} reasonably well, but the shrinkage methods do not improve over least squares here, and PCR also does not help because cross-validation selects all \(17\) components.
+Among the four required approaches, least squares performs best with test MSE \(1{,}182{,}899\). Lasso is close behind at \(1{,}234{,}483\), ridge is slightly worse at \(1{,}255{,}479\), and PCR is much worse at \(3{,}371{,}475\) when \(M\) is chosen by the elbow method. The gap between the best and worst methods is \(2{,}188{,}576\), so here there is a substantial difference. The main conclusion is that least squares, ridge, and lasso all perform in the same general range on this split, while PCR loses too much predictive information when we stop at the elbow rather than using all components. So for this data set, the direct shrinkage methods are much more competitive than PCR under the revised component-selection rule.
 
 \newpage
 
@@ -656,7 +683,7 @@ If you have more time, what else can you try to build a model for predicting the
 
 \begin{table}[H]
 \centering
-\caption{\label{tab:unnamed-chunk-8}Best subset extension on the same split.}
+\caption{\label{tab:unnamed-chunk-10}Best subset extension on the same split.}
 \centering
 \begin{tabular}[t]{c>{\raggedright\arraybackslash}p{8cm}c}
 \toprule

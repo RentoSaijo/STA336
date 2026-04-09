@@ -149,6 +149,7 @@ options(scipen = 999)
 
 # Load libraries.
 suppressMessages(library(magrittr))
+suppressMessages(library(pls))
 
 # Set fonts.
 sysfonts::font_add(
@@ -225,16 +226,24 @@ test_mse <- function(actual, predicted) {
   mean((actual - predicted)^2)
 }
 
-# Choose number of components from CV MSEP.
-choose_ncomp <- function(fit) {
-  msep <- drop(pls::MSEP(fit, estimate = 'CV')$val[1, 1, ])
-  which.min(msep) - 1
+# Plot with LaTeX.
+with_par <- function(expr) {
+  op <- par(no.readonly = TRUE)
+  on.exit(par(op))
+  force(expr)
 }
+with_family <- function(expr, family = 'cmuserif') {
+  op <- par(no.readonly = TRUE)
+  on.exit(par(op))
+  par(family = family)
+  force(expr)
+}
+
 ```
 
 # Disclosure
 
-GPT-5.4 Codex was used to create the `YAML` portion and some `LaTeX` code to format the text/equations nicely. Page formatting code was also provided by Derin Gezgin. In the setup chunk, helper functions such as `table_latex()`, `predict.regsubsets()`, and `choose_ncomp()` were defined so the model-fitting output can be reported clearly and reproducibly. See the original `RMD` file [here](https://github.com/RentoSaijo/STA336/blob/main/Classwork3.Rmd) for more details.
+GPT-5.4 Codex was used to create the `YAML` portion and some `LaTeX` code to format the text/equations nicely. Page formatting code was also provided by Derin Gezgin. In the setup chunk, helper functions such as `table_latex()` and `predict.regsubsets()` were defined so the model-fitting output can be reported clearly and reproducibly. See the original `RMD` file [here](https://github.com/RentoSaijo/STA336/blob/main/Classwork3.Rmd) for more details.
 
 \newpage
 
@@ -421,7 +430,21 @@ Fit a PCR model on the training set, with \(M\) chosen by cross-validation. Repo
 # Fit PCR with cross-validation.
 set.seed(24)
 pcr_fit <- pls::pcr(Apps ~ ., data = train_df, scale = TRUE, validation = 'CV')
-pcr_m   <- choose_ncomp(pcr_fit)
+```
+
+```{r, fig.width = 8, fig.height = 5, out.width = '\\linewidth', fig.cap = 'PCR cross-validation MSEP by number of components.'}
+# Plot PCR validation curve.
+with_family(
+  pls::validationplot(
+    pcr_fit,
+    val.type = 'MSEP'
+  )
+)
+```
+
+```{r, results = 'asis'}
+# Select number of components by elbow.
+pcr_m <- 4
 
 # Predict on test data.
 pcr_pred <- stats::predict(pcr_fit, newdata = test_df, ncomp = pcr_m)
@@ -441,7 +464,7 @@ pcr_tbl %>%
   )
 ```
 
-PCR chooses \(\boxed{M = 17}\) principal components, and the resulting test MSE is \(\boxed{1{,}182{,}899}\). This exactly matches the least squares test error on this split. That agreement makes sense here because `College` has \(17\) predictors, so using all \(17\) principal components reproduces the full least squares fit.
+From the cross-validation MSEP plot, the curve drops very sharply at first and still decreases substantially through \(M=4\), but after that the gains become much smaller. In particular, the CV MSEP falls from \(3{,}601{,}660\) at \(M=2\) to \(2{,}445{,}960\) at \(M=4\), whereas the later decreases are comparatively modest. Based on that elbow, I choose \(\boxed{M = 4}\). With \(4\) principal components, the resulting test MSE is \(\boxed{3{,}371{,}475}\).
 
 \newpage
 
@@ -478,7 +501,7 @@ comparison_tbl %>%
   )
 ```
 
-Among the four required approaches, least squares and PCR tie for the best test performance, both with test MSE \(1{,}182{,}899\). Lasso is slightly worse at \(1{,}234{,}483\), and ridge is worst at \(1{,}255{,}479\). The gap between the best and worst methods is \(72{,}580\) in test MSE, so there is some difference, but not a dramatic one. Overall, the models predict `Apps` reasonably well, but the shrinkage methods do not improve over least squares here, and PCR also does not help because cross-validation selects all \(17\) components.
+Among the four required approaches, least squares performs best with test MSE \(1{,}182{,}899\). Lasso is close behind at \(1{,}234{,}483\), ridge is slightly worse at \(1{,}255{,}479\), and PCR is much worse at \(3{,}371{,}475\) when \(M\) is chosen by the elbow method. The gap between the best and worst methods is \(2{,}188{,}576\), so here there is a substantial difference. The main conclusion is that least squares, ridge, and lasso all perform in the same general range on this split, while PCR loses too much predictive information when we stop at the elbow rather than using all components. So for this data set, the direct shrinkage methods are much more competitive than PCR under the revised component-selection rule.
 
 \newpage
 
