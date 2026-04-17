@@ -1,0 +1,1109 @@
+---
+title: |
+  STA 336: Statistical Machine Learning
+subtitle: |
+  Homework 7
+author: |
+  Rento Saijo
+date: 'April 16, 2026'
+fontsize: 10pt
+documentclass: extarticle
+geometry: top=1.5in, bottom=1.5in, left=1.5in, right=1.5in
+urlcolor: blue
+linkcolor: blue
+citecolor: blue
+output:
+  bookdown::pdf_document2:
+    keep_tex: true
+    toc: false
+    fig_width: 5
+    fig_height: 3.5
+    fig_caption: true
+
+header-includes:
+  - |
+    \usepackage{xcolor}
+    \usepackage{hyperref}
+    \hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue}
+    \usepackage{float}
+    \usepackage{fvextra}
+    \usepackage{xcolor}
+    \usepackage{fancyhdr}
+    \usepackage{lastpage}
+    \usepackage{soul}
+    \usepackage{etoolbox}
+    \usepackage{microtype}
+    \usepackage{tcolorbox}
+    \usepackage{enumitem}
+    \usepackage{fancyvrb}
+    \usepackage{xspace}
+    \allowdisplaybreaks
+    \setcounter{tocdepth}{2}
+    \setcounter{secnumdepth}{0}
+    \floatplacement{figure}{H}
+    \makeatletter
+    \newcommand{\@subtitle}{}
+    \newcommand{\subtitle}[1]{\gdef\@subtitle{#1}}
+    \newcommand{\DocSubtitle}{\@subtitle}
+    \renewcommand{\maketitle}{
+      \thispagestyle{plain}
+      \null
+      \vfill
+      \begin{center}
+        {\Large \textsc{\@title} \par}\vskip 0.5em
+        {\LARGE \bfseries \@subtitle \par}\vskip 0.75em
+        {\large \@author \par}\vskip 0.5em
+        {\normalsize \@date \par}
+      \end{center}
+      \vfill
+      \tableofcontents
+      \vspace{1em}
+      \clearpage
+    }
+    \AfterEndEnvironment{Highlighting}{\setcounter{CodeLine}{\numexpr\value{CodeLine}+\FV@CodeLineNo\relax}}
+    \makeatother
+    \fancypagestyle{plain}{
+      \fancyhf{}
+      \renewcommand{\headrulewidth}{0pt}
+      \renewcommand{\footrulewidth}{0pt}
+    }
+    \pagestyle{fancy}
+    \fancyhf{}
+    \fancyfoot[C]{\small\textsc{Page}~\thepage~\textsc{of}~\pageref{LastPage}}
+    \fancyhead[L]{\textsc{Rento Saijo}}
+    \fancyhead[R]{\textsc{\DocSubtitle}}
+    \fancyhead[C]{\textsc{\rightmark}}
+    \renewcommand{\headrulewidth}{0.5pt}
+    \renewcommand{\footrulewidth}{0.5pt}
+    \newcounter{CodeLine}
+    \newcounter{cell}
+    \AtBeginEnvironment{Highlighting}{\stepcounter{cell}}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      frame=single,
+      rulecolor=\color{black},
+      framesep=2mm,
+      label=\footnotesize\textbf{Cell \thecell},
+      labelposition=topline,
+      commandchars=\\\{\},
+      breaklines=true,
+      breakanywhere=false,
+      breaksymbol={},
+      numbers=left,
+      numbersep=3pt,
+      firstnumber=\numexpr\value{CodeLine}+1\relax,
+      fontsize=\small
+    }
+    \DefineVerbatimEnvironment{verbatim}{Verbatim}{
+      breaklines=true,
+      breakanywhere=true,
+      numbers=left,
+      numbersep=3pt,
+      firstnumber=1,
+      fontsize=\footnotesize
+    }
+    \DefineVerbatimEnvironment{snippet}{Verbatim}{
+      breaklines=true,
+      breakanywhere=true,
+      fontsize=\footnotesize,
+      frame=single,
+      listparameters=\setlength{\topsep}{\baselineskip}\setlength{\partopsep}{0pt}
+    }
+    \newtcolorbox{problem}[1][]{
+      title={\textsc{#1}}
+    }
+    \newenvironment{alphenum}{
+      \begin{enumerate}[
+        label=(\alph*),
+        itemsep=3pt,
+        parsep=0pt,
+        topsep=6pt
+      ]
+    }{
+      \end{enumerate}
+    }
+    \newenvironment{items}{
+      \begin{itemize}[
+        itemsep=3pt,
+        parsep=0pt,
+        topsep=6pt
+      ]
+    }{
+      \end{itemize}
+    }
+    \renewcommand{\contentsname}{Table of Contents}
+    \newcommand{\E}{\mathrm{E}}
+    \newcommand{\Var}{\mathrm{Var}}
+    \newcommand{\R}{\textsf{R}\xspace}
+    \newcommand{\Pois}{\mathrm{Pois}}
+    \newcommand{\SD}{\mathrm{SD}}
+    \newcommand{\SE}{\mathrm{SE}}
+---
+
+```{r setup, include = FALSE}
+# ----- Setup ----- #
+
+# Set options.
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align = 'center')
+options(width = 125)
+options(scipen = 999)
+
+# Load libraries.
+suppressMessages(library(magrittr))
+suppressMessages(library(ISLR2))
+suppressMessages(library(tree))
+suppressMessages(library(randomForest))
+
+# Set fonts.
+sysfonts::font_add(
+  family     = 'cmuserif',
+  regular    = '/Users/rsai_91/Library/Fonts/cmu.serif-roman.ttf',
+  bold       = '/Users/rsai_91/Library/Fonts/cmu.serif-bold.ttf',
+  italic     = '/Users/rsai_91/Library/Fonts/cmu.serif-italic.ttf',
+  bolditalic = '/Users/rsai_91/Library/Fonts/cmu.serif-bolditalic.ttf'
+)
+showtext::showtext_opts(dpi = 500)
+showtext::showtext_auto(enable = TRUE)
+knitr::opts_chunk$set(dev = 'CairoPDF')
+par(family = 'cmuserif')
+ggplot2::theme_set(ggplot2::theme_minimal(base_family = 'cmuserif', base_size = 10))
+
+# ----- Helpers ----- #
+
+# Print LaTeX table from data.frame.
+table_latex <- function(
+  data,
+  col_names  = NULL,
+  caption    = NULL,
+  escape     = FALSE,
+  align      = NULL,
+  wrap_col   = NULL,
+  wrap_width = NULL
+) {
+  if (is.null(align)) {
+    align <- rep('c', ncol(data))
+  }
+  table_out <- knitr::kable(
+    data,
+    format    = 'latex',
+    booktabs  = TRUE,
+    escape    = escape,
+    col.names = col_names,
+    caption   = caption,
+    linesep   = '',
+    align     = align
+  )
+  table_out <- kableExtra::kable_styling(
+    table_out,
+    position      = 'center',
+    latex_options = c('HOLD_position')
+  )
+  if (!is.null(wrap_col) && !is.null(wrap_width)) {
+    table_out <- kableExtra::column_spec(table_out, wrap_col, width = wrap_width)
+  }
+  table_out
+}
+
+# Format numbers with commas.
+comma_num <- function(x, digits = 0) {
+  format(
+    round(x, digits),
+    big.mark   = ',',
+    scientific = FALSE,
+    trim       = TRUE,
+    nsmall     = digits
+  )
+}
+
+# Format proportions as percentages.
+pct_num <- function(x, digits = 2) {
+  paste0(format(round(100 * x, digits), nsmall = digits), '\\%')
+}
+
+# Convert confusion matrix to printable data.frame.
+confusion_df <- function(pred, truth) {
+  tab <- table(Predicted = pred, Truth = truth)
+  out <- data.frame(Predicted = rownames(tab), as.data.frame.matrix(tab), row.names = NULL)
+  names(out)[-1] <- paste('Truth =', names(out)[-1])
+  out
+}
+
+# Compute MSE.
+test_mse <- function(actual, predicted) {
+  mean((actual - predicted)^2)
+}
+
+# Compute classification error.
+class_error <- function(actual, predicted) {
+  mean(actual != predicted)
+}
+
+# Plot with LaTeX.
+with_par <- function(expr) {
+  op <- par(no.readonly = TRUE)
+  on.exit(par(op))
+  force(expr)
+}
+with_family <- function(expr, family = 'cmuserif') {
+  op <- par(no.readonly = TRUE)
+  on.exit(par(op))
+  par(family = family)
+  force(expr)
+}
+```
+
+# Disclosure
+
+GPT-5.4 Codex was used to create the `YAML` portion and some `LaTeX` code to format the text/equations nicely. Page formatting code was also provided by Derin Gezgin. In the setup chunk, helper functions such as `table_latex()`, `confusion_df()`, and `test_mse()` were defined so the tree-based analyses can be reported clearly and reproducibly. See the original `RMD` file [here](https://github.com/RentoSaijo/STA336/blob/main/Homework7.Rmd) for more details.
+
+\newpage
+
+# Problem 1
+
+\begin{problem}[Problem 1]
+Using the \texttt{Auto} data, answer the following questions on classification trees.
+\end{problem}
+
+For final tree-regression subproblem on \texttt{Sales}, I use \texttt{Carseats} data from \texttt{ISLR2}, since \texttt{Sales} is quantitative response in that data set.
+
+\newpage
+
+## Problem 1 (1)
+
+\begin{problem}[Problem 1 (1)]
+Define a categorical variable \texttt{ECO} based on \texttt{mpg}. If \texttt{mpg} is greater than median, call it \texttt{Economy}; otherwise, call it \texttt{Consuming}.
+\end{problem}
+
+```{r}
+# Load Auto, define ECO, check median, first few values.
+auto_df <- ISLR2::Auto
+auto_median_mpg <- median(auto_df$mpg)
+auto_df$ECO <- factor(
+  ifelse(auto_df$mpg > auto_median_mpg, 'Economy', 'Consuming'),
+  levels = c('Consuming', 'Economy')
+)
+auto_median_mpg
+head(auto_df[, c('mpg', 'ECO')])
+```
+
+Using the median \texttt{mpg} value \(\texttt{median(mpg)} = 22.75\), I defined
+\[
+\texttt{ECO}
+=
+\begin{cases}
+\texttt{Economy}, & \text{if } \texttt{mpg} > 22.75,\\
+\texttt{Consuming}, & \text{if } \texttt{mpg} \le 22.75.
+\end{cases}
+\]
+So `ECO` is a perfectly balanced two-level categorical variable determined directly by whether a car is above or below the median fuel efficiency.
+
+\newpage
+
+## Problem 1 (2)
+
+\begin{problem}[Problem 1 (2)]
+Check number of observations for each group of \texttt{ECO}.
+\end{problem}
+
+```{r, results = 'asis'}
+# Count observations in each ECO group.
+eco_count_tbl <- tibble::tibble(
+  ECO = names(table(auto_df$ECO)),
+  observations = as.integer(table(auto_df$ECO))
+)
+
+# Print ECO counts.
+eco_count_tbl %>%
+  table_latex(
+    col_names = c('ECO Group', 'Observations'),
+    caption   = 'Number of observations in each ECO category.'
+  )
+```
+
+There are \(196\) observations in `Consuming` and \(196\) observations in `Economy`. This happens because the split is based on the sample median, so the data are divided evenly into the two groups.
+
+\newpage
+
+## Problem 1 (3)
+
+\begin{problem}[Problem 1 (3)]
+Build a classification tree on \texttt{ECO} with all variables except \texttt{name}, and interpret it.
+\end{problem}
+
+```{r}
+# Fit classification tree using all predictors except name.
+auto_tree_full <- tree::tree(ECO ~ . - name, data = auto_df)
+auto_tree_full
+summary(auto_tree_full)
+```
+
+The fitted tree is extremely simple: it makes a single split at `mpg < 22.75`. Cars with `mpg < 22.75` are classified as `Consuming`, while cars with `mpg > 22.75` are classified as `Economy`. The training misclassification error is \(0\), because the response `ECO` was defined directly from `mpg`, so once the tree is allowed to use `mpg`, it can recover the rule exactly.
+
+\newpage
+
+## Problem 1 (4)
+
+\begin{problem}[Problem 1 (4)]
+What is the single variable that is used for the tree? Why do you think it is used? Is this tree good?
+\end{problem}
+
+The only variable used is `mpg`. It is used because `ECO` was literally constructed from whether `mpg` is above or below the median, so `mpg` contains the exact information needed to separate the two classes. In a narrow predictive sense, the tree is perfect on this data set, since its training error is \(0/392 = 0\). However, it is not especially interesting scientifically, because it is just reproducing the rule used to define the response in the first place. So it is a perfect but tautological tree.
+
+\newpage
+
+## Problem 1 (5)
+
+\begin{problem}[Problem 1 (5)]
+Exclude \texttt{mpg}. Predict \texttt{ECO} using only \texttt{horsepower}, \texttt{weight}, and \texttt{acceleration}, and show tree with text.
+\end{problem}
+
+```{r}
+# Fit reduced classification tree without mpg.
+auto_tree_reduced <- tree::tree(ECO ~ horsepower + weight + acceleration, data = auto_df)
+auto_tree_reduced
+```
+
+```{r, fig.width = 10.5, fig.height = 7, out.width = '\\linewidth', fig.cap = 'Classification tree for ECO using horsepower, weight, and acceleration.'}
+# Plot reduced tree with smaller text.
+with_family({
+  par(mar = c(1.5, 1.5, 1.5, 1.5))
+  plot(auto_tree_reduced)
+  text(auto_tree_reduced, pretty = 0, cex = 0.8)
+})
+```
+
+Once `mpg` is removed, the tree becomes much larger and needs all three technical variables to separate fuel-efficient from fuel-consuming cars. The model now has \(12\) terminal nodes and a training misclassification error of \(29/392 = 7.40\%\), so the problem is no longer trivial.
+
+\newpage
+
+## Problem 1 (6)
+
+\begin{problem}[Problem 1 (6)]
+What is the most important variable? Explain the first internal node for me.
+\end{problem}
+
+The most important variable is `weight`. It appears at the root split, and it is also reused several times deeper in the tree, so it is doing most of the structural work. The first internal node splits at `weight < 2764.5`. Among the \(191\) cars below \(2764.5\) pounds, \(90.05\%\) are classified as `Economy`, whereas among the \(201\) cars above \(2764.5\) pounds, \(88.06\%\) are classified as `Consuming`. So the first split says that lighter cars tend to be fuel-efficient, while heavier cars tend to consume more fuel.
+
+\newpage
+
+## Problem 1 (7)
+
+\begin{problem}[Problem 1 (7)]
+Split the data into training and test data using
+\[
+n = \texttt{length(Auto\$ECO)}, \qquad \texttt{set.seed(1)}, \qquad \texttt{Z = sample(n, n/2)},
+\]
+fit tree on \texttt{Auto[Z, ]} using \texttt{horsepower + weight + acceleration}, and report classification error rate on test data.
+\end{problem}
+
+```{r, results = 'asis'}
+# Split Auto into training, test sets.
+set.seed(1)
+n_auto <- length(auto_df$ECO)
+Z_auto <- sample(n_auto, n_auto / 2)
+auto_train <- auto_df[Z_auto, ]
+auto_test <- auto_df[-Z_auto, ]
+
+# Prepare table.
+auto_split_tbl <- tibble::tibble(
+  set = c('Training', 'Test'),
+  observations = c(nrow(auto_train), nrow(auto_test))
+)
+
+# Print split table.
+auto_split_tbl %>%
+  table_latex(
+    col_names = c('Set', 'Observations'),
+    caption   = 'Training-test split for Auto.'
+  )
+```
+
+```{r}
+# Fit training tree, predict on test set.
+auto_tree_train <- tree::tree(ECO ~ horsepower + weight + acceleration, data = auto_train)
+auto_tree_train
+auto_test_pred <- predict(auto_tree_train, newdata = auto_test, type = 'class')
+auto_test_error <- class_error(auto_test$ECO, auto_test_pred)
+```
+
+```{r, results = 'asis'}
+# Print confusion matrix for test data.
+confusion_df(auto_test_pred, auto_test$ECO) %>%
+  table_latex(
+    col_names = c('Predicted', 'Truth = Consuming', 'Truth = Economy'),
+    caption   = 'Test-set confusion matrix for the unpruned Auto tree.'
+  )
+```
+
+Using the required split, I obtain a test misclassification error of
+\[
+\boxed{\frac{25}{196} = 0.1276}.
+\]
+The tree correctly classifies \(83\) of the \(102\) `Consuming` cars and \(88\) of the \(94\) `Economy` cars in the test set.
+
+\newpage
+
+## Problem 1 (8)
+
+\begin{problem}[Problem 1 (8)]
+Prune tree using \texttt{cv.tree()} with misclassification rate as criterion. What number of terminal nodes would you decide on, and why?
+\end{problem}
+
+```{r, results = 'asis'}
+# Cross-validation for pruning with misclassification criterion.
+auto_cv <- tree::cv.tree(auto_tree_train, FUN = prune.misclass)
+
+# Prepare table.
+auto_cv_tbl <- tibble::tibble(
+  tree_size = auto_cv$size,
+  cv_misclass = auto_cv$dev,
+  cv_error_rate = round(auto_cv$dev / nrow(auto_train), 4)
+)
+auto_cv_tbl <- auto_cv_tbl[order(auto_cv_tbl$tree_size), ]
+
+# Print cross-validation table.
+auto_cv_tbl %>%
+  table_latex(
+    col_names = c('Terminal Nodes', 'CV Misclassifications', 'CV Error Rate'),
+    caption   = 'Cross-validation results for pruning the Auto classification tree.'
+  )
+```
+
+```{r, fig.width = 7, fig.height = 4.5, out.width = '\\linewidth', fig.cap = 'Cross-validated classification error rate versus tree size for Auto.'}
+# Plot cross-validated classification error rate.
+with_family({
+  plot(
+    auto_cv_tbl$tree_size,
+    auto_cv_tbl$cv_error_rate,
+    type = 'b',
+    xlab = 'Tree Size',
+    ylab = 'CV Classification Error Rate'
+  )
+})
+```
+
+I would choose the tree with \(\boxed{6}\) terminal nodes. From the graph, most of the major drop in cross-validated error has already happened by the time we reach size \(6\), and the improvement from \(6\) to \(8\) nodes is very small: the CV misclassification count changes only from \(20\) to \(21\). So size \(6\) gives a simpler tree while staying essentially at the bottom of the curve.
+
+\newpage
+
+## Problem 1 (9)
+
+\begin{problem}[Problem 1 (9)]
+Prune the tree to the optimal size, show the tree, and report the new classification error rate.
+\end{problem}
+
+```{r}
+# Prune Auto tree to selected size.
+auto_selected_size <- 6
+auto_pruned <- tree::prune.misclass(auto_tree_train, best = auto_selected_size)
+auto_pruned
+```
+
+```{r, fig.width = 8, fig.height = 5.5, out.width = '\\linewidth', fig.cap = 'Pruned Auto classification tree with 6 terminal nodes.'}
+# Plot pruned tree with text.
+with_family({
+  plot(auto_pruned)
+  text(auto_pruned, pretty = 0, cex = 0.8)
+})
+```
+
+```{r, results = 'asis'}
+# Compute pruned-tree test confusion matrix.
+auto_pruned_pred <- predict(auto_pruned, newdata = auto_test, type = 'class')
+auto_pruned_test_error <- class_error(auto_test$ECO, auto_pruned_pred)
+confusion_df(auto_pruned_pred, auto_test$ECO) %>%
+  table_latex(
+    col_names = c('Predicted', 'Truth = Consuming', 'Truth = Economy'),
+    caption   = 'Test-set confusion matrix for the pruned Auto tree.'
+  )
+```
+
+After pruning to \(6\) terminal nodes, the test misclassification error is still
+\[
+\boxed{\frac{25}{196} = 0.1276}.
+\]
+So the pruned tree gives exactly the same test error as the original training tree on this split.
+
+\newpage
+
+## Problem 1 (10)
+
+\begin{problem}[Problem 1 (10)]
+Compare the tree before pruning and after pruning. What are the differences?
+\end{problem}
+
+```{r, results = 'asis'}
+# Compare unpruned and pruned Auto trees.
+auto_compare_tbl <- tibble::tibble(
+  tree = c('Unpruned', 'Pruned'),
+  terminal_nodes = c(summary(auto_tree_train)$size, summary(auto_pruned)$size),
+  training_error = c(
+    round(class_error(auto_train$ECO, predict(auto_tree_train, auto_train, type = 'class')), 4),
+    round(class_error(auto_train$ECO, predict(auto_pruned, auto_train, type = 'class')), 4)
+  ),
+  test_error = c(round(auto_test_error, 4), round(auto_pruned_test_error, 4))
+)
+
+# Print comparison table.
+auto_compare_tbl %>%
+  table_latex(
+    col_names = c('Tree', 'Terminal Nodes', 'Training Error', 'Test Error'),
+    caption   = 'Comparison of the Auto tree before and after pruning.'
+  )
+```
+
+The main difference is complexity: the original tree has \(8\) terminal nodes, while the pruned tree has \(6\). Pruning removes a couple of smaller end splits but keeps the same overall structure, especially the dominant split on `weight`. In this case, pruning does not change predictive performance at all: the training error stays at \(0.0714\), and the test error stays at \(0.1276\). So the pruned tree is preferable only because it is simpler, not because it is more accurate.
+
+\newpage
+
+## Problem 1 (11a)
+
+\begin{problem}[Problem 1 (11a)]
+Treat \texttt{Sales} as quantitative response, split data into training set and test set.
+\end{problem}
+
+```{r, results = 'asis'}
+# Load Carseats, split into training, test sets.
+carseats_df <- ISLR2::Carseats
+set.seed(1)
+n_carseats <- nrow(carseats_df)
+Z_carseats <- sample(n_carseats, n_carseats / 2)
+carseats_train <- carseats_df[Z_carseats, ]
+carseats_test <- carseats_df[-Z_carseats, ]
+
+# Prepare table.
+carseats_split_tbl <- tibble::tibble(
+  set = c('Training', 'Test'),
+  observations = c(nrow(carseats_train), nrow(carseats_test))
+)
+
+# Print split table.
+carseats_split_tbl %>%
+  table_latex(
+    col_names = c('Set', 'Observations'),
+    caption   = 'Training-test split for Carseats.'
+  )
+```
+
+Since `Carseats` has \(400\) observations, this split gives \(200\) training observations and \(200\) test observations.
+
+\newpage
+
+## Problem 1 (11b)
+
+\begin{problem}[Problem 1 (11b)]
+Fit regression tree to training set. Plot tree, interpret results, and report test MSE.
+\end{problem}
+
+```{r}
+# Fit regression tree on Carseats training data.
+carseats_tree <- tree::tree(Sales ~ ., data = carseats_train)
+carseats_tree
+summary(carseats_tree)
+carseats_pred <- predict(carseats_tree, newdata = carseats_test)
+carseats_mse <- test_mse(carseats_test$Sales, carseats_pred)
+```
+
+```{r, fig.width = 8.5, fig.height = 6, out.width = '\\linewidth', fig.cap = 'Regression tree for Sales on the Carseats training set.'}
+# Plot Carseats regression tree with text.
+with_family({
+  plot(carseats_tree)
+  text(carseats_tree, pretty = 0, cex = 0.6)
+})
+```
+
+```{r, results = 'asis'}
+# Summarize fitted regression tree.
+carseats_tree_tbl <- tibble::tibble(
+  terminal_nodes = summary(carseats_tree)$size,
+  test_mse = round(carseats_mse, 4)
+)
+
+# Print tree summary table.
+carseats_tree_tbl %>%
+  table_latex(
+    col_names = c('Terminal Nodes', 'Test MSE'),
+    caption   = 'Regression-tree performance on Carseats.'
+  )
+```
+
+The regression tree first splits on `ShelveLoc`, which already tells us that shelf quality is the most important driver of sales in this tree. Stores with `ShelveLoc = Good` tend to have much higher predicted sales than stores with `ShelveLoc = Bad` or `Medium`. Inside those branches, `Price`, `Advertising`, `CompPrice`, `Age`, and `US` further refine the predictions. The fitted tree has \(18\) terminal nodes, and its test MSE is \(\boxed{4.9220}\).
+
+\newpage
+
+## Problem 1 (11c)
+
+\begin{problem}[Problem 1 (11c)]
+Use cross-validation to determine optimal level of tree complexity. Does pruning tree improve test MSE?
+\end{problem}
+
+```{r, results = 'asis'}
+# Cross-validation for regression-tree pruning.
+carseats_cv <- tree::cv.tree(carseats_tree)
+
+# Prepare table.
+carseats_cv_tbl <- tibble::tibble(
+  tree_size = carseats_cv$size,
+  cv_deviance = round(carseats_cv$dev, 4)
+)
+carseats_cv_tbl <- carseats_cv_tbl[order(carseats_cv_tbl$tree_size), ]
+
+# Print cross-validation table.
+carseats_cv_tbl %>%
+  table_latex(
+    col_names = c('Terminal Nodes', 'CV Deviance'),
+    caption   = 'Cross-validation results for pruning Carseats regression tree.'
+  )
+```
+
+```{r, fig.width = 7, fig.height = 4.5, out.width = '\\linewidth', fig.cap = 'Cross-validation deviance versus tree size for the Carseats regression tree.'}
+# Plot cross-validation deviance against tree size.
+with_family({
+  plot(
+    carseats_cv_tbl$tree_size,
+    carseats_cv_tbl$cv_deviance,
+    type = 'b',
+    xlab = 'Tree Size',
+    ylab = 'CV Deviance'
+  )
+})
+```
+
+```{r, results = 'asis'}
+# Prune to selected size, compare test MSE.
+carseats_selected_size <- 14
+carseats_pruned <- tree::prune.tree(carseats_tree, best = carseats_selected_size)
+carseats_pruned_pred <- predict(carseats_pruned, newdata = carseats_test)
+carseats_pruned_mse <- test_mse(carseats_test$Sales, carseats_pruned_pred)
+
+# Prepare table.
+carseats_prune_tbl <- tibble::tibble(
+  tree = c('Unpruned', 'Pruned'),
+  terminal_nodes = c(summary(carseats_tree)$size, summary(carseats_pruned)$size),
+  test_mse = round(c(carseats_mse, carseats_pruned_mse), 4)
+)
+
+# Print pruning comparison.
+carseats_prune_tbl %>%
+  table_latex(
+    col_names = c('Tree', 'Terminal Nodes', 'Test MSE'),
+    caption   = 'Carseats test MSE before and after pruning.'
+  )
+```
+
+I would choose \(\boxed{14}\) terminal nodes rather than the full 18-node tree. From the cross-validation plot, the deviance falls sharply as we move from very small trees up to about size \(14\), but after that point the decreases become much smaller. In other words, most of the meaningful drop in cross-validated error has already occurred by size \(14\), and the extra four terminal nodes buy only a modest additional reduction in deviance. With this pruned tree, the test MSE is \(\boxed{5.0137}\), compared with \(4.9220\) for the unpruned tree. So pruning does \textit{not} improve test performance on this split; it makes the tree simpler, but slightly worse in test MSE.
+
+\newpage
+
+## Problem 1 (11d)
+
+\begin{problem}[Problem 1 (11d)]
+Use bagging to analyze this data. What test MSE do you obtain? Use \texttt{importance()} to determine which variables are most important.
+\end{problem}
+
+```{r, results = 'asis'}
+# Fit bagging model on Carseats.
+set.seed(1)
+carseats_bag <- randomForest::randomForest(
+  Sales ~ .,
+  data = carseats_train,
+  mtry = ncol(carseats_train) - 1,
+  importance = TRUE
+)
+
+# Prepare tables.
+carseats_bag_pred <- predict(carseats_bag, newdata = carseats_test)
+carseats_bag_mse  <- test_mse(carseats_test$Sales, carseats_bag_pred)
+carseats_imp      <- randomForest::importance(carseats_bag)
+carseats_imp_tbl <- data.frame(
+  variable = rownames(carseats_imp),
+  pct_inc_mse = round(carseats_imp[, '%IncMSE'], 3),
+  inc_node_purity = round(carseats_imp[, 'IncNodePurity'], 3),
+  row.names = NULL
+)
+carseats_imp_tbl <- carseats_imp_tbl[order(-carseats_imp_tbl$pct_inc_mse), ]
+carseats_bag_tbl <- tibble::tibble(
+  method = 'Bagging',
+  mtry = ncol(carseats_train) - 1,
+  test_mse = round(carseats_bag_mse, 4)
+)
+
+# Print bagging performance.
+carseats_bag_tbl %>%
+  table_latex(
+    col_names = c('Method', '$m$', 'Test MSE'),
+    caption   = 'Bagging performance on Carseats.',
+    escape    = FALSE
+  )
+```
+
+```{r, results = 'asis'}
+# Print variable importance.
+carseats_imp_tbl %>%
+  table_latex(
+    col_names = c('Variable', '\\%IncMSE', 'IncNodePurity'),
+    caption   = 'Variable importance from the bagging model on Carseats.',
+    escape    = FALSE
+  )
+```
+
+The bagging model reduces the test MSE to \(\boxed{2.6053}\), which is much lower than regression-tree test MSE of \(4.9220\). Here I used `mtry = ncol(carseats_train) - 1 = 10`, so every predictor is available at every split because bagging is a special case of random forests with \(m=p\). According to `importance()`, the two dominant variables are `Price` and `ShelveLoc`. After those, the next most important variables are `CompPrice`, `Age`, and `Advertising`. So ensemble substantially improves predictive accuracy, and it confirms that product price and shelf quality are main drivers of sales in this data.
+
+\newpage
+
+# Problem 2
+
+\begin{problem}[Problem 2]
+This question relates to the plots in Figure 8.14. I reproduce the requested tree sketch and predictor-space partition directly from the figure.
+\end{problem}
+
+\newpage
+
+## Problem 2 (a)
+
+\begin{problem}[Problem 2 (a)]
+Sketch the tree corresponding to the partition of the predictor space illustrated in the left-hand panel of Figure 8.14.
+\end{problem}
+
+```{r, fig.width = 8, fig.height = 5, out.width = '\\linewidth', fig.cap = 'Tree corresponding to the left-hand partition in Figure 8.14.'}
+# Draw tree corresponding to left-hand partition in Figure 8.14.
+with_family({
+  plot.new()
+  plot.window(xlim = c(0, 1), ylim = c(0, 1))
+  segments(0.50, 0.92, 0.50, 0.82)
+  text(0.50, 0.95, 'X1 < 1')
+
+  segments(0.50, 0.82, 0.30, 0.68)
+  segments(0.50, 0.82, 0.78, 0.68)
+  text(0.78, 0.66, '5')
+
+  segments(0.30, 0.68, 0.30, 0.60)
+  text(0.30, 0.72, 'X2 < 1')
+
+  segments(0.30, 0.60, 0.18, 0.46)
+  segments(0.30, 0.60, 0.42, 0.46)
+  text(0.42, 0.44, '15')
+
+  segments(0.18, 0.46, 0.18, 0.38)
+  text(0.18, 0.50, 'X1 < 0')
+
+  segments(0.18, 0.38, 0.10, 0.24)
+  segments(0.18, 0.38, 0.26, 0.24)
+  text(0.10, 0.22, '3')
+
+  segments(0.26, 0.24, 0.26, 0.16)
+  text(0.26, 0.28, 'X2 < 0')
+
+  segments(0.26, 0.16, 0.20, 0.04)
+  segments(0.26, 0.16, 0.32, 0.04)
+  text(0.20, 0.02, '10')
+  text(0.32, 0.02, '0')
+})
+```
+
+The corresponding tree starts with a split at \(X_1 = 1\), since the left panel first divides the whole predictor space vertically there. Using the usual convention that the left branch is the `yes` branch for the condition shown at the node, the right child of the root is the region with mean \(5\), because that branch corresponds to \(X_1 \ge 1\). Inside the left region \(X_1 < 1\), the next split is \(X_2 < 1\): the left child is the lower part of the rectangle, while the right child is the upper rectangle with mean \(15\). The lower-left region then splits at \(X_1 = 0\), sending the region with mean \(3\) to the left and the middle strip to the right, and that final strip splits at \(X_2 = 0\) to produce terminal-node means \(10\) and \(0\). So the terminal-node means are \(3\), \(10\), \(0\), \(15\), and \(5\), exactly matching the partition.
+
+\newpage
+
+## Problem 2 (b)
+
+\begin{problem}[Problem 2 (b)]
+Create a diagram similar to the left-hand panel of Figure 8.14, using the tree illustrated in the right-hand panel of the same figure.
+\end{problem}
+
+```{r, fig.width = 8, fig.height = 5, out.width = '\\linewidth', fig.cap = 'Predictor-space partition implied by the right-hand tree in Figure 8.14.'}
+# Draw partition implied by right-hand tree in Figure 8.14.
+with_family({
+  plot(
+    0, 0,
+    type = 'n',
+    xlim = c(-2, 2.5),
+    ylim = c(0, 3),
+    xlab = expression(X[1]),
+    ylab = expression(X[2]),
+    axes = FALSE
+  )
+  axis(1)
+  axis(2)
+  box()
+
+  abline(h = 1, lwd = 1.2)
+  abline(h = 2, lwd = 1.2)
+  segments(1, 0, 1, 1, lwd = 1.2)
+  segments(0, 1, 0, 2, lwd = 1.2)
+
+  text(-0.5, 0.5, '-1.80')
+  text(1.75, 0.5, '0.63')
+  text(-1.0, 1.5, '-1.06')
+  text(1.0, 1.5, '0.21')
+  text(0.25, 2.5, '2.49')
+})
+```
+
+Reading the right-hand tree from top to bottom, the first split is \(X_2 < 1\), so the predictor space is first cut horizontally at \(X_2 = 1\). For the region with \(X_2 \ge 1\), the next split is \(X_2 < 2\), so we add a second horizontal cut at \(X_2 = 2\). Within the middle band \(1 \le X_2 < 2\), the tree then splits at \(X_1 = 0\). Within the bottom band \(X_2 < 1\), the tree splits at \(X_1 = 1\). The five terminal-region means are therefore \(-1.80\), \(0.63\), \(-1.06\), \(0.21\), and \(2.49\).
+
+\newpage
+
+# Problem 3
+
+\begin{problem}[Problem 3]
+This problem uses \texttt{OJ} data from \texttt{ISLR2} and classification trees for predicting \texttt{Purchase}.
+\end{problem}
+
+\newpage
+
+## Problem 3 (a)
+
+\begin{problem}[Problem 3 (a)]
+Create a training set containing a random sample of 800 observations and a test set containing the remaining observations.
+\end{problem}
+
+```{r, results = 'asis'}
+# Load OJ, split into training, test sets.
+oj_df <- ISLR2::OJ
+set.seed(1)
+oj_train_idx <- sample(seq_len(nrow(oj_df)), 800)
+oj_train <- oj_df[oj_train_idx, ]
+oj_test <- oj_df[-oj_train_idx, ]
+
+# Prepare table.
+oj_split_tbl <- tibble::tibble(
+  set = c('Training', 'Test'),
+  observations = c(nrow(oj_train), nrow(oj_test))
+)
+
+# Print split table.
+oj_split_tbl %>%
+  table_latex(
+    col_names = c('Set', 'Observations'),
+    caption   = 'Training-test split for OJ.'
+  )
+```
+
+This gives a training set of \(800\) observations and a test set of \(270\) observations.
+
+\newpage
+
+## Problem 3 (b)
+
+\begin{problem}[Problem 3 (b)]
+Fit a tree to training data, with \texttt{Purchase} as response and other variables as predictors. Use \texttt{summary()} to describe results. What is training error rate? How many terminal nodes does tree have?
+\end{problem}
+
+```{r}
+# Fit classification tree on OJ training data.
+oj_tree <- tree::tree(Purchase ~ ., data = oj_train)
+summary(oj_tree)
+```
+
+```{r, results = 'asis'}
+# Summarize training performance.
+oj_train_pred <- predict(oj_tree, newdata = oj_train, type = 'class')
+oj_train_error <- class_error(oj_train$Purchase, oj_train_pred)
+
+# Prepare table.
+oj_summary_tbl <- tibble::tibble(
+  terminal_nodes = summary(oj_tree)$size,
+  training_error = round(oj_train_error, 4)
+)
+
+# Print OJ summary table.
+oj_summary_tbl %>%
+  table_latex(
+    col_names = c('Terminal Nodes', 'Training Error'),
+    caption   = 'Summary of the fitted OJ classification tree.'
+  )
+```
+
+The tree uses only five predictors: `LoyalCH`, `PriceDiff`, `SpecialCH`, `ListPriceDiff`, and `PctDiscMM`. The most important by far is `LoyalCH`, since it appears in the first split and again in the upper part of the tree. The fitted tree has \(\boxed{9}\) terminal nodes, and the training misclassification error is
+\[
+\boxed{\frac{127}{800} = 0.1588}.
+\]
+
+\newpage
+
+## Problem 3 (c)
+
+\begin{problem}[Problem 3 (c)]
+Type in name of tree object in order to get detailed text output. Pick one terminal node, and interpret information displayed.
+\end{problem}
+
+```{r}
+# Detailed text output for OJ tree.
+oj_tree
+```
+
+Consider terminal node \(8\). It corresponds to customers with `LoyalCH < 0.0356415`. That node contains \(59\) observations and predicts `MM`, with estimated class probabilities \((0.01695, 0.98305)\) for (`CH`, `MM`). So for customers with extremely low loyalty to Citrus Hill, the tree says that a Minute Maid purchase is overwhelmingly likely.
+
+\newpage
+
+## Problem 3 (d)
+
+\begin{problem}[Problem 3 (d)]
+Create a plot of the tree, and interpret the results.
+\end{problem}
+
+```{r, fig.width = 8.5, fig.height = 6, out.width = '\\linewidth', fig.cap = 'Classification tree for Purchase on the OJ training set.'}
+# Plot OJ classification tree.
+with_family({
+  plot(oj_tree)
+  text(oj_tree, pretty = 0, cex = 0.70)
+})
+```
+
+The plot reinforces the same message as the text output: `LoyalCH` dominates the tree. Customers with low loyalty to Citrus Hill are mostly classified as `MM`, while customers with high loyalty to Citrus Hill are mostly classified as `CH`. Price-related variables such as `PriceDiff` and `ListPriceDiff`, along with promotions like `SpecialCH` and `PctDiscMM`, only come in after loyalty has already partitioned the data into broad groups.
+
+\newpage
+
+## Problem 3 (e)
+
+\begin{problem}[Problem 3 (e)]
+Predict the response on the test data, produce a confusion matrix, and report the test error rate.
+\end{problem}
+
+```{r, results = 'asis'}
+# Predict Purchase on OJ test set.
+oj_test_pred <- predict(oj_tree, newdata = oj_test, type = 'class')
+oj_test_error <- class_error(oj_test$Purchase, oj_test_pred)
+confusion_df(oj_test_pred, oj_test$Purchase) %>%
+  table_latex(
+    col_names = c('Predicted', 'Truth = CH', 'Truth = MM'),
+    caption   = 'Test-set confusion matrix for the unpruned OJ tree.'
+  )
+```
+
+The test misclassification error is
+\[
+\boxed{\frac{46}{270} = 0.1704}.
+\]
+The tree correctly classifies \(160\) of the \(168\) `CH` observations and \(64\) of the \(102\) `MM` observations in the test set.
+
+\newpage
+
+## Problem 3 (f)
+
+\begin{problem}[Problem 3 (f)]
+Apply \texttt{cv.tree()} to training set in order to determine optimal tree size.
+\end{problem}
+
+```{r, results = 'asis'}
+# Cross-validation for pruning OJ tree.
+oj_cv <- tree::cv.tree(oj_tree, FUN = prune.misclass)
+
+# Prepare table.
+oj_cv_tbl <- tibble::tibble(
+  tree_size = oj_cv$size,
+  cv_misclass = oj_cv$dev,
+  cv_error_rate = round(oj_cv$dev / nrow(oj_train), 4)
+)
+oj_cv_tbl <- oj_cv_tbl[order(oj_cv_tbl$tree_size), ]
+
+# Print cross-validation table.
+oj_cv_tbl %>%
+  table_latex(
+    col_names = c('Terminal Nodes', 'CV Misclassifications', 'CV Error Rate'),
+    caption   = 'Cross-validation results for pruning OJ classification tree.'
+  )
+```
+
+This cross-validation output gives candidate tree sizes and corresponding cross-validated misclassification counts. I use both table and graph to choose pruning level.
+
+\newpage
+
+## Problem 3 (g)
+
+\begin{problem}[Problem 3 (g)]
+Produce a plot with tree size on the x-axis and cross-validated classification error rate on the y-axis.
+\end{problem}
+
+```{r, fig.width = 7, fig.height = 4.5, out.width = '\\linewidth', fig.cap = 'Cross-validated classification error rate versus tree size for the OJ tree.'}
+# Plot cross-validated classification error rate.
+with_family({
+  plot(
+    oj_cv_tbl$tree_size,
+    oj_cv_tbl$cv_error_rate,
+    type = 'b',
+    xlab = 'Tree Size',
+    ylab = 'CV Classification Error Rate'
+  )
+})
+```
+
+The curve is lowest at tree size \(7\), and once we move below \(7\) the cross-validated classification error rises noticeably. The drop from sizes \(9\) and \(8\) down to \(7\) is small, but after \(7\) the error starts increasing more clearly, so the plot supports a moderately pruned tree rather than a very small one.
+
+\newpage
+
+## Problem 3 (h)
+
+\begin{problem}[Problem 3 (h)]
+Which tree size corresponds to the lowest cross-validated classification error rate?
+\end{problem}
+
+I would choose \(\boxed{7}\) terminal nodes. It has the lowest cross-validated misclassification count, \(149\), and it is also the smallest tree before the cross-validated error begins to rise more clearly. So by size \(7\), we have already captured the main reduction in error without keeping the extra complexity of the 8-node or 9-node trees.
+
+\newpage
+
+## Problem 3 (i)
+
+\begin{problem}[Problem 3 (i)]
+Produce a pruned tree corresponding to the optimal tree size obtained using cross-validation.
+\end{problem}
+
+```{r}
+# Prune OJ tree to selected size.
+oj_selected_size <- 7
+oj_pruned <- tree::prune.misclass(oj_tree, best = oj_selected_size)
+oj_pruned
+```
+
+```{r, fig.width = 8.5, fig.height = 6, out.width = '\\linewidth', fig.cap = 'Pruned OJ classification tree with 7 terminal nodes.'}
+# Plot pruned OJ tree.
+with_family({
+  plot(oj_pruned)
+  text(oj_pruned, pretty = 0, cex = 0.8)
+})
+```
+
+Cross-validation does lead to a genuinely smaller tree here, so I prune the original 9-node tree down to \(\boxed{7}\) terminal nodes.
+
+\newpage
+
+## Problem 3 (j)
+
+\begin{problem}[Problem 3 (j)]
+Compare the training error rates between the pruned and unpruned trees. Which is higher?
+\end{problem}
+
+```{r, results = 'asis'}
+# Compare training, test errors for OJ trees.
+oj_pruned_train_pred <- predict(oj_pruned, newdata = oj_train, type = 'class')
+oj_pruned_test_pred <- predict(oj_pruned, newdata = oj_test, type = 'class')
+oj_pruned_train_error <- class_error(oj_train$Purchase, oj_pruned_train_pred)
+oj_pruned_test_error <- class_error(oj_test$Purchase, oj_pruned_test_pred)
+
+# Prepare table.
+oj_compare_tbl <- tibble::tibble(
+  tree = c('Unpruned', 'Pruned'),
+  terminal_nodes = c(summary(oj_tree)$size, summary(oj_pruned)$size),
+  training_error = round(c(oj_train_error, oj_pruned_train_error), 4),
+  test_error = round(c(oj_test_error, oj_pruned_test_error), 4)
+)
+
+# Print comparison table.
+oj_compare_tbl %>%
+  table_latex(
+    col_names = c('Tree', 'Terminal Nodes', 'Training Error', 'Test Error'),
+    caption   = 'Comparison of the pruned and unpruned OJ trees.'
+  )
+```
+
+The pruned tree has the higher training error. Specifically, the unpruned tree has training error \(0.1588\), while the pruned tree has training error \(0.1625\). That is what we expect, because pruning removes splits and therefore fits the training data less closely.
+
+\newpage
+
+## Problem 3 (k)
+
+\begin{problem}[Problem 3 (k)]
+Compare the test error rates between the pruned and unpruned trees. Which is higher?
+\end{problem}
+
+On the test set, the unpruned tree has error \(0.1704\), whereas the pruned tree has error \(0.1630\). So the \textit{unpruned} tree has the higher test error, and the pruned tree generalizes slightly better on this split. The improvement is small, but it is in the expected direction.
