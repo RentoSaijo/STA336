@@ -401,7 +401,7 @@ set.seed(1)
 n_auto <- length(auto_df$ECO)
 Z_auto <- sample(n_auto, n_auto / 2)
 auto_train <- auto_df[Z_auto, ]
-auto_test <- auto_df[-Z_auto, ]
+auto_test  <- auto_df[-Z_auto, ]
 
 # Prepare table.
 auto_split_tbl <- tibble::tibble(
@@ -421,7 +421,7 @@ auto_split_tbl %>%
 # Fit training tree, predict on test set.
 auto_tree_train <- tree::tree(ECO ~ horsepower + weight + acceleration, data = auto_train)
 auto_tree_train
-auto_test_pred <- predict(auto_tree_train, newdata = auto_test, type = 'class')
+auto_test_pred  <- predict(auto_tree_train, newdata = auto_test, type = 'class')
 auto_test_error <- class_error(auto_test$ECO, auto_test_pred)
 ```
 
@@ -454,8 +454,8 @@ auto_cv <- tree::cv.tree(auto_tree_train, FUN = prune.misclass)
 
 # Prepare table.
 auto_cv_tbl <- tibble::tibble(
-  tree_size = auto_cv$size,
-  cv_misclass = auto_cv$dev,
+  tree_size     = auto_cv$size,
+  cv_misclass   = auto_cv$dev,
   cv_error_rate = round(auto_cv$dev / nrow(auto_train), 4)
 )
 auto_cv_tbl <- auto_cv_tbl[order(auto_cv_tbl$tree_size), ]
@@ -481,7 +481,7 @@ with_family({
 })
 ```
 
-I would choose the tree with \(\boxed{6}\) terminal nodes. From the graph, most of the major drop in cross-validated error has already happened by the time we reach size \(6\), and the improvement from \(6\) to \(8\) nodes is very small: the CV misclassification count changes only from \(20\) to \(21\). So size \(6\) gives a simpler tree while staying essentially at the bottom of the curve.
+I would choose the tree with \(\boxed{2}\) terminal nodes. From the graph, the largest improvement happens immediately when we move away from the 1-node tree, but after that the cross-validated error decreases only modestly as we continue adding more terminal nodes. So the broad picture is that most of the meaningful reduction in CV error is captured very early, while the larger trees mainly add complexity for comparatively small additional gains. For that reason, the 2-node tree is the more parsimonious choice.
 
 \newpage
 
@@ -493,12 +493,12 @@ Prune the tree to the optimal size, show the tree, and report the new classifica
 
 ```{r}
 # Prune Auto tree to selected size.
-auto_selected_size <- 6
+auto_selected_size <- 2
 auto_pruned <- tree::prune.misclass(auto_tree_train, best = auto_selected_size)
 auto_pruned
 ```
 
-```{r, fig.width = 8, fig.height = 5.5, out.width = '\\linewidth', fig.cap = 'Pruned Auto classification tree with 6 terminal nodes.'}
+```{r, fig.width = 8, fig.height = 5.5, out.width = '\\linewidth', fig.cap = 'Pruned Auto classification tree with 2 terminal nodes.'}
 # Plot pruned tree with text.
 with_family({
   plot(auto_pruned)
@@ -517,11 +517,11 @@ confusion_df(auto_pruned_pred, auto_test$ECO) %>%
   )
 ```
 
-After pruning to \(6\) terminal nodes, the test misclassification error is still
+After pruning to \(2\) terminal nodes, the test misclassification error is
 \[
-\boxed{\frac{25}{196} = 0.1276}.
+\boxed{\frac{26}{196} = 0.1327}.
 \]
-So the pruned tree gives exactly the same test error as the original training tree on this split.
+So the simpler 2-node tree has slightly higher test error than the original 8-node tree, but the increase is small.
 
 \newpage
 
@@ -551,7 +551,7 @@ auto_compare_tbl %>%
   )
 ```
 
-The main difference is complexity: the original tree has \(8\) terminal nodes, while the pruned tree has \(6\). Pruning removes a couple of smaller end splits but keeps the same overall structure, especially the dominant split on `weight`. In this case, pruning does not change predictive performance at all: the training error stays at \(0.0714\), and the test error stays at \(0.1276\). So the pruned tree is preferable only because it is simpler, not because it is more accurate.
+The main difference is complexity: the original tree has \(8\) terminal nodes, while the pruned tree has only \(2\). So pruning now removes most of the smaller follow-up splits and keeps only the broadest separation in the data. This increases the training error from \(0.0714\) to \(0.1071\) and increases the test error slightly from \(0.1276\) to \(0.1327\). In exchange, the tree becomes much simpler and less likely to reflect small sample-specific splits.
 
 \newpage
 
@@ -568,7 +568,7 @@ set.seed(1)
 n_carseats <- nrow(carseats_df)
 Z_carseats <- sample(n_carseats, n_carseats / 2)
 carseats_train <- carseats_df[Z_carseats, ]
-carseats_test <- carseats_df[-Z_carseats, ]
+carseats_test  <- carseats_df[-Z_carseats, ]
 
 # Prepare table.
 carseats_split_tbl <- tibble::tibble(
@@ -600,7 +600,7 @@ carseats_tree <- tree::tree(Sales ~ ., data = carseats_train)
 carseats_tree
 summary(carseats_tree)
 carseats_pred <- predict(carseats_tree, newdata = carseats_test)
-carseats_mse <- test_mse(carseats_test$Sales, carseats_pred)
+carseats_mse  <- test_mse(carseats_test$Sales, carseats_pred)
 ```
 
 ```{r, fig.width = 8.5, fig.height = 6, out.width = '\\linewidth', fig.cap = 'Regression tree for Sales on the Carseats training set.'}
@@ -670,7 +670,7 @@ with_family({
 
 ```{r, results = 'asis'}
 # Prune to selected size, compare test MSE.
-carseats_selected_size <- 14
+carseats_selected_size <- 10
 carseats_pruned <- tree::prune.tree(carseats_tree, best = carseats_selected_size)
 carseats_pruned_pred <- predict(carseats_pruned, newdata = carseats_test)
 carseats_pruned_mse <- test_mse(carseats_test$Sales, carseats_pruned_pred)
@@ -690,7 +690,7 @@ carseats_prune_tbl %>%
   )
 ```
 
-I would choose \(\boxed{14}\) terminal nodes rather than the full 18-node tree. From the cross-validation plot, the deviance falls sharply as we move from very small trees up to about size \(14\), but after that point the decreases become much smaller. In other words, most of the meaningful drop in cross-validated error has already occurred by size \(14\), and the extra four terminal nodes buy only a modest additional reduction in deviance. With this pruned tree, the test MSE is \(\boxed{5.0137}\), compared with \(4.9220\) for the unpruned tree. So pruning does \textit{not} improve test performance on this split; it makes the tree simpler, but slightly worse in test MSE.
+I would choose \(\boxed{10}\) terminal nodes rather than the full 18-node tree. From the cross-validation plot, the deviance drops substantially as we move away from the very smallest trees, but once we get to about size \(10\) the additional decreases from larger trees are relatively modest compared with the extra complexity. So by 10 terminal nodes, most of the important reduction in cross-validated error has already been achieved, and the gains from continuing to larger trees are comparatively small. With this pruned tree, the test MSE is \(\boxed{4.9181}\), compared with \(4.9220\) for the unpruned tree. So pruning does not materially change performance here, but the 10-node tree is slightly better on the test set while also being substantially simpler.
 
 \newpage
 
@@ -715,10 +715,10 @@ carseats_bag_pred <- predict(carseats_bag, newdata = carseats_test)
 carseats_bag_mse  <- test_mse(carseats_test$Sales, carseats_bag_pred)
 carseats_imp      <- randomForest::importance(carseats_bag)
 carseats_imp_tbl <- data.frame(
-  variable = rownames(carseats_imp),
-  pct_inc_mse = round(carseats_imp[, '%IncMSE'], 3),
+  variable        = rownames(carseats_imp),
+  pct_inc_mse     = round(carseats_imp[, '%IncMSE'], 3),
   inc_node_purity = round(carseats_imp[, 'IncNodePurity'], 3),
-  row.names = NULL
+  row.names       = NULL
 )
 carseats_imp_tbl <- carseats_imp_tbl[order(-carseats_imp_tbl$pct_inc_mse), ]
 carseats_bag_tbl <- tibble::tibble(
@@ -863,7 +863,7 @@ oj_df <- ISLR2::OJ
 set.seed(1)
 oj_train_idx <- sample(seq_len(nrow(oj_df)), 800)
 oj_train <- oj_df[oj_train_idx, ]
-oj_test <- oj_df[-oj_train_idx, ]
+oj_test  <- oj_df[-oj_train_idx, ]
 
 # Prepare table.
 oj_split_tbl <- tibble::tibble(
@@ -897,7 +897,7 @@ summary(oj_tree)
 
 ```{r, results = 'asis'}
 # Summarize training performance.
-oj_train_pred <- predict(oj_tree, newdata = oj_train, type = 'class')
+oj_train_pred  <- predict(oj_tree, newdata = oj_train, type = 'class')
 oj_train_error <- class_error(oj_train$Purchase, oj_train_pred)
 
 # Prepare table.
@@ -962,7 +962,7 @@ Predict the response on the test data, produce a confusion matrix, and report th
 
 ```{r, results = 'asis'}
 # Predict Purchase on OJ test set.
-oj_test_pred <- predict(oj_tree, newdata = oj_test, type = 'class')
+oj_test_pred  <- predict(oj_tree, newdata = oj_test, type = 'class')
 oj_test_error <- class_error(oj_test$Purchase, oj_test_pred)
 confusion_df(oj_test_pred, oj_test$Purchase) %>%
   table_latex(
@@ -991,8 +991,8 @@ oj_cv <- tree::cv.tree(oj_tree, FUN = prune.misclass)
 
 # Prepare table.
 oj_cv_tbl <- tibble::tibble(
-  tree_size = oj_cv$size,
-  cv_misclass = oj_cv$dev,
+  tree_size     = oj_cv$size,
+  cv_misclass   = oj_cv$dev,
   cv_error_rate = round(oj_cv$dev / nrow(oj_train), 4)
 )
 oj_cv_tbl <- oj_cv_tbl[order(oj_cv_tbl$tree_size), ]
@@ -1005,7 +1005,7 @@ oj_cv_tbl %>%
   )
 ```
 
-This cross-validation output gives candidate tree sizes and corresponding cross-validated misclassification counts. I use both table and graph to choose pruning level.
+This cross-validation output gives candidate tree sizes and corresponding cross-validated misclassification counts. The graph in part (g) and the pruning discussion in part (i) explain how I interpret these results when deciding which tree sizes are the most reasonable choices.
 
 \newpage
 
@@ -1028,7 +1028,7 @@ with_family({
 })
 ```
 
-The curve is lowest at tree size \(7\), and once we move below \(7\) the cross-validated classification error rises noticeably. The drop from sizes \(9\) and \(8\) down to \(7\) is small, but after \(7\) the error starts increasing more clearly, so the plot supports a moderately pruned tree rather than a very small one.
+The curve is lowest at tree size \(7\), so that is the size that minimizes the cross-validated classification error. At the same time, the plot also shows the broader tradeoff between fit and parsimony: the error drops a lot when we move away from the 1-node tree, but the gains from keeping increasingly larger trees are not uniformly dramatic. So the graph supports two reasonable views of the problem: a 7-node tree if we want to stay at the minimum of the CV curve, and a much smaller 2-node tree if we want to prioritize simplicity more heavily while still capturing a substantial portion of the overall drop in CV error.
 
 \newpage
 
@@ -1038,7 +1038,7 @@ The curve is lowest at tree size \(7\), and once we move below \(7\) the cross-v
 Which tree size corresponds to the lowest cross-validated classification error rate?
 \end{problem}
 
-I would choose \(\boxed{7}\) terminal nodes. It has the lowest cross-validated misclassification count, \(149\), and it is also the smallest tree before the cross-validated error begins to rise more clearly. So by size \(7\), we have already captured the main reduction in error without keeping the extra complexity of the 8-node or 9-node trees.
+The tree with \(\boxed{7}\) terminal nodes has the lowest cross-validated misclassification count, \(149\), and it is also the smallest tree before the cross-validated error begins to rise more clearly.
 
 \newpage
 
@@ -1049,21 +1049,31 @@ Produce a pruned tree corresponding to the optimal tree size obtained using cros
 \end{problem}
 
 ```{r}
-# Prune OJ tree to selected size.
-oj_selected_size <- 7
-oj_pruned <- tree::prune.misclass(oj_tree, best = oj_selected_size)
-oj_pruned
+# Prune OJ tree to selected sizes.
+oj_pruned_7 <- tree::prune.misclass(oj_tree, best = 7)
+oj_pruned_2 <- tree::prune.misclass(oj_tree, best = 2)
+
+oj_pruned_7
+oj_pruned_2
 ```
 
 ```{r, fig.width = 8.5, fig.height = 6, out.width = '\\linewidth', fig.cap = 'Pruned OJ classification tree with 7 terminal nodes.'}
-# Plot pruned OJ tree.
+# Plot 7-node pruned OJ tree.
 with_family({
-  plot(oj_pruned)
-  text(oj_pruned, pretty = 0, cex = 0.8)
+  plot(oj_pruned_7)
+  text(oj_pruned_7, pretty = 0, cex = 0.8)
 })
 ```
 
-Cross-validation does lead to a genuinely smaller tree here, so I prune the original 9-node tree down to \(\boxed{7}\) terminal nodes.
+```{r, fig.width = 8.5, fig.height = 6, out.width = '\\linewidth', fig.cap = 'Pruned OJ classification tree with 2 terminal nodes.'}
+# Plot 2-node pruned OJ tree.
+with_family({
+  plot(oj_pruned_2)
+  text(oj_pruned_2, pretty = 0, cex = 0.8)
+})
+```
+
+Here there are two reasonable pruned choices depending on how strongly we want to prioritize parsimony. The 7-node tree stays at the lowest cross-validated misclassification count, but the 2-node tree is much simpler and already captures a substantial part of the overall reduction in CV error from the 1-node tree. Beyond that, moving to larger trees continues to lower CV error, but the decreases are not dramatic enough to make the choice completely clear if we want to weight simplicity heavily. Since the notion of the “most optimal” tree is therefore somewhat ambiguous, I keep both the 7-node and 2-node pruned trees.
 
 \newpage
 
@@ -1075,17 +1085,22 @@ Compare the training error rates between the pruned and unpruned trees. Which is
 
 ```{r, results = 'asis'}
 # Compare training, test errors for OJ trees.
-oj_pruned_train_pred <- predict(oj_pruned, newdata = oj_train, type = 'class')
-oj_pruned_test_pred <- predict(oj_pruned, newdata = oj_test, type = 'class')
-oj_pruned_train_error <- class_error(oj_train$Purchase, oj_pruned_train_pred)
-oj_pruned_test_error <- class_error(oj_test$Purchase, oj_pruned_test_pred)
+oj_pruned_7_train_pred <- predict(oj_pruned_7, newdata = oj_train, type = 'class')
+oj_pruned_7_test_pred  <- predict(oj_pruned_7, newdata = oj_test, type = 'class')
+oj_pruned_2_train_pred <- predict(oj_pruned_2, newdata = oj_train, type = 'class')
+oj_pruned_2_test_pred  <- predict(oj_pruned_2, newdata = oj_test, type = 'class')
+
+oj_pruned_7_train_error <- class_error(oj_train$Purchase, oj_pruned_7_train_pred)
+oj_pruned_7_test_error  <- class_error(oj_test$Purchase, oj_pruned_7_test_pred)
+oj_pruned_2_train_error <- class_error(oj_train$Purchase, oj_pruned_2_train_pred)
+oj_pruned_2_test_error  <- class_error(oj_test$Purchase, oj_pruned_2_test_pred)
 
 # Prepare table.
 oj_compare_tbl <- tibble::tibble(
-  tree = c('Unpruned', 'Pruned'),
-  terminal_nodes = c(summary(oj_tree)$size, summary(oj_pruned)$size),
-  training_error = round(c(oj_train_error, oj_pruned_train_error), 4),
-  test_error = round(c(oj_test_error, oj_pruned_test_error), 4)
+  tree = c('Unpruned', 'Pruned (7 nodes)', 'Pruned (2 nodes)'),
+  terminal_nodes = c(summary(oj_tree)$size, summary(oj_pruned_7)$size, summary(oj_pruned_2)$size),
+  training_error = round(c(oj_train_error, oj_pruned_7_train_error, oj_pruned_2_train_error), 4),
+  test_error = round(c(oj_test_error, oj_pruned_7_test_error, oj_pruned_2_test_error), 4)
 )
 
 # Print comparison table.
@@ -1096,7 +1111,7 @@ oj_compare_tbl %>%
   )
 ```
 
-The pruned tree has the higher training error. Specifically, the unpruned tree has training error \(0.1588\), while the pruned tree has training error \(0.1625\). That is what we expect, because pruning removes splits and therefore fits the training data less closely.
+Both pruned trees have higher training error than the unpruned tree. Specifically, the unpruned tree has training error \(0.1588\), the 7-node pruned tree has training error \(0.1625\), and the 2-node pruned tree has training error \(0.2050\). That is what we expect, because more aggressive pruning removes splits and therefore fits the training data less closely.
 
 \newpage
 
@@ -1106,4 +1121,4 @@ The pruned tree has the higher training error. Specifically, the unpruned tree h
 Compare the test error rates between the pruned and unpruned trees. Which is higher?
 \end{problem}
 
-On the test set, the unpruned tree has error \(0.1704\), whereas the pruned tree has error \(0.1630\). So the \textit{unpruned} tree has the higher test error, and the pruned tree generalizes slightly better on this split. The improvement is small, but it is in the expected direction.
+On the test set, the unpruned tree has error \(0.1704\), the 7-node pruned tree has error \(0.1630\), and the 2-node pruned tree has error \(0.1852\). So the 7-node pruned tree gives the lowest test error, while the 2-node tree pays a noticeable predictive cost for its extra simplicity. This illustrates the tradeoff clearly: the 2-node tree is most parsimonious, but the 7-node tree balances parsimony and predictive performance better on this split.
